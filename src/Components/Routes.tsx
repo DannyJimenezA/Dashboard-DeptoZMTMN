@@ -1,63 +1,112 @@
+// import { Routes, Route } from 'react-router-dom';
+// import { AuthProvider } from '../Pages/Auth//AuthContext';
+// import ProtectedRoute from './ProtectedRoute';
+// import DashboardLayout from '../Components/DashboardLayout';
+// import DashboardHome from '../Pages//DashboardHome';
+// import { ROUTES_WITH_PERMISSIONS } from '../Components//permissions';
+
+// import Login from '../Pages/Auth/Login';
+// import Register from '../Pages/Auth/Register';
+// import ConfirmAccount from '../Pages/Auth/ConfirmAccount';
+// import ForgotPassword from '../Pages/Auth/ForgotPassword';
+// import ResetPassword from '../Pages/Auth/ResetPassword';
+// import MiPerfil from '../Pages/Auth/MiPerfil';
+
+// function AppRoutes() {
+//   return (
+//     <AuthProvider>
+//       <Routes>
+//         {/* Rutas públicas */}
+//         <Route path="/" element={<Login />} />
+//         <Route path="/register" element={<Register />} />
+//         <Route path="/confirm-account/:token" element={<ConfirmAccount />} />
+//         <Route path="/forgot-password" element={<ForgotPassword />} />
+//         <Route path="/reset-password" element={<ResetPassword />} />
+//         <Route path="/mi-perfil" element={<MiPerfil />} />
+
+//         {/* Rutas protegidas */}
+//         <Route path="/dashboard" element={<DashboardLayout />}>
+//   <Route index element={<DashboardHome />} />
+//   {ROUTES_WITH_PERMISSIONS.map(({ path, component: Component, requiredPermission }) => (
+//     <Route
+//       key={path}
+//       path={path.replace(/^\//, '')}
+//       element={
+//         <ProtectedRoute requiredPermission={requiredPermission}>
+//           <Component />
+//         </ProtectedRoute>
+//       }
+//     />
+//   ))}
+// </Route>
+
+
+//         <Route path="/unauthorized" element={<div className="text-center mt-10">🚫 No autorizado</div>} />
+//       </Routes>
+//     </AuthProvider>
+//   );
+// }
+
+// export default AppRoutes;
+
 import { Routes, Route } from 'react-router-dom';
-import Home from './Home';
-import UsuarioConcesion from '../Pages/Usuarios/UsuarioConcesion';
-import UsuarioProrroga from '../Pages/Usuarios/UsuarioProrroga';
-import UsuarioPrecario from '../Pages/Usuarios/UsuarioPrecario';
-import UsuarioPlano from '../Pages/Usuarios/UsuarioPlano';
-import UsuarioDenuncia from '../Pages/Usuarios/UsuarioDenuncia';
-import UsuarioCita from '../Pages/Usuarios/UsuarioCita';
+import { AuthProvider } from '../Pages/Auth/AuthContext';
+import { useAuth } from '../Pages/Auth/useAuth';
+import ProtectedRoute from './ProtectedRoute';
+import DashboardLayout from '../Components/DashboardLayout';
+import DashboardHome from '../Pages/DashboardHome';
+import { ROUTES_WITH_PERMISSIONS } from '../Components/permissions';
+
 import Login from '../Pages/Auth/Login';
 import Register from '../Pages/Auth/Register';
-import ForgotPassword from '../Pages/Auth/ForgotPassword';
-// import ProtectedRoute from './ProtectedRoute';
-import { AuthProvider } from '../Pages/Auth/AuthContext';
-import UsuarioExpediente from '../Pages/Usuarios/UsuarioExpediente';
-import CitasList from '../Pages/UsuariosSolicitudes/CitasList';
 import ConfirmAccount from '../Pages/Auth/ConfirmAccount';
+import ForgotPassword from '../Pages/Auth/ForgotPassword';
 import ResetPassword from '../Pages/Auth/ResetPassword';
-import ConcesionesList from '../Pages/UsuariosSolicitudes/ConcesionesList';
-import ProrrogasList from '../Pages/UsuariosSolicitudes/ProrrogaList';
-import PrecariosList from '../Pages/UsuariosSolicitudes/PrecariosList';
-import ExpedientesList from '../Pages/UsuariosSolicitudes/ExpedienteList';
-import PlanosList from '../Pages/UsuariosSolicitudes/PlanosList';
 import MiPerfil from '../Pages/Auth/MiPerfil';
 
-function AppRoutes() {
-  // const isAuthenticated = !!localStorage.getItem('token');
+const AppRoutesContent = () => {
+  const { isAuthenticated } = useAuth();
+
+  // Aquí esperas a que el estado de autenticación esté resuelto
+  if (localStorage.getItem('token') && !isAuthenticated) {
+    return <div className="text-center mt-10">Cargando autenticación...</div>;
+  }
 
   return (
-    <AuthProvider>
     <Routes>
-      {/* Rutas Publicas */}
-      <Route path="/" element={<Home />} />
-      <Route path="/usuario-denuncia" element={<UsuarioDenuncia />} />
-      <Route path="/login" element={<Login />} />
+      {/* Rutas públicas */}
+      <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/users/confirm/:token" element={<ConfirmAccount />} />
+      <Route path="/confirm-account/:token" element={<ConfirmAccount />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path='/mi-perfil' element={<MiPerfil/>}/>
+      <Route path="/mi-perfil" element={<MiPerfil />} />
 
+      {/* Rutas protegidas */}
+      <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route index element={<DashboardHome />} />
+        {ROUTES_WITH_PERMISSIONS.map(({ path, component: Component, requiredPermission }) => (
+          <Route
+            key={path}
+            path={path.replace(/^\//, '')}
+            element={
+              <ProtectedRoute requiredPermission={requiredPermission}>
+                <Component />
+              </ProtectedRoute>
+            }
+          />
+        ))}
+      </Route>
 
-      {/* Rutas Protegidas */}
-      <Route path="/usuario-expediente" element={<UsuarioExpediente/>}/>
-      <Route path="/usuario-cita" element={<UsuarioCita />}/>
-      <Route path="/usuario-concesion" element={<UsuarioConcesion />}/>
-      <Route path="/usuario-prorroga" element={<UsuarioProrroga />}/>
-      <Route path="/usuario-precario" element={<UsuarioPrecario />}/>
-      <Route path="/usuario-plano" element={<UsuarioPlano />}/>
-      {/* <Route path="/mis-solicitudes" element={<UserRequests />}/> */}
-      <Route path="/mis-citas" element={<CitasList />}/>
-      <Route path="/mis-concesiones" element={<ConcesionesList />}/>
-      <Route path="/mis-prorrogas" element={<ProrrogasList />}/>
-      <Route path="/mis-precarios" element={<PrecariosList />}/>
-      <Route path="/mis-expedientes" element={<ExpedientesList />}/>
-      <Route path="/mis-planos" element={<PlanosList />}/>
-
+      <Route path="/unauthorized" element={<div className="text-center mt-10">🚫 No autorizado</div>} />
     </Routes>
-            
-   </AuthProvider>
+  );
+};
+
+export default function AppRoutes() {
+  return (
+    <AuthProvider>
+      <AppRoutesContent />
+    </AuthProvider>
   );
 }
-
-export default AppRoutes;

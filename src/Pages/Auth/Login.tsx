@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Auth/useAuth';
 import ApiRoutes from '../../Components/ApiRoutes';
 import ApiService from '../../Components/ApiService';
 import image from '../../Img/Img01.jpg'
+import { jwtDecode } from 'jwt-decode';
+import Swal from 'sweetalert2';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -16,7 +21,7 @@ export default function Login() {
     const listener = (event: StorageEvent) => {
       if (event.key === 'passwordResetSuccess') {
         // Responder a la pestaña que envió la señal
-        localStorage.setItem('loginTabReceived', 'true');
+
         // Opcional: mostrar mensaje o alertar
         alert('Tu contraseña ha sido restablecida con éxito.');
       }
@@ -30,23 +35,53 @@ export default function Login() {
   }, []);
   
 
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
+  //     console.log('JWT received:', data.access_token);
+
+  //     // Guarda el token en el almacenamiento local
+  //     login(data.access_token);
+
+  //     // Redirige al usuario a la página principal o al dashboard
+  //     navigate('/dashboard');
+  //   } catch (err) {
+  //     setError('Error al iniciar sesión. Verifica tus credenciales.');
+  //     console.error('Login error:', err);
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
       console.log('JWT received:', data.access_token);
-
-      // Guarda el token en el almacenamiento local
-      localStorage.setItem('token', data.access_token);
-
-      // Redirige al usuario a la página principal o al dashboard
-      navigate('/');
+  
+      // Guarda el token
+      login(data.access_token);
+  
+      // Decodifica el token para obtener el correo (u otra info)
+      const decoded = jwtDecode<{ email: string }>(data.access_token);
+  
+      // ✅ SweetAlert de bienvenida
+      Swal.fire({
+        title: '¡Bienvenido!',
+        text: `Has iniciado sesión como: ${decoded.email}`,
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+      });
+  
+      // Navegar al dashboard
+      navigate('/dashboard');
     } catch (err) {
       setError('Error al iniciar sesión. Verifica tus credenciales.');
       console.error('Login error:', err);
     }
   };
+  
 
   const handleBack = () => {
     navigate('/');

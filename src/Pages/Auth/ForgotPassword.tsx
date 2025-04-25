@@ -108,7 +108,7 @@ export default function ForgotPassword() {
   const [countdown, setCountdown] = useState<number | null>(null); // 👈 nuevo estado para contador
   const navigate = useNavigate();
 
-  const origin = "admin";
+  const origin = "user";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

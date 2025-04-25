@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Auth/AuthContext'; // Asegúrate de que el contexto de autenticación está configurado
+import { useAuth } from '../Auth/useAuth'; // Asegúrate de que el contexto de autenticación está configurado
 
 const LogoutButton: React.FC = () => {
   const { logout } = useAuth(); // Usar autenticación desde el contexto
