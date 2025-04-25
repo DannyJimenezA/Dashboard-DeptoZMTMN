@@ -88,7 +88,7 @@ export default function AppointmentTable() {
 
   return (
     <div className="flex flex-col w-full h-full p-4">
-      <h2 className="text-2xl font-semibold mb-4">Citas Programadas</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Solicitudes de Citas</h2>
 
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre o cédula..."

@@ -71,13 +71,13 @@ export const ROUTES_WITH_PERMISSIONS = [
     path: 'lugar-denuncia',
     name: 'Lugar Denuncia',
     component: LugarDenunciaTable,
-    requiredPermission: 'ver_lugar-denuncia',
+    requiredPermission: 'ver_lugardenuncia',
   },
   {
     path: 'tipo-denuncia',
     name: 'Tipo Denuncia',
     component: TipoDenunciaTable,
-    requiredPermission: 'ver_tipo-denuncia',
+    requiredPermission: 'ver_tipodenuncia',
   },
   
 ];

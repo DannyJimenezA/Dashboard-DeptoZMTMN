@@ -267,7 +267,7 @@ export default function DenunciasTable() {
 
   return (
     <div className="flex flex-col w-full h-full p-4">
-      <h2 className="text-2xl font-semibold mb-4">Listado de Denuncias</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Listado de Denuncias</h2>
 
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre o cédula..."

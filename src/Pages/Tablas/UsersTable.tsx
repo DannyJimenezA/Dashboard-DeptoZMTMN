@@ -98,7 +98,7 @@ export default function UsersTable() {
 
   return (
     <div className="flex flex-col w-full h-full p-4">
-      <h2 className="text-2xl font-semibold mb-4">Lista de Usuarios</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Lista de Usuarios</h2>
 
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre, cédula o correo..."

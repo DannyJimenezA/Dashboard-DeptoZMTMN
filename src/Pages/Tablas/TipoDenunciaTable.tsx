@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// src/Pages/Tablas/TipoDenunciaTable.tsx
+import { useState, useEffect } from 'react';
 import ApiRoutes from '../../Components/ApiRoutes';
 import Swal from 'sweetalert2';
 
@@ -7,138 +8,153 @@ interface DenunciaData {
   descripcion: string;
 }
 
-const TipoDenunciaTable: React.FC = () => {
-  const [tipoDenuncias, setTipoDenuncias] = useState<DenunciaData[]>([]);
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [descripcion, setDescripcion] = useState<string>('');
+export default function TipoDenunciaTable() {
+  const [tipos, setTipos] = useState<DenunciaData[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [descripcion, setDescripcion] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTipos = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Error al cargar tipos');
+      const data = await res.json();
+      setTipos(data);
+    } catch (err) {
+      console.error(err);
+      setError('Error al cargar tipos de denuncia');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTipoDenuncias = async () => {
-      try {
-        const response = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        const data = await response.json();
-        setTipoDenuncias(data);
-      } catch (error) {
-        console.error('Error fetching tipo-denuncia:', error);
-      }
-    };
-
-    fetchTipoDenuncias();
+    fetchTipos();
   }, []);
 
-  const abrirModalAgregar = () => {
-    setIsAdding(true);
-    setDescripcion('');
-  };
-
-  const cerrarModalAgregar = () => {
-    setIsAdding(false);
-  };
-
-  const manejarAgregar = async () => {
+  const handleAgregar = async () => {
     if (!descripcion.trim()) {
       Swal.fire('Campo requerido', 'Por favor, ingresa una descripción.', 'info');
       return;
     }
 
     try {
-      const response = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia`, {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ descripcion }),
       });
 
-      if (!response.ok) throw new Error(`Error al agregar tipo-denuncia.`);
+      if (!res.ok) throw new Error();
 
-      const nuevaDenuncia = await response.json();
-      setTipoDenuncias([...tipoDenuncias, nuevaDenuncia]);
-      cerrarModalAgregar();
-      Swal.fire('¡Guardado!', 'Tipo de denuncia agregado correctamente.', 'success');
-    } catch (error) {
-      console.error('Error agregando tipo-denuncia:', error);
-      Swal.fire('Error', 'Ocurrió un error al agregar el tipo de denuncia.', 'error');
+      const nuevo = await res.json();
+      setTipos(prev => [...prev, nuevo]);
+      setIsAdding(false);
+      setDescripcion('');
+      Swal.fire('¡Guardado!', 'Tipo de denuncia agregado.', 'success');
+    } catch (err) {
+      Swal.fire('Error', 'Ocurrió un error al agregar.', 'error');
     }
   };
 
-  const manejarEliminar = async (id: number) => {
-    const confirmacion = await Swal.fire({
+  const handleEliminar = async (id: number) => {
+    const confirm = await Swal.fire({
       title: '¿Eliminar tipo de denuncia?',
       text: 'Esta acción no se puede deshacer.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#dc3545',
     });
 
-    if (!confirmacion.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
     try {
-      const response = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia/${id}`, { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      if (!response.ok) throw new Error(`Error al eliminar tipo-denuncia.`);
+      if (!res.ok) throw new Error();
 
-      setTipoDenuncias(tipoDenuncias.filter((item) => item.id !== id));
-      Swal.fire('¡Eliminado!', 'El tipo de denuncia fue eliminado correctamente.', 'success');
-    } catch (error) {
-      console.error('Error eliminando tipo-denuncia:', error);
-      Swal.fire('Error', 'Ocurrió un error al eliminar el tipo de denuncia.', 'error');
+      setTipos(prev => prev.filter(t => t.id !== id));
+      Swal.fire('Eliminado', 'Tipo eliminado correctamente.', 'success');
+    } catch (err) {
+      Swal.fire('Error', 'No se pudo eliminar el tipo.', 'error');
     }
   };
 
-  return (
-    <div className="tabla-container">
-      <h2>Gestión de Tipos de Denuncia</h2>
+  if (loading) return <p className="p-4 text-gray-500">Cargando tipos...</p>;
+  if (error) return <p className="p-4 text-red-500">{error}</p>;
 
-      <button className="add-button" onClick={abrirModalAgregar}>
+  return (
+    <div className="flex flex-col w-full h-full p-4">
+      <h2 className="text-2xl font-semibold mb-4 text-center">Tipos de Denuncia</h2>
+
+      <button
+        onClick={() => setIsAdding(true)}
+        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
         Agregar Nuevo Tipo de Denuncia
       </button>
 
-      <table className="tabla-denuncias">
-        <thead>
-          <tr>
-            <th className="col-tipo">Tipo</th>
-            <th className="col-acciones">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tipoDenuncias.map((tipo) => (
-            <tr key={tipo.id}>
-              <td>{tipo.descripcion}</td>
-              <td>
-                <button onClick={() => manejarEliminar(tipo.id)} className="button-delete">
-                  Eliminar
-                </button>
-              </td>
+      <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            <tr className="bg-gray-200">
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Tipo</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {tipos.map((tipo) => (
+              <tr key={tipo.id}>
+                <td className="px-4 py-2">{tipo.descripcion}</td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => handleEliminar(tipo.id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {isAdding && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Agregar Nuevo Tipo de Denuncia</h3>
+        <div className="modal-overlay fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h3 className="text-lg font-semibold mb-4">Agregar Tipo</h3>
             <input
               type="text"
-              className="descripcion-input"
-              placeholder="Descripción"
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Descripción"
+              className="w-full mb-4 p-2 border border-gray-300 rounded"
             />
-            <button onClick={manejarAgregar} className="guardar-button">Guardar</button>
-            <button onClick={cerrarModalAgregar} className="cancel-button">Cancelar</button>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setIsAdding(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                Cancelar
+              </button>
+              <button onClick={handleAgregar} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                Guardar
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default TipoDenunciaTable;
+}

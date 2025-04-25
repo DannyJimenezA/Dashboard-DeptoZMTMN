@@ -262,7 +262,7 @@ export default function ProrrogasTable() {
 
   return (
     <div className="flex flex-col w-full h-full p-4">
-      <h2 className="text-2xl font-semibold mb-4">Prórrogas de Concesiones</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Solicitudes de Prórrogas de Concesiones</h2>
 
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre o cédula..."

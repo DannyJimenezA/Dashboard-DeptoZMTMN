@@ -1,163 +1,160 @@
-// // src/components/LugarDenunciaTable.tsx
-// import React, { useState, useEffect } from 'react';
-// import ApiRoutes from '../../Components/ApiRoutes';
-// import Swal from 'sweetalert2';
+// src/Pages/Tablas/LugarDenunciaTable.tsx
+import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
+import ApiRoutes from '../../Components/ApiRoutes';
 
+interface DenunciaData {
+  id: number;
+  descripcion: string;
+}
 
-// interface DenunciaData {
-//   id: number;
-//   descripcion: string;
-// }
+export default function LugarDenunciaTable() {
+  const [lugares, setLugares] = useState<DenunciaData[]>([]);
+  const [descripcion, setDescripcion] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-// const LugarDenunciaTable: React.FC = () => {
-//   const [lugarDenuncias, setLugarDenuncias] = useState<DenunciaData[]>([]);
-//   const [isAdding, setIsAdding] = useState<boolean>(false);
-//   const [descripcion, setDescripcion] = useState<string>('');
+  const fetchLugares = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Error al cargar lugares');
+      const data = await res.json();
+      setLugares(data);
+    } catch (err) {
+      console.error(err);
+      setError('Error al cargar lugares');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   useEffect(() => {
-//     const cargarDatos = async () => {
-//       try {
-//         const lugares = await fetchDenunciaData('lugar-denuncia');
-//         setLugarDenuncias(lugares);
-//       } catch (error) {
-//         console.error('Error al cargar datos:', error);
-//       }
-//     };
-//     cargarDatos();
-//   }, []);
+  useEffect(() => {
+    fetchLugares();
+  }, []);
 
-//   const fetchDenunciaData = async (tipo: 'lugar-denuncia'): Promise<DenunciaData[]> => {
-//     const urlBase = `${ApiRoutes.urlBase}/${tipo}`;
-//     try {
-//       const response = await fetch(urlBase, {
-//         method: 'GET',
-//         headers: { 'Content-Type': 'application/json' },
-//       });
-//       if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
-//       return await response.json();
-//     } catch (error) {
-//       console.error(`Error fetching ${tipo}:`, error);
-//       throw error;
-//     }
-//   };
+  const handleAgregar = async () => {
+    if (!descripcion.trim()) {
+      Swal.fire('Campo requerido', 'Por favor, ingresa una descripción.', 'info');
+      return;
+    }
 
-//   const abrirModalAgregar = () => {
-//     setIsAdding(true);
-//     setDescripcion('');
-//   };
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ descripcion }),
+      });
 
-//   const cerrarModalAgregar = () => {
-//     setIsAdding(false);
-//   };
+      if (!res.ok) throw new Error('Error al agregar');
 
-//   const manejarAgregar = async () => {
-//     if (!descripcion.trim()) {
-//       Swal.fire('Campo requerido', 'Por favor, ingresa una descripción.', 'info');
-//       return;
-//     }
+      const nuevo = await res.json();
+      setLugares(prev => [...prev, nuevo]);
+      setIsAdding(false);
+      setDescripcion('');
+      Swal.fire('¡Agregado!', 'Lugar de denuncia agregado.', 'success');
+    } catch (err) {
+      Swal.fire('Error', 'Ocurrió un error al agregar.', 'error');
+    }
+  };
 
-//     try {
-//       const response = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ descripcion }),
-//       });
+  const handleEliminar = async (id: number) => {
+    const confirm = await Swal.fire({
+      title: '¿Eliminar lugar?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    });
 
-//       if (!response.ok) throw new Error(`Error al agregar lugar de denuncia.`);
+    if (!confirm.isConfirmed) return;
 
-//       const nuevaDenuncia = await response.json();
-//       setLugarDenuncias([...lugarDenuncias, nuevaDenuncia]);
-//       cerrarModalAgregar();
-//       Swal.fire('¡Guardado!', 'Lugar de denuncia agregado correctamente.', 'success');
-//     } catch (error) {
-//       console.error(`Error agregando lugar de denuncia:`, error);
-//       Swal.fire('Error', 'Ocurrió un error al agregar el lugar de denuncia.', 'error');
-//     }
-//   };
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-//   const manejarEliminar = async (id: number) => {
-//     const confirmacion = await Swal.fire({
-//       title: '¿Eliminar registro?',
-//       text: 'Esta acción no se puede deshacer.',
-//       icon: 'warning',
-//       showCancelButton: true,
-//       confirmButtonText: 'Sí, eliminar',
-//       cancelButtonText: 'Cancelar',
-//       confirmButtonColor: '#28a745',
-//       cancelButtonColor: '#dc3545',
-//     });
+      if (!res.ok) throw new Error();
 
-//     if (!confirmacion.isConfirmed) return;
+      setLugares(prev => prev.filter(l => l.id !== id));
+      Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
+    } catch (err) {
+      Swal.fire('Error', 'No se pudo eliminar el lugar.', 'error');
+    }
+  };
 
-//     try {
-//       const response = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia/${id}`, { method: 'DELETE' });
+  if (loading) return <p className="p-4 text-gray-500">Cargando lugares...</p>;
+  if (error) return <p className="p-4 text-red-500">{error}</p>;
 
-//       if (!response.ok) throw new Error(`Error al eliminar lugar de denuncia.`);
+  return (
+    <div className="flex flex-col w-full h-full p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Lugares de Denuncia</h2>
 
-//       setLugarDenuncias(lugarDenuncias.filter((item) => item.id !== id));
-//       Swal.fire('¡Eliminado!', 'El lugar de denuncia fue eliminado correctamente.', 'success');
-//     } catch (error) {
-//       console.error(`Error eliminando lugar de denuncia:`, error);
-//       Swal.fire('Error', 'Ocurrió un error al eliminar el lugar de denuncia.', 'error');
-//     }
-//   };
+      <button
+        onClick={() => setIsAdding(true)}
+        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Agregar Nuevo Lugar de Denuncia
+      </button>
 
-//   return (
-//     <div className="tabla-container">
-//       <h2>Lugares de Denuncia</h2>
+      <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            <tr className="bg-gray-200">
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Lugar</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {lugares.map((lugar) => (
+              <tr key={lugar.id}>
+                <td className="px-4 py-2">{lugar.descripcion}</td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => handleEliminar(lugar.id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-//       <button className="add-button" onClick={abrirModalAgregar}>
-//         Agregar Nuevo Lugar de Denuncia
-//       </button>
-
-//       <table className="tabla-denuncias">
-//         <thead>
-//           <tr>
-//             <th className="col-lugar">Lugar</th>
-//             <th className="col-acciones">Acciones</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {lugarDenuncias.map((lugar) => (
-//             <tr key={lugar.id}>
-//               <td>{lugar.descripcion}</td>
-//               <td>
-//                 <button onClick={() => manejarEliminar(lugar.id)} className="button-delete">
-//                   Eliminar
-//                 </button>
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-
-//       {isAdding && (
-//         <div className="modal-overlay">
-//           <div className="modal-content">
-//             <h3>Agregar Nuevo Lugar de Denuncia</h3>
-//             <input
-//               type="text"
-//               className="descripcion-input"
-//               placeholder="Descripción"
-//               value={descripcion}
-//               onChange={(e) => setDescripcion(e.target.value)}
-//             />
-//             <button onClick={manejarAgregar} className="guardar-button">Guardar</button>
-//             <button onClick={cerrarModalAgregar} className="cancel-button">Cancelar</button>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default LugarDenunciaTable;
-
-// LugarDenunciaTable.tsx
-import React from 'react';
-
-const LugarDenunciaTable: React.FC = () => {
-  return <div>Contenido de Lugar de Denuncia</div>;
-};
-
-export default LugarDenunciaTable;
+      {isAdding && (
+        <div className="modal-overlay fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h3 className="text-lg font-semibold mb-4">Agregar Lugar</h3>
+            <input
+              type="text"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Descripción"
+              className="w-full mb-4 p-2 border border-gray-300 rounded"
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setIsAdding(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                Cancelar
+              </button>
+              <button onClick={handleAgregar} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
