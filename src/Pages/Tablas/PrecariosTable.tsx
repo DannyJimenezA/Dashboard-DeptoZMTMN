@@ -167,9 +167,12 @@ export default function PrecariosTable() {
                 <td className="px-4 py-2">{precario.Date}</td>
                 <td className="px-4 py-2">{precario.status}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button onClick={() => console.log(precario)} className="button-view">
-                    <FaEye />
-                  </button>
+                <button
+  className="button-view"
+  onClick={() => navigate(`/dashboard/precario/${precario.id}`)}
+>
+  <FaEye />
+</button>
                   <button onClick={() => eliminarPrecario(precario.id)} className="button-delete">
                     <FaTrash />
                   </button>

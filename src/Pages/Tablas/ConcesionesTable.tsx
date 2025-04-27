@@ -139,9 +139,12 @@ export default function ConcesionesTable() {
                 <td className="px-4 py-2">{c.Date}</td>
                 <td className="px-4 py-2">{c.status || 'Pendiente'}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button onClick={() => Swal.fire({ title: 'Detalle Concesión', text: JSON.stringify(c, null, 2), width: 600 })} className="button-view">
-                    <FaEye />
-                  </button>
+                <button
+  className="button-view"
+  onClick={() => navigate(`/dashboard/concesiones/${c.id}`)}
+>
+  <FaEye />
+</button>
                   <button onClick={() => eliminarConcesion(c.id)} className="button-delete">
                     <FaTrash />
                   </button>

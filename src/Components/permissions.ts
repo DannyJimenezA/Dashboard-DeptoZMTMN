@@ -11,13 +11,15 @@ import RolesTable from '../Pages/Tablas/RolesTable.tsx';
 import UsoPrecarioTable from '../Pages/Tablas/PrecariosTable.tsx';
 import LugarDenunciaTable from '../Pages/Tablas/LugarDenunciaTable';
 import TipoDenunciaTable from '../Pages/Tablas/TipoDenunciaTable';
+import CrearFecha from '../Pages/Tablas/CrearFecha.tsx';
+import DiasCitasPage from '../Pages/Tablas/DiasCitas.tsx';
 
 export const ROUTES_WITH_PERMISSIONS = [
   {
     path: 'citas',
     name: 'Citas',
     component: AppointmentTable,
-    requiredPermission: 'ver_citas',
+    requiredPermission: 'ver_appointments',
   },
   {
     path: 'concesiones',
@@ -78,6 +80,18 @@ export const ROUTES_WITH_PERMISSIONS = [
     name: 'Tipo Denuncia',
     component: TipoDenunciaTable,
     requiredPermission: 'ver_tipodenuncia',
+  },
+  {
+    path: 'dias-citas',
+    name: 'Dias Citas',
+    component: DiasCitasPage,
+    requiredPermission: 'ver_available-dates',
+  },
+  {
+    path: 'horas-citas',
+    name: 'Horas Citas',
+    component: CrearFecha,
+    requiredPermission: 'ver_horas-cita',
   },
   
 ];

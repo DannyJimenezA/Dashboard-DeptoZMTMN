@@ -1,0 +1,179 @@
+// src/Pages/DetalleProrrogaPage.tsx
+
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Prorroga } from '../../Types/Types';
+import ApiService from '../../Components/ApiService';
+import ApiRoutes from '../../Components/ApiRoutes';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { FaFilePdf } from 'react-icons/fa';
+
+const MySwal = withReactContent(Swal);
+
+export default function DetalleProrrogaPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [prorroga, setProrroga] = useState<Prorroga | null>(null);
+  const [mensaje, setMensaje] = useState('');
+  const [archivoVistaPrevia, setArchivoVistaPrevia] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProrroga = async () => {
+      try {
+        const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
+        setProrroga(data);
+      } catch {
+        Swal.fire('Error', 'Error al cargar la prórroga', 'error');
+      }
+    };
+
+    fetchProrroga();
+  }, [id]);
+
+  const cambiarEstado = async (nuevoEstado: 'Aprobada' | 'Denegada') => {
+    if (!mensaje.trim()) {
+      Swal.fire('Escribe un mensaje antes de continuar.');
+      return;
+    }
+
+    const result = await MySwal.fire({
+      title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+      text: `Se notificará al usuario con tu mensaje.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (!result.isConfirmed || !prorroga) return;
+
+    try {
+      await ApiService.put(`${ApiRoutes.prorrogas}/${prorroga.id}/status`, {
+        status: nuevoEstado,
+      });
+
+      await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
+        email: prorroga.user?.email,
+        message: mensaje,
+      });
+
+      Swal.fire('Éxito', `Prórroga ${nuevoEstado.toLowerCase()} correctamente.`, 'success');
+      navigate('/dashboard/prorrogas');
+    } catch (err) {
+      console.error(err);
+      Swal.fire('Error', 'Hubo un problema al actualizar la prórroga.', 'error');
+    }
+  };
+
+  const manejarVerArchivo = (archivo: string) => {
+    const archivoFinal = archivo.replace(/[\[\]"]/g, '');
+    if (archivoFinal) {
+      const fileUrl = `${ApiRoutes.urlBase}/${archivoFinal}`;
+      setArchivoVistaPrevia(fileUrl);
+    }
+  };
+
+  const cerrarVistaPrevia = () => setArchivoVistaPrevia(null);
+
+  if (!prorroga) return <p className="p-4">Cargando prórroga...</p>;
+
+  const isEditable = prorroga.status === 'Pendiente';
+
+  return (
+    <div className="max-w-2xl mx-auto mt-8 bg-white shadow-lg rounded p-6">
+      <h2 className="text-2xl font-bold mb-4 text-center">Detalles de la Prórroga</h2>
+
+      <div className="space-y-2">
+        <p><strong>ID:</strong> {prorroga.id}</p>
+        <p><strong>Nombre:</strong> {prorroga.user?.nombre || 'No disponible'}</p>
+        <p><strong>Apellidos:</strong> {prorroga.user?.apellido1 || 'No disponible'} {prorroga.user?.apellido2 || ''}</p>
+        <p><strong>Detalle:</strong> {prorroga.Detalle}</p>
+        <p><strong>Estado:</strong> {prorroga.status || 'Pendiente'}</p>
+
+        <div>
+          <p><strong>Archivo Adjunto:</strong></p>
+          {prorroga.ArchivoAdjunto ? (
+            (() => {
+              try {
+                const archivos = JSON.parse(prorroga.ArchivoAdjunto);
+                return archivos.map((archivo: string, index: number) => (
+                  <FaFilePdf
+                    key={index}
+                    style={{ cursor: 'pointer', marginRight: '5px' }}
+                    onClick={() => manejarVerArchivo(archivo)}
+                    title={`Ver archivo ${index + 1}`}
+                    size={20}
+                  />
+                ));
+              } catch (error) {
+                console.error('Error al parsear ArchivoAdjunto:', error);
+                return <p>Error al cargar archivos</p>;
+              }
+            })()
+          ) : (
+            'No disponible'
+          )}
+        </div>
+      </div>
+
+      {archivoVistaPrevia && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center"
+          onClick={cerrarVistaPrevia}
+        >
+          <div
+            className="relative w-full max-w-4xl h-[80vh] bg-white rounded-lg shadow-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <iframe
+              src={archivoVistaPrevia}
+              className="w-full h-full"
+              style={{ border: 'none' }}
+              title="Vista previa del archivo PDF"
+            />
+          </div>
+        </div>
+      )}
+
+      {isEditable && (
+        <>
+          <div className="mt-6">
+            <label className="block font-medium mb-1">Mensaje para el usuario:</label>
+            <textarea
+              value={mensaje}
+              onChange={(e) => setMensaje(e.target.value)}
+              rows={4}
+              className="w-full border border-gray-300 rounded p-2 resize-none"
+              placeholder="Escribe aquí el mensaje que se enviará al usuario..."
+            />
+          </div>
+
+          <div className="mt-4 flex gap-4">
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => cambiarEstado('Aprobada')}
+            >
+              Aprobar
+            </button>
+            <button
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              onClick={() => cambiarEstado('Denegada')}
+            >
+              Denegar
+            </button>
+          </div>
+        </>
+      )}
+
+      <div className="mt-4 text-right">
+        <button
+          onClick={() => navigate('/dashboard/prorrogas')}
+          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+        >
+          Volver
+        </button>
+      </div>
+    </div>
+  );
+}

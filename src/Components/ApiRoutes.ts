@@ -36,6 +36,9 @@ const ApiRoutes = {
   misexpedientes: `${BASE_URL}/expedientes/my-solicitudes`,
   eliminarexpediente: `${BASE_URL}/expedientes/my-solicitudes`,
   urlBase: `${BASE_URL}`,
+  permisos: `${BASE_URL}/permissions`,
+  fechaCitas: `${BASE_URL}/available-dates`,
+  horasCitas:  `${BASE_URL}/horas-cita`,
   //miPerfil: `${BASE_URL}/users/me` // ruta para el cambio de informacion de la cuenta
 };
 

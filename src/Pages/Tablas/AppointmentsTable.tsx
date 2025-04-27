@@ -25,12 +25,36 @@ export default function AppointmentTable() {
   const { isAuthenticated, userPermissions } = useAuth();
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   if (!isAuthenticated || !userPermissions?.includes('ver_appointments')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   const fetchData = async () => {
+  //     try {
+  //       const data = await ApiService.get<Cita[]>(ApiRoutes.citas.crearcita);
+  //       setCitas(data);
+  //     } catch {
+  //       setError('Error al cargar las citas');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, [isAuthenticated, userPermissions, navigate]);
+
   useEffect(() => {
-    if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
+    const permisosCargados = isAuthenticated && userPermissions.length > 0;
+  
+    if (!permisosCargados) return;
+  
+    if (!userPermissions.includes('ver_appointments')) {
       navigate('/unauthorized');
       return;
     }
-
+  
     const fetchData = async () => {
       try {
         const data = await ApiService.get<Cita[]>(ApiRoutes.citas.crearcita);
@@ -41,10 +65,10 @@ export default function AppointmentTable() {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [isAuthenticated, userPermissions, navigate]);
-
+  
   const eliminarCita = async (id: number) => {
     const confirmar = await Swal.fire({
       title: '¿Eliminar cita?',
@@ -67,6 +91,10 @@ export default function AppointmentTable() {
       Swal.fire('Error', 'No se pudo eliminar la cita.', 'error');
     }
   };
+
+  if (!isAuthenticated || userPermissions.length === 0) {
+    return <p className="text-center text-gray-500 p-4">Verificando permisos...</p>;
+  }
 
   if (loading) return <p className="text-gray-500 p-4">Cargando citas...</p>;
   if (error) return <p className="text-red-500 p-4">{error}</p>;
@@ -140,9 +168,13 @@ export default function AppointmentTable() {
                 <td className="px-4 py-2">{`${cita.availableDate?.date ?? '-'} ${cita.horaCita?.hora ?? ''}`}</td>
                 <td className="px-4 py-2">{cita.status}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button className="button-view" onClick={() => Swal.fire(JSON.stringify(cita, null, 2))}>
+                  {/* <button className="button-view" onClick={() => Swal.fire(JSON.stringify(cita, null, 2))}>
                     <FaEye />
-                  </button>
+                  </button> */}
+                  <button className="button-view" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
+  <FaEye />
+</button>
+
                   <button className="button-delete" onClick={() => eliminarCita(cita.id)}>
                     <FaTrash />
                   </button>

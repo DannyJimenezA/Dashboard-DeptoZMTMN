@@ -153,9 +153,12 @@ export default function PlanosTable() {
                 <td className="px-4 py-2">{plano.Date}</td>
                 <td className="px-4 py-2">{plano.status || 'Pendiente'}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button onClick={() => console.log(plano)} className="button-view">
-                    <FaEye />
-                  </button>
+                <button
+  className="button-view"
+  onClick={() => navigate(`/dashboard/plano/${plano.id}`)}
+>
+  <FaEye />
+</button>
                   <button onClick={() => eliminarRevisionPlano(plano.id)} className="button-delete">
                     <FaTrash />
                   </button>

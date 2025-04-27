@@ -321,18 +321,12 @@ export default function DenunciasTable() {
                 <td className="px-4 py-2">{d.lugarDenuncia?.descripcion || '—'}</td>
                 <td className="px-4 py-2">{d.status}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button
-                    className="button-view"
-                    onClick={() =>
-                      Swal.fire({
-                        title: 'Detalle Denuncia',
-                        html: `<pre class="text-left">${JSON.stringify(d, null, 2)}</pre>`,
-                        width: 600,
-                      })
-                    }
-                  >
-                    <FaEye />
-                  </button>
+                <button
+  className="button-view"
+  onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}
+>
+  <FaEye />
+</button>
                   <button className="button-delete" onClick={() => eliminarDenuncia(d.id)}>
                     <FaTrash />
                   </button>

@@ -346,9 +346,12 @@ export default function ExpedientesTable() {
                 <td className="px-4 py-2">{exp.Date}</td>
                 <td className="px-4 py-2">{exp.status || 'Pendiente'}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button className="button-view" onClick={() => console.log(exp)}>
-                    <FaEye />
-                  </button>
+                <button
+  className="button-view"
+  onClick={() => navigate(`/dashboard/expedientes/${exp.idExpediente}`)}
+>
+  <FaEye />
+</button>
                   <button className="button-delete" onClick={() => handleDelete(exp.idExpediente)}>
                     <FaTrash />
                   </button>

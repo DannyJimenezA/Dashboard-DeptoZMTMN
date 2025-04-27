@@ -172,7 +172,7 @@ export default function RolesTable() {
                 <td className="py-2 px-4 border-b">{rol.name}</td>
                 <td className="py-2 px-4 border-b">{rol.description || 'Sin descripción'}</td>
                 <td className="py-2 px-4 border-b space-x-2">
-                  <button className="button-edit" onClick={() => console.log('Asignar permisos', rol)}>
+                  <button className="button-edit" onClick={() => navigate(`/dashboard/asignar-permisos/${rol.id}`)}>
                     🛠 Asignar Permisos
                   </button>
                   <button className="button-delete" onClick={() => manejarEliminarRol(rol.id)}>

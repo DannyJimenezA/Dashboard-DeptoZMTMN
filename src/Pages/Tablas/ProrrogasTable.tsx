@@ -312,18 +312,12 @@ export default function ProrrogasTable() {
                 <td className="px-4 py-2">{p.Date}</td>
                 <td className="px-4 py-2">{p.status}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button
-                    className="button-view"
-                    onClick={() =>
-                      Swal.fire({
-                        title: 'Detalle Prórroga',
-                        html: `<pre class="text-left">${JSON.stringify(p, null, 2)}</pre>`,
-                        width: 600,
-                      })
-                    }
-                  >
-                    <FaEye />
-                  </button>
+                <button
+  className="button-view"
+  onClick={() => navigate(`/dashboard/prorroga/${p.id}`)}
+>
+  <FaEye />
+</button>
                   <button className="button-delete" onClick={() => eliminarProrroga(p.id)}>
                     <FaTrash />
                   </button>

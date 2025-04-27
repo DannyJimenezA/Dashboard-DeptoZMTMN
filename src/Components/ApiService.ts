@@ -1,16 +1,17 @@
-const token = localStorage.getItem('token');
-const headers = {
-  'Content-Type': 'application/json',
-  Authorization: `Bearer ${token}`,
-};
-
 const ApiService = {
   // GET request
   async get<T>(url: string): Promise<T> {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
     const response = await fetch(url, {
       method: 'GET',
       headers,
     });
+
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
     return await response.json();
   },
@@ -19,7 +20,7 @@ const ApiService = {
     const token = localStorage.getItem('token');
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`, // Asegúrate de incluir el token en el formato correcto
+      Authorization: `Bearer ${token}`,
     };
 
     const response = await fetch(url, {
@@ -32,25 +33,66 @@ const ApiService = {
     return await response.json();
   },
 
-  // PUT request
   async put<T>(url: string, data: any): Promise<T> {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
     const response = await fetch(url, {
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
     });
+
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
     return await response.json();
   },
 
-  // DELETE request
   async delete(url: string): Promise<void> {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+
     const response = await fetch(url, {
       method: 'DELETE',
       headers,
     });
+
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
   },
 };
 
+// src/Components/ApiService.ts
+
+export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
+    return;
+  }
+
+  const headers = {
+    ...options.headers,
+    Authorization: `Bearer ${token}`,
+  };
+
+  const response = await fetch(url, { ...options, headers });
+
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+    return;
+  }
+
+  return response;
+};
+
+
+
 export default ApiService;
+
+
