@@ -394,7 +394,7 @@ export default function PrecariosTable() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre Solicitante</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula Solicitante</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Estado</th>

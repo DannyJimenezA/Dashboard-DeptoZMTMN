@@ -401,7 +401,8 @@ export default function Sidebar() {
     `block px-4 py-2 rounded hover:bg-gray-700 ${isActive ? 'bg-gray-800' : ''}`;
 
   return (
-    <aside className="w-64 h-screen bg-gray-900 text-white flex flex-col justify-between">
+    // <aside className="w-64 h-screen bg-gray-900 text-white flex flex-col justify-between">
+    <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col overflow-y-auto">
       <div>
         {/* Usuario */}
         <div className="p-4 text-sm font-semibold border-b border-gray-700 break-words">
@@ -469,7 +470,9 @@ export default function Sidebar() {
                   <span>Gestión</span>
                   <ChevronUpIcon className={`${open ? 'rotate-180 transform' : ''} h-4 w-4`} />
                 </Disclosure.Button>
-                <Disclosure.Panel className="pl-4 mt-1 space-y-1">
+                {/* <Disclosure.Panel className="pl-4 mt-1 space-y-1"> */}
+                <Disclosure.Panel className="pl-4 mt-1 space-y-1 transition-all duration-300 ease-in-out">
+
                   <NavLink to="/dashboard/roles" className={({ isActive }) => linkClass(isActive)}>
                     Roles
                   </NavLink>
