@@ -33,7 +33,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredPermission }) => {
   const { isAuthenticated, userPermissions } = useAuth();
 
-  console.log('🔐 Permissions en ProtectedRoute:', userPermissions)
+  // console.log('🔐 Permissions en ProtectedRoute:', userPermissions)
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;

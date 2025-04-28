@@ -27,15 +27,6 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   return (
     <div className="flex flex-wrap gap-2 items-end mb-4 w-full">
       
-      {/* Input de búsqueda */}
-      <input
-        type="text"
-        placeholder={searchPlaceholder}
-        value={searchText}
-        onChange={(e) => onSearchTextChange(e.target.value)}
-        className="flex-grow py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[180px]"
-      />
-
       {/* Selector de campo por el cual buscar */}
       <select
         value={selectedSearchBy}
@@ -48,6 +39,15 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           </option>
         ))}
       </select>
+      {/* Input de búsqueda */}
+      <input
+        type="text"
+        placeholder={searchPlaceholder}
+        value={searchText}
+        onChange={(e) => onSearchTextChange(e.target.value)}
+        className="flex-grow py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[180px]"
+      />
+
 
       {/* Filtros extra (estado, fecha, limpiar) */}
       {extraFilters && (

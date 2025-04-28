@@ -391,7 +391,7 @@ export default function PrecariosTable() {
       />
 
       <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>

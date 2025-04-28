@@ -59,10 +59,21 @@ export default function DetalleDenunciaPage() {
     }
   };
 
+  // const manejarVerArchivo = (archivo: string) => {
+  //   const fileUrl = `${ApiRoutes.urlBase}/${archivo.replace(/\\/g, '/')}`;
+  //   setArchivoVistaPrevia(fileUrl);
+  // };
   const manejarVerArchivo = (archivo: string) => {
-    const fileUrl = `${ApiRoutes.urlBase}/${archivo.replace(/\\/g, '/')}`;
+    let fileUrl = archivo;
+  
+    // Si NO comienza con http o https, entonces sí agregamos el servidor local
+    if (!/^https?:\/\//i.test(archivo)) {
+      fileUrl = `${ApiRoutes.urlBase}/${archivo.replace(/\\/g, '/')}`;
+    }
+  
     setArchivoVistaPrevia(fileUrl);
   };
+  
 
   const cerrarVistaPrevia = () => setArchivoVistaPrevia(null);
 
@@ -105,11 +116,22 @@ export default function DetalleDenunciaPage() {
           {archivos.length > 0 ? (
             archivos.map((archivo: string, index: number) => (
               <span key={index} onClick={() => manejarVerArchivo(archivo)} style={{ cursor: 'pointer' }}>
-                {archivo.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+                {/* {archivo.match(/\.(jpeg|jpg|png|gif)$/i) ? (
                   <FaImage size={20} title={`Ver imagen ${index + 1}`} />
                 ) : (
                   <FaFilePdf size={20} title={`Ver archivo ${index + 1}`} />
-                )}
+                )} */}
+                {archivo.match(/\.(jpeg|jpg|png|gif)$/i) ? (
+  <img src={archivo} alt="Vista previa" className="w-full h-full object-contain" />
+) : (
+  <iframe
+    src={archivo}
+    className="w-full h-full"
+    title="Vista previa del archivo"
+    style={{ border: 'none' }}
+  />
+)}
+
               </span>
             ))
           ) : (
