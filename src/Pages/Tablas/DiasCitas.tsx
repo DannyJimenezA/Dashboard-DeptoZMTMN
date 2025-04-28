@@ -1,10 +1,7 @@
-// // src/Pages/Gestion/DiasCitasPage.tsx
-
 // import { useEffect, useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import ApiRoutes from '../../Components/ApiRoutes';
 // import Swal from 'sweetalert2';
-// import ModalAgregarHoras from '../../Pages/Tablas/AgregarHoras';
 
 // interface FechaCita {
 //   id: number;
@@ -15,8 +12,6 @@
 //   const [fechas, setFechas] = useState<FechaCita[]>([]);
 //   const [mostrarProximas, setMostrarProximas] = useState<boolean>(true);
 //   const [paginaActual, setPaginaActual] = useState<number>(1);
-//   const [modalAbierto, setModalAbierto] = useState<boolean>(false);
-//   const [fechaSeleccionada, setFechaSeleccionada] = useState<number | null>(null);
 //   const navigate = useNavigate();
 
 //   const fechasPorPagina = 10;
@@ -145,15 +140,19 @@
 //                 <td className="p-2 border-b">{fecha.id}</td>
 //                 <td className="p-2 border-b">{fecha.date}</td>
 //                 <td className="p-2 border-b space-x-2">
-//                   <button
-//                     onClick={() => {
-//                       setFechaSeleccionada(fecha.id);
-//                       setModalAbierto(true);
-//                     }}
+//                   {/* <button
+//                     onClick={() => navigate(`/dashboard/horas-citas/${fecha.id}`)}
 //                     className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
 //                   >
 //                     Asignar Horas
-//                   </button>
+//                   </button> */}
+//                   <button
+//   onClick={() => navigate(`/dashboard/horas-citas/${fecha.id}`)}
+//   className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+// >
+//   Asignar Horas
+// </button>
+
 //                   <button
 //                     onClick={() => eliminarFecha(fecha.id)}
 //                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
@@ -195,30 +194,15 @@
 //           </button>
 //         </div>
 //       )}
-
-//       {/* Modal para asignar horas */}
-//       {modalAbierto && fechaSeleccionada !== null && (
-//         <ModalAgregarHoras
-//           isOpen={modalAbierto}
-//           onClose={() => setModalAbierto(false)}
-//           onHorasAgregadas={() => {
-//             setModalAbierto(false);
-//             fetchFechas();
-//           }}
-//           fechasDisponibles={fechas}
-//           fechaInicialSeleccionada={fechaSeleccionada}
-//         />
-//       )}
 //     </div>
 //   );
 // }
-
-// src/Pages/Gestion/DiasCitasPage.tsx
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiRoutes from '../../Components/ApiRoutes';
 import Swal from 'sweetalert2';
+import { io, Socket } from 'socket.io-client'; // 🔥 Importar socket.io
 
 interface FechaCita {
   id: number;
@@ -229,6 +213,7 @@ export default function DiasCitasPage() {
   const [fechas, setFechas] = useState<FechaCita[]>([]);
   const [mostrarProximas, setMostrarProximas] = useState<boolean>(true);
   const [paginaActual, setPaginaActual] = useState<number>(1);
+  const [, setSocket] = useState<Socket | null>(null); // ✅ Socket state
   const navigate = useNavigate();
 
   const fechasPorPagina = 10;
@@ -261,6 +246,23 @@ export default function DiasCitasPage() {
 
   useEffect(() => {
     fetchFechas();
+
+    const newSocket = io(ApiRoutes.urlBase, {
+      transports: ['websocket'],
+      auth: { token: localStorage.getItem('token') },
+    });
+
+    setSocket(newSocket);
+
+    // 📢 Escuchar el evento cuando llega una nueva fecha
+    newSocket.on('nueva-fecha-cita', (nuevaFecha: FechaCita) => {
+      console.log('📅 Nueva fecha recibida:', nuevaFecha);
+      setFechas((prevFechas) => [nuevaFecha, ...prevFechas]);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
   const fechasFiltradas = mostrarProximas
@@ -342,7 +344,8 @@ export default function DiasCitasPage() {
         </select>
       </div>
 
-      <table className="w-full border border-gray-300">
+<div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg mt-4"> 
+      <table className="min-w-full divide-y divide-gray-200">
         <thead>
           <tr className="bg-gray-100">
             <th className="p-2 border-b">ID</th>
@@ -357,19 +360,12 @@ export default function DiasCitasPage() {
                 <td className="p-2 border-b">{fecha.id}</td>
                 <td className="p-2 border-b">{fecha.date}</td>
                 <td className="p-2 border-b space-x-2">
-                  {/* <button
+                  <button
                     onClick={() => navigate(`/dashboard/horas-citas/${fecha.id}`)}
                     className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                   >
                     Asignar Horas
-                  </button> */}
-                  <button
-  onClick={() => navigate(`/dashboard/horas-citas/${fecha.id}`)}
-  className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
->
-  Asignar Horas
-</button>
-
+                  </button>
                   <button
                     onClick={() => eliminarFecha(fecha.id)}
                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
@@ -388,6 +384,7 @@ export default function DiasCitasPage() {
           )}
         </tbody>
       </table>
+      </div>
 
       {/* Paginación */}
       {totalPaginas > 1 && (

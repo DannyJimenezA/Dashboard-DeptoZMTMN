@@ -9,7 +9,7 @@ interface FiltroFechaProps {
 
 const FiltroFecha: React.FC<FiltroFechaProps> = ({ fechaFiltro, onChangeFecha }) => {
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-2">
+    <div className="flex flex-col sm:flex-row items-center gap-2 relative z-50">
       <label className="text-sm text-gray-700 whitespace-nowrap">Filtrar por fecha:</label>
       
       <DatePicker

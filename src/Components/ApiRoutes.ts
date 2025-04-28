@@ -25,10 +25,7 @@ const ApiRoutes = {
   misplanos: `${BASE_URL}/revision-plano/my-planos`,
   eliminarplano: `${BASE_URL}/revision-plano/my-planos`,
   denuncias: `${BASE_URL}/denuncia`,
-  citas:{
-    crearcita: `${BASE_URL}/appointments`,
-    miscitas: `${BASE_URL}/appointments/my-appointments`,
-  },
+  citas: `${BASE_URL}/appointments`,
   fechaDisponible: `${BASE_URL}/available-dates`,
   horasDisponibles:  `${BASE_URL}/appointments/citas-disponibles`,
   roles: `${BASE_URL}/roles`,

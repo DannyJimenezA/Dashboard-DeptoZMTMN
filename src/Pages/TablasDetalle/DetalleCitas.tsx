@@ -21,7 +21,7 @@ export default function DetalleCitaPage() {
     useEffect(() => {
       const fetchCita = async () => {
         try {
-          const data = await ApiService.get<Cita>(`${ApiRoutes.citas.crearcita}/${id}`);
+          const data = await ApiService.get<Cita>(`${ApiRoutes.citas}/${id}`);
           setCita(data);
         } catch {
           Swal.fire('Error', 'Error al cargar la cita', 'error');
@@ -49,7 +49,7 @@ export default function DetalleCitaPage() {
       if (!result.isConfirmed || !cita) return;
   
       try {
-        await ApiService.put(`${ApiRoutes.citas.crearcita}/${cita.id}/status`, {
+        await ApiService.put(`${ApiRoutes.citas}/${cita.id}/status`, {
           status: nuevoEstado,
         });
   
