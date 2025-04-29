@@ -394,10 +394,11 @@ export default function ExpedientesTable() {
                 <td className="px-4 py-2">{exp.Date}</td>
                 <td className="px-4 py-2">{exp.status || 'Pendiente'}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button className="button-view" onClick={() => navigate(`/dashboard/expedientes/${exp.idExpediente}`)}>
+                  <button className="text-blue-600 hover:text-blue-800"  onClick={() => navigate(`/dashboard/expedientes/${exp.idExpediente}`)}>
                     <FaEye />
                   </button>
-                  <button className="button-delete" onClick={() => handleDelete(exp.idExpediente)}>
+                  <button  onClick={() => handleDelete(exp.idExpediente)}
+                     className="text-red-600 hover:text-red-800">
                     <FaTrash />
                   </button>
                 </td>

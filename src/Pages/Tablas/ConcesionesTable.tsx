@@ -378,14 +378,14 @@ export default function ConcesionesTable() {
                 <td className="px-4 py-2">{c.status || 'Pendiente'}</td>
                 <td className="px-4 py-2 space-x-2">
                   <button
-                    className="button-view"
+        className="text-blue-600 hover:text-blue-800" 
                     onClick={() => navigate(`/dashboard/concesiones/${c.id}`)}
                   >
                     <FaEye />
                   </button>
                   <button
                     onClick={() => eliminarConcesion(c.id)}
-                    className="button-delete"
+             className="text-red-600 hover:text-red-800"
                   >
                     <FaTrash />
                   </button>

@@ -354,10 +354,10 @@ export default function AppointmentTable() {
                 <td className="px-4 py-2">{`${cita.availableDate?.date ?? '-'} ${cita.horaCita?.hora ?? ''}`}</td>
                 <td className="px-4 py-2">{cita.status}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button className="button-view" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
+                  <button  className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
                     <FaEye />
                   </button>
-                  <button className="button-delete" onClick={() => eliminarCita(cita.id)}>
+                  <button  className="text-red-600 hover:text-red-800" onClick={() => eliminarCita(cita.id)}>
                     <FaTrash />
                   </button>
                 </td>

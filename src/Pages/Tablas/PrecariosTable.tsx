@@ -410,15 +410,14 @@ export default function PrecariosTable() {
                 <td className="px-4 py-2">{precario.status || 'Pendiente'}</td>
                 <td className="px-4 py-2 space-x-2">
                   <button
-                    className="button-view"
+    className="text-blue-600 hover:text-blue-800" 
                     onClick={() => navigate(`/dashboard/precario/${precario.id}`)}
                   >
                     <FaEye />
                   </button>
                   <button
-                    className="button-delete"
                     onClick={() => eliminarPrecario(precario.id)}
-                  >
+                    className="text-red-600 hover:text-red-800" >
                     <FaTrash />
                   </button>
                 </td>

@@ -364,10 +364,10 @@ export default function DenunciasTable() {
                 <td className="px-4 py-2">{d.lugarDenuncia?.descripcion || '—'}</td>
                 <td className="px-4 py-2">{d.status}</td>
                 <td className="px-4 py-2 space-x-2">
-                  <button className="button-view" onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}>
+                  <button className="text-blue-600 hover:text-blue-800"  onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}>
                     <FaEye />
                   </button>
-                  <button className="button-delete" onClick={() => eliminarDenuncia(d.id)}>
+                  <button  className="text-red-600 hover:text-red-800" onClick={() => eliminarDenuncia(d.id)}>
                     <FaTrash />
                   </button>
                 </td>
