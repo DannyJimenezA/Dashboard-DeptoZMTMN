@@ -251,7 +251,7 @@ setTimeout(() => {
 
   if (!loginResponded) {
     // 🔙 Si nadie respondió, redirigimos en esta misma pestaña
-    navigate('/login');
+    navigate('/');
   }
 }, 3000); // Esperamos 3 segundos
 

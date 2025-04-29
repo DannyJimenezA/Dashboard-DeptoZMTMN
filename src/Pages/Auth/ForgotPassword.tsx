@@ -136,7 +136,7 @@ export default function ForgotPassword() {
     if (countdown === null) return;
 
     if (countdown === 0) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 

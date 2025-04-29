@@ -34,24 +34,6 @@ export default function Login() {
     };
   }, []);
   
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
-  //     console.log('JWT received:', data.access_token);
-
-  //     // Guarda el token en el almacenamiento local
-  //     login(data.access_token);
-
-  //     // Redirige al usuario a la página principal o al dashboard
-  //     navigate('/dashboard');
-  //   } catch (err) {
-  //     setError('Error al iniciar sesión. Verifica tus credenciales.');
-  //     console.error('Login error:', err);
-  //   }
-  // };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
@@ -59,14 +41,35 @@ export default function Login() {
       const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
       console.log('JWT received:', data.access_token);
   
-      // Guarda el token
+      // Guarda el token en localStorage
       login(data.access_token);
   
-      // Decodifica el token para obtener el correo (u otra info)
-      const decoded = jwtDecode<{ email: string }>(data.access_token);
+      // Decodificar el token
+      const decoded = jwtDecode<any>(data.access_token);
   
-      // ✅ SweetAlert de bienvenida
-      Swal.fire({
+      // 🔥 Verificamos si tiene permisos de "ver_"
+      const permissions = decoded.permissions || [];
+      const hasViewPermission = permissions.some((perm: { action: string }) => perm.action === 'GET');
+  
+      if (!hasViewPermission) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Acceso Denegado',
+          text: 'No tienes permisos para acceder al sistema.',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+        });
+  
+        // Limpias y rediriges a login
+        localStorage.removeItem('token');
+        return navigate('/'), window.location.reload();
+        ;
+        
+
+      }
+  
+      // ✅ SweetAlert de bienvenida si tiene permisos
+      await Swal.fire({
         title: '¡Bienvenido!',
         text: `Has iniciado sesión como: ${decoded.email}`,
         icon: 'success',
@@ -74,13 +77,15 @@ export default function Login() {
         showConfirmButton: false,
       });
   
-      // Navegar al dashboard
+      // Navegar normalmente
       navigate('/dashboard');
+  
     } catch (err) {
       setError('Error al iniciar sesión. Verifica tus credenciales.');
       console.error('Login error:', err);
     }
   };
+  
   
 
   const handleBack = () => {

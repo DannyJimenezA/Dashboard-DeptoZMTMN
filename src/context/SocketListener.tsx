@@ -1,64 +1,29 @@
-// import { useEffect } from 'react';
-// import { io } from 'socket.io-client';
-// import { useSolicitudes } from './SolicitudesContext';
-// import ApiRoutes from '../Components/ApiRoutes';
-
-// export default function SocketListener() {
-//   const { setCounters, counters } = useSolicitudes(); // 👈 también traigo counters para saber el tipo
-
-//   useEffect(() => {
-//     const socket = io(ApiRoutes.urlBase);
-
-//     socket.on('nueva-solicitud', (data: { tipo: keyof typeof counters }) => {
-//       setCounters((prev: typeof counters) => ({
-//         ...prev,
-//         [data.tipo]: (prev[data.tipo] || 0) + 1, // suma automáticamente el tipo
-//       }));
-//     });
-
-    
-
-//     return () => {
-//       socket.disconnect();
-//     };
-//   }, [setCounters, counters]);
-
-//   return null; // Solo escucha
-// }
-
 import { useEffect } from 'react';
-import { io } from 'socket.io-client';
 import { useSolicitudes } from './SolicitudesContext';
-import ApiRoutes from '../Components/ApiRoutes';
+import { socket } from './socket'; // ✅ socket centralizado
 
 export default function SocketListener() {
-  const { setCounters, counters, fetchCounters } = useSolicitudes(); 
-  // 👆 Importante: traemos `fetchCounters`, que sí existe en tu contexto
+  const { fetchCounters } = useSolicitudes(); 
 
   useEffect(() => {
-    const socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: {
-        token: localStorage.getItem('token'),
-      },
+    socket.connect(); // 👈 Importante: conectar explícitamente
+
+    // Cada vez que haya una nueva solicitud o cambio
+    socket.on('nueva-solicitud', () => {
+      console.log('🛎️ Nueva solicitud recibida vía WebSocket');
+      fetchCounters(); // 🔥 Siempre consulta el contador real
     });
 
-    socket.on('nueva-solicitud', (data: { tipo: keyof typeof counters }) => {
-      setCounters((prev: typeof counters) => ({
-        ...prev,
-        [data.tipo]: (prev[data.tipo] || 0) + 1, // suma automáticamente
-      }));
-    });
-
-    socket.on('actualizar-solicitudes', (data) => {
-      console.log('Actualizar solicitudes recibido:', data);
-      fetchCounters(); // 🔥 Correctamente recarga los contadores
+    socket.on('actualizar-solicitudes', () => {
+      console.log('🔄 Actualización masiva de solicitudes');
+      fetchCounters(); // 🔥 Igual refresca todo
     });
 
     return () => {
-      socket.disconnect();
+      socket.disconnect(); // 👋 Siempre desconectarse al desmontar
     };
-  }, [setCounters, counters, fetchCounters]);
+  }, [fetchCounters]); // 🔥 Solo depende de `fetchCounters`
 
-  return null; // Solo escucha
+  return null; // No renderiza nada visual
 }
+

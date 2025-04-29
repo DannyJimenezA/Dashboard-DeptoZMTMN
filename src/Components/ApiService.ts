@@ -64,7 +64,38 @@ const ApiService = {
 
     if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
   },
+
+
+   async patch<T = any>(url: string, data?: any): Promise<T> {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+  
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(data),
+    });
+  
+    if (!response.ok) {
+      throw new Error(`Error en la solicitud PATCH: ${response.status}`);
+    }
+  
+    return await response.json();
+  }
+  
+
 };
+
+
+
+
+
+
+
+
 
 // src/Components/ApiService.ts
 

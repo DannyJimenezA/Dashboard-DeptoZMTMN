@@ -125,7 +125,7 @@ export default function Register() {
         confirmButtonColor: '#2563eb',
       });
     
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         setErrorMessage(error.response.data.message || 'Error en el registro');
@@ -137,7 +137,7 @@ export default function Register() {
   };
   
 
-  const handleBack = () => navigate('/login');
+  const handleBack = () => navigate('/');
 
   const renderInput = (
     name: string,
@@ -235,7 +235,7 @@ export default function Register() {
 
               <div className="text-center text-sm">
                 <span className="text-gray-600">¿Ya tienes una cuenta?</span>{' '}
-                <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                <a href="/" className="font-medium text-blue-600 hover:text-blue-500">
                   Inicia sesión aquí
                 </a>
               </div>

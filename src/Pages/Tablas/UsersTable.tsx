@@ -334,7 +334,7 @@ export default function UsersTable() {
                     : 'Sin rol'}
                 </td>
                 <td className="px-4 py-2 space-x-2">
-                  <button className="button-view" onClick={() => console.log(usuario)}>
+                <button className="button-view" onClick={() => navigate(`/dashboard/usuario/${usuario.id}`)}>
                     <FaEye />
                   </button>
                   <button className="button-delete" onClick={() => eliminarUsuario(usuario.id)}>
