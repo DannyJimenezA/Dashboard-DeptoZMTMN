@@ -14,9 +14,6 @@ export default function RolesTable() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isCreatingRole, setIsCreatingRole] = useState<boolean>(false);
-  const [newRoleName, setNewRoleName] = useState<string>('');
-  const [newRoleDescription, setNewRoleDescription] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchText, setSearchText] = useState('');
@@ -72,43 +69,10 @@ export default function RolesTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
-  const abrirModalCrearRol = () => {
-    setIsCreatingRole(true);
-    setNewRoleName('');
-    setNewRoleDescription('');
-  };
 
-  const cerrarModalCrearRol = () => {
-    setIsCreatingRole(false);
-  };
 
-  const manejarCrearRol = async () => {
-    if (!newRoleName.trim() || !newRoleDescription.trim()) {
-      Swal.fire('Campos requeridos', 'Por favor, ingresa el nombre y la descripción del rol.', 'warning');
-      return;
-    }
+ 
 
-    try {
-      const response = await fetch(ApiRoutes.roles, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ name: newRoleName, description: newRoleDescription }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error en la solicitud: ${response.status}`);
-      }
-
-      cerrarModalCrearRol();
-      Swal.fire('Éxito', 'Rol creado correctamente.', 'success');
-    } catch (error) {
-      console.error('Error creando el rol:', error);
-      Swal.fire('Error', 'Ocurrió un error al crear el rol.', 'error');
-    }
-  };
 
   const manejarEliminarRol = async (id: number) => {
     const confirmacion = await Swal.fire({
@@ -174,11 +138,12 @@ export default function RolesTable() {
 
     {/* Botón de crear nuevo rol */}
     <button
-      onClick={abrirModalCrearRol}
-      className="px-4 py-2 bg-blue-600 text-white rounded flex items-center self-end hover:bg-blue-700"
-    >
-      <FaPlus className="mr-2" /> Crear Nuevo Rol
-    </button>
+  onClick={() => navigate('/dashboard/crear-rol')}
+  className="px-4 py-2 bg-blue-600 text-white rounded flex items-center self-end hover:bg-blue-700"
+>
+  <FaPlus className="mr-2" /> Crear Nuevo Rol
+</button>
+
   </div>
 
 
@@ -219,33 +184,6 @@ export default function RolesTable() {
     onItemsPerPageChange={setItemsPerPage}
   />
 
-  {isCreatingRole && (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <button className="absolute top-2 right-2 text-gray-500" onClick={cerrarModalCrearRol}>
-          ✖
-        </button>
-        <h3 className="text-xl font-bold mb-4 text-center">Crear Nuevo Rol</h3>
-        <input
-          type="text"
-          className="w-full p-2 border rounded mb-4"
-          placeholder="Nombre del rol"
-          value={newRoleName}
-          onChange={(e) => setNewRoleName(e.target.value)}
-        />
-        <textarea
-          className="w-full p-2 border rounded mb-4"
-          placeholder="Descripción del rol"
-          value={newRoleDescription}
-          onChange={(e) => setNewRoleDescription(e.target.value)}
-          rows={3}
-        />
-        <button onClick={manejarCrearRol} className="w-full bg-blue-600 text-white py-2 rounded">
-          Guardar
-        </button>
-      </div>
-    </div>
-  )}
 </div>
 
   );

@@ -24,6 +24,9 @@ import CrearFecha from '../Pages/Tablas/CrearFecha';
 import DiasCitasPage from '../Pages/Tablas/DiasCitas';
 import AgregarHorasPage from '../Pages/Tablas/AgregarHoras';
 import DetalleUsuario from '../Pages/TablasDetalle/DetalleUsuario';
+import CrearRolPage from '../Pages/TablasDetalle/CrearRolPage';
+import CrearLugarDenunciaPage from '../Pages/TablasDetalle/CrearLugarDenunciaPAge';
+import CrearTipoDenunciaPage from '../Pages/TablasDetalle/CrearTipoDenunciaPage';
 
 const AppRoutesContent = () => {
   const { isAuthenticated , userPermissions} = useAuth();
@@ -157,6 +160,33 @@ const AppRoutesContent = () => {
   element={
     <ProtectedRoute requiredPermission="ver_horas-cita">
       <AgregarHorasPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="crear-rol"
+  element={
+    <ProtectedRoute requiredPermission="ver_roles">
+      <CrearRolPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="crear-lugardenuncia"
+  element={
+    <ProtectedRoute requiredPermission="ver_lugardenuncia">
+      <CrearLugarDenunciaPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="crear-tipodenuncia"
+  element={
+    <ProtectedRoute requiredPermission="ver_tipodenuncia">
+      <CrearTipoDenunciaPage />
     </ProtectedRoute>
   }
 />
