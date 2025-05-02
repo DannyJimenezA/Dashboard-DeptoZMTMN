@@ -25,8 +25,8 @@ import DiasCitasPage from '../Pages/Tablas/DiasCitas';
 import AgregarHorasPage from '../Pages/Tablas/AgregarHoras';
 import DetalleUsuario from '../Pages/TablasDetalle/DetalleUsuario';
 import CrearRolPage from '../Pages/TablasDetalle/CrearRolPage';
-import CrearLugarDenunciaPage from '../Pages/TablasDetalle/CrearLugarDenunciaPAge';
 import CrearTipoDenunciaPage from '../Pages/TablasDetalle/CrearTipoDenunciaPage';
+import CrearLugarDenunciaPage from '../Pages/TablasDetalle/CrearLugarDenunciaPage';
 
 const AppRoutesContent = () => {
   const { isAuthenticated , userPermissions} = useAuth();
