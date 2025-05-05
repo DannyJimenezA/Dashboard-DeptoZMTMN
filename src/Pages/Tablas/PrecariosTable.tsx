@@ -318,6 +318,28 @@ export default function PrecariosTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarPrecario = async (id: number) => {
+  //   const confirm = await Swal.fire({
+  //     title: '¿Eliminar solicitud de uso precario?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirm.isConfirmed) return;
+
+  //   try {
+  //     await ApiService.delete(`${ApiRoutes.precarios}/${id}`);
+  //     setPrecarios(prev => prev.filter(p => p.id !== id));
+  //     Swal.fire('¡Eliminada!', 'La solicitud fue eliminada correctamente.', 'success');
+  //   } catch {
+  //     Swal.fire('Error', 'No se pudo eliminar la solicitud.', 'error');
+  //   }
+  // };
   const eliminarPrecario = async (id: number) => {
     const confirm = await Swal.fire({
       title: '¿Eliminar solicitud de uso precario?',
@@ -329,17 +351,31 @@ export default function PrecariosTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirm.isConfirmed) return;
-
+  
     try {
-      await ApiService.delete(`${ApiRoutes.precarios}/${id}`);
+      const res = await fetch(`${ApiRoutes.urlBase}/precarios/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (res.status === 403) {
+        return Swal.fire('Acceso denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+      }
+  
+      if (!res.ok) throw new Error();
+  
       setPrecarios(prev => prev.filter(p => p.id !== id));
       Swal.fire('¡Eliminada!', 'La solicitud fue eliminada correctamente.', 'success');
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire('Error', 'No se pudo eliminar la solicitud.', 'error');
     }
   };
+  
 
   const precariosFiltrados = precarios.filter(p => {
     const matchEstado = filtroEstado === 'todos' || p.status === filtroEstado;

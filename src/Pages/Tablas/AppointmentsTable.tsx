@@ -202,7 +202,7 @@ import Swal from 'sweetalert2';
 import { FaEye, FaTrash } from 'react-icons/fa';
 import { useAuth } from '../Auth/useAuth';
 import { Cita } from '../../Types/Types';
-import ApiService from '../../Components/ApiService';
+import ApiService, { fetchWithAuth } from '../../Components/ApiService';
 import ApiRoutes from '../../Components/ApiRoutes';
 import SearchFilterBar from '../../Components/SearchFilterBar';
 import FiltroFecha from '../../Components/FiltroFecha';
@@ -259,6 +259,34 @@ export default function AppointmentTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarCita = async (id: number) => {
+  //   const confirmar = await Swal.fire({
+  //     title: '¿Eliminar cita?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmar.isConfirmed) return;
+
+  //   try {
+  //     await ApiService.delete(`${ApiRoutes.citas}/${id}`);
+  //     Swal.fire('¡Eliminada!', 'La cita ha sido eliminada.', 'success');
+  //     setCitas(prev => prev.filter(c => c.id !== id));
+  //   } catch (error: any) {
+  //     if (error.response?.status === 403) {
+  //       Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+  //     } else {
+  //       Swal.fire('Error', 'No se pudo eliminar la cita.', 'error');
+  //     }
+  //   }
+  // };
+
+
   const eliminarCita = async (id: number) => {
     const confirmar = await Swal.fire({
       title: '¿Eliminar cita?',
@@ -270,17 +298,37 @@ export default function AppointmentTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirmar.isConfirmed) return;
-
+  
     try {
-      await ApiService.delete(`${ApiRoutes.citas}/${id}`);
+      const res = await fetchWithAuth(`${ApiRoutes.citas}/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (!res) {
+        throw new Error('No hubo respuesta del servidor');
+      }
+  
+      if (res.status === 403) {
+        Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+        return;
+      }
+  
+      if (!res.ok) {
+        throw new Error('Falló la eliminación');
+      }
+  
       Swal.fire('¡Eliminada!', 'La cita ha sido eliminada.', 'success');
       setCitas(prev => prev.filter(c => c.id !== id));
-    } catch {
+    } catch (error) {
+      console.error('Error al eliminar cita:', error);
       Swal.fire('Error', 'No se pudo eliminar la cita.', 'error');
     }
   };
+  
+
+
 
   if (!isAuthenticated || userPermissions.length === 0) {
     return <p className="text-center text-gray-500 p-4">Verificando permisos...</p>;

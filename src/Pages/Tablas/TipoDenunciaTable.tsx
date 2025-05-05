@@ -1,4 +1,5 @@
 // import { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
 // import ApiRoutes from '../../Components/ApiRoutes';
 // import Swal from 'sweetalert2';
 // import { io, Socket } from 'socket.io-client';
@@ -14,13 +15,13 @@
 
 // export default function TipoDenunciaTable() {
 //   const [tipos, setTipos] = useState<DenunciaData[]>([]);
-//   const [isAdding, setIsAdding] = useState(false);
-//   const [descripcion, setDescripcion] = useState('');
 //   const [searchText, setSearchText] = useState('');
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const [itemsPerPage, setItemsPerPage] = useState(5);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState<string | null>(null);
+
+//   const navigate = useNavigate();
 
 //   const fetchTipos = async () => {
 //     try {
@@ -41,39 +42,17 @@
 
 //   useEffect(() => {
 //     fetchTipos();
+
 //     socket = io(ApiRoutes.urlBase);
 //     socket.on('nuevo-tipo-denuncia', (nuevoTipo: DenunciaData) => {
 //       setTipos(prev => [...prev, nuevoTipo]);
 //     });
+
 //     return () => {
 //       socket.off('nuevo-tipo-denuncia');
 //       socket.disconnect();
 //     };
 //   }, []);
-
-//   const handleAgregar = async () => {
-//     if (!descripcion.trim()) {
-//       Swal.fire('Campo requerido', 'Por favor, ingresa una descripción.', 'info');
-//       return;
-//     }
-//     try {
-//       const token = localStorage.getItem('token');
-//       const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia`, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${token}`,
-//         },
-//         body: JSON.stringify({ descripcion }),
-//       });
-//       if (!res.ok) throw new Error();
-//       setIsAdding(false);
-//       setDescripcion('');
-//       Swal.fire('¡Guardado!', 'Tipo de denuncia agregado.', 'success');
-//     } catch (err) {
-//       Swal.fire('Error', 'Ocurrió un error al agregar.', 'error');
-//     }
-//   };
 
 //   const handleEliminar = async (id: number) => {
 //     const confirm = await Swal.fire({
@@ -93,7 +72,9 @@
 //         method: 'DELETE',
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
+
 //       if (!res.ok) throw new Error();
+
 //       setTipos(prev => prev.filter(t => t.id !== id));
 //       Swal.fire('Eliminado', 'Tipo eliminado correctamente.', 'success');
 //     } catch (err) {
@@ -126,7 +107,7 @@
 //           className="border border-gray-300 rounded px-2 py-1 text-sm w-60"
 //         />
 //         <button
-//           onClick={() => setIsAdding(true)}
+//           onClick={() => navigate('/dashboard/crear-tipodenuncia')}
 //           className="px-4 py-2 bg-blue-600 text-white rounded flex items-center hover:bg-blue-700 self-end"
 //         >
 //           <FaPlus className="mr-2" /> Agregar Nuevo Tipo de Denuncia
@@ -145,8 +126,11 @@
 //             {tiposActuales.map((tipo) => (
 //               <tr key={tipo.id}>
 //                 <td className="px-4 py-2">{tipo.descripcion}</td>
-//                 <td className="px-4 py-2 space-x-2">
-//                   <button onClick={() => handleEliminar(tipo.id)}  className="text-red-600 hover:text-red-800">
+//                 <td className="px-4 py-2 text-left">
+//                   <button
+//                     onClick={() => handleEliminar(tipo.id)}
+//                     className="text-red-600 hover:text-red-800"
+//                   >
 //                     <FaTrash />
 //                   </button>
 //                 </td>
@@ -163,32 +147,10 @@
 //         onPageChange={setCurrentPage}
 //         onItemsPerPageChange={setItemsPerPage}
 //       />
-
-//       {isAdding && (
-//         <div className="modal-overlay fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
-//           <div className="bg-white p-6 rounded shadow-lg w-96">
-//             <h3 className="text-lg font-semibold mb-4">Agregar Tipo</h3>
-//             <input
-//               type="text"
-//               value={descripcion}
-//               onChange={(e) => setDescripcion(e.target.value)}
-//               placeholder="Descripción"
-//               className="w-full mb-4 p-2 border border-gray-300 rounded"
-//             />
-//             <div className="flex justify-end gap-2">
-//               <button onClick={() => setIsAdding(false)} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
-//                 Cancelar
-//               </button>
-//               <button onClick={handleAgregar} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-//                 Guardar
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
 //     </div>
 //   );
 // }
+
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -197,6 +159,7 @@ import Swal from 'sweetalert2';
 import { io, Socket } from 'socket.io-client';
 import Paginacion from '../../Components/Paginacion';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+import { useAuth } from '../Auth/useAuth';
 
 interface DenunciaData {
   id: number;
@@ -214,6 +177,7 @@ export default function TipoDenunciaTable() {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const { userPermissions } = useAuth(); // ✅
 
   const fetchTipos = async () => {
     try {
@@ -235,18 +199,30 @@ export default function TipoDenunciaTable() {
   useEffect(() => {
     fetchTipos();
 
-    socket = io(ApiRoutes.urlBase);
+    socket = io(ApiRoutes.urlBase, {
+      auth: {
+        token: localStorage.getItem('token'),
+      },
+    });
+
     socket.on('nuevo-tipo-denuncia', (nuevoTipo: DenunciaData) => {
-      setTipos(prev => [...prev, nuevoTipo]);
+      setTipos((prev) => [...prev, nuevoTipo]);
     });
 
     return () => {
-      socket.off('nuevo-tipo-denuncia');
       socket.disconnect();
     };
   }, []);
 
   const handleEliminar = async (id: number) => {
+    if (!userPermissions.includes('eliminar_tipodenuncia')) {
+      return Swal.fire(
+        'Permiso denegado',
+        'No tienes permisos para eliminar tipos de denuncia.',
+        'warning'
+      );
+    }
+
     const confirm = await Swal.fire({
       title: '¿Eliminar tipo de denuncia?',
       text: 'Esta acción no se puede deshacer.',
@@ -265,16 +241,24 @@ export default function TipoDenunciaTable() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (res.status === 403) {
+        return Swal.fire(
+          'Permiso denegado',
+          'No tienes permisos para realizar esta acción.',
+          'warning'
+        );
+      }
+
       if (!res.ok) throw new Error();
 
-      setTipos(prev => prev.filter(t => t.id !== id));
+      setTipos((prev) => prev.filter((t) => t.id !== id));
       Swal.fire('Eliminado', 'Tipo eliminado correctamente.', 'success');
     } catch (err) {
       Swal.fire('Error', 'No se pudo eliminar el tipo.', 'error');
     }
   };
 
-  const tiposFiltrados = tipos.filter(t =>
+  const tiposFiltrados = tipos.filter((t) =>
     t.descripcion.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -298,8 +282,18 @@ export default function TipoDenunciaTable() {
           onChange={(e) => setSearchText(e.target.value)}
           className="border border-gray-300 rounded px-2 py-1 text-sm w-60"
         />
+
         <button
-          onClick={() => navigate('/dashboard/crear-tipodenuncia')}
+          onClick={() => {
+            if (!userPermissions.includes('crear_tipodenuncia')) {
+              return Swal.fire(
+                'Permiso denegado',
+                'No tienes permisos para realizar esta acción.',
+                'warning'
+              );
+            }
+            navigate('/dashboard/crear-tipodenuncia');
+          }}
           className="px-4 py-2 bg-blue-600 text-white rounded flex items-center hover:bg-blue-700 self-end"
         >
           <FaPlus className="mr-2" /> Agregar Nuevo Tipo de Denuncia

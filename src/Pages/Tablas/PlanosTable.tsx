@@ -303,6 +303,29 @@ export default function PlanosTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarRevisionPlano = async (id: number) => {
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar solicitud de revisión de plano?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     await ApiService.delete(`${ApiRoutes.planos}/${id}`);
+  //     setPlanos(prev => prev.filter(p => p.id !== id));
+  //     Swal.fire('¡Eliminada!', 'La solicitud fue eliminada correctamente.', 'success');
+  //   } catch (err) {
+  //     Swal.fire('Error', 'No se pudo eliminar la solicitud.', 'error');
+  //   }
+  // };
+
   const eliminarRevisionPlano = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar solicitud de revisión de plano?',
@@ -314,17 +337,32 @@ export default function PlanosTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirmacion.isConfirmed) return;
-
+  
     try {
-      await ApiService.delete(`${ApiRoutes.planos}/${id}`);
+      const response = await fetch(`${ApiRoutes.urlBase}/revision-plano/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (response.status === 403) {
+        return Swal.fire('Permiso denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+      }
+  
+      if (!response.ok) throw new Error();
+  
       setPlanos(prev => prev.filter(p => p.id !== id));
       Swal.fire('¡Eliminada!', 'La solicitud fue eliminada correctamente.', 'success');
     } catch (err) {
+      console.error(err);
       Swal.fire('Error', 'No se pudo eliminar la solicitud.', 'error');
     }
   };
+  
 
   const planosFiltrados = planos.filter((plano) => {
     const matchEstado = filtroEstado === 'todos' || plano.status === filtroEstado;

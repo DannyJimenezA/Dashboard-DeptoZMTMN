@@ -169,7 +169,6 @@
 //   );
 // }
 
-"use client"
 
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
@@ -227,12 +226,44 @@ export default function DetalleConcesionPage() {
     fetchConcesion()
   }, [id])
 
+  // const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
+  //   if (!mensaje.trim()) {
+  //     Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
+  //     return
+  //   }
+
+  //   const result = await MySwal.fire({
+  //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+  //     text: `Se notificará al usuario con tu mensaje.`,
+  //     icon: "question",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Sí, continuar",
+  //     cancelButtonText: "Cancelar",
+  //   })
+
+  //   if (!result.isConfirmed || !concesion) return
+
+  //   try {
+  //     await ApiService.put(`${ApiRoutes.concesiones}/${concesion.id}/status`, {
+  //       status: nuevoEstado,
+  //       message: mensaje, // ✅ lo enviamos directamente al backend
+  //     })
+      
+
+  //     Swal.fire("Éxito", `Concesión ${nuevoEstado.toLowerCase()} correctamente.`, "success")
+  //     navigate("/dashboard/concesiones")
+  //   } catch (err) {
+  //     console.error(err)
+  //     Swal.fire("Error", "Hubo un problema al actualizar la concesión.", "error")
+  //   }
+  // }
+
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
-      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
-      return
+      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning");
+      return;
     }
-
+  
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -240,27 +271,38 @@ export default function DetalleConcesionPage() {
       showCancelButton: true,
       confirmButtonText: "Sí, continuar",
       cancelButtonText: "Cancelar",
-    })
-
-    if (!result.isConfirmed || !concesion) return
-
+    });
+  
+    if (!result.isConfirmed || !concesion) return;
+  
     try {
-      await ApiService.put(`${ApiRoutes.concesiones}/${concesion.id}/status`, {
-        status: nuevoEstado,
-      })
-
-      await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
-        email: concesion.user?.email,
-        message: mensaje,
-      })
-
-      Swal.fire("Éxito", `Concesión ${nuevoEstado.toLowerCase()} correctamente.`, "success")
-      navigate("/dashboard/concesiones")
+      const res = await fetch(`${ApiRoutes.urlBase}/concesiones/${concesion.id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          status: nuevoEstado,
+          message: mensaje,
+        }),
+      });
+  
+      if (res.status === 403) {
+        Swal.fire("Acceso Denegado", "No tienes permisos para realizar esta acción.", "warning");
+        return;
+      }
+  
+      if (!res.ok) throw new Error("Error al actualizar estado");
+  
+      Swal.fire("Éxito", `Concesión ${nuevoEstado.toLowerCase()} correctamente.`, "success");
+      navigate("/dashboard/concesiones");
     } catch (err) {
-      console.error(err)
-      Swal.fire("Error", "Hubo un problema al actualizar la concesión.", "error")
+      console.error(err);
+      Swal.fire("Error", "Hubo un problema al actualizar la concesión.", "error");
     }
-  }
+  };
+  
 
   const manejarVerArchivo = (index: number) => {
     if (archivos[index]) {

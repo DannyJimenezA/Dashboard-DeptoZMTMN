@@ -224,6 +224,8 @@ import ApiRoutes from '../../Components/ApiRoutes';
 import { io, Socket } from 'socket.io-client';
 import Paginacion from '../../Components/Paginacion';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+import { useAuth } from '../Auth/useAuth';
+
 
 interface DenunciaData {
   id: number;
@@ -241,6 +243,8 @@ export default function LugarDenunciaTable() {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const { userPermissions } = useAuth(); // ✅ Esto faltaba
+
 
   const fetchLugares = async () => {
     try {
@@ -277,6 +281,33 @@ export default function LugarDenunciaTable() {
     };
   }, []);
 
+  // const handleEliminar = async (id: number) => {
+  //   const confirm = await Swal.fire({
+  //     title: '¿Eliminar lugar?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //   });
+
+  //   if (!confirm.isConfirmed) return;
+
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia/${id}`, {
+  //       method: 'DELETE',
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (!res.ok) throw new Error();
+
+  //     setLugares(prev => prev.filter(l => l.id !== id));
+  //     Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
+  //   } catch (err) {
+  //     Swal.fire('Error', 'No se pudo eliminar el lugar.', 'error');
+  //   }
+  // };
   const handleEliminar = async (id: number) => {
     const confirm = await Swal.fire({
       title: '¿Eliminar lugar?',
@@ -286,24 +317,33 @@ export default function LugarDenunciaTable() {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
     });
-
+  
     if (!confirm.isConfirmed) return;
-
+  
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
+      if (res.status === 403) {
+        return Swal.fire(
+          'Permiso denegado',
+          'No tienes permisos para realizar esta acción.',
+          'warning'
+        );
+      }
+  
       if (!res.ok) throw new Error();
-
-      setLugares(prev => prev.filter(l => l.id !== id));
+  
+      setLugares((prev) => prev.filter((l) => l.id !== id));
       Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
     } catch (err) {
       Swal.fire('Error', 'No se pudo eliminar el lugar.', 'error');
     }
   };
+  
 
   const lugaresFiltrados = lugares.filter(lugar =>
     lugar.descripcion.toLowerCase().includes(searchText.toLowerCase())
@@ -329,12 +369,28 @@ export default function LugarDenunciaTable() {
           onChange={(e) => setSearchText(e.target.value)}
           className="border border-gray-300 rounded px-2 py-1 text-sm w-60"
         />
-        <button
+        {/* <button
           onClick={() => navigate('/dashboard/crear-lugardenuncia')}
           className="px-4 py-2 bg-blue-600 text-white rounded flex items-center hover:bg-blue-700 self-end"
         >
           <FaPlus className="mr-2" /> Agregar Lugar de Denuncia
-        </button>
+        </button> */}
+        <button
+  onClick={() => {
+    if (!userPermissions.includes('crear_lugardenuncia')) {
+      return Swal.fire(
+        'Permiso denegado',
+        'No tienes permisos para realizar esta acción',
+        'warning'
+      );
+    }
+    navigate('/dashboard/crear-lugardenuncia');
+  }}
+  className="px-4 py-2 bg-blue-600 text-white rounded flex items-center hover:bg-blue-700 self-end"
+>
+  <FaPlus className="mr-2" /> Agregar Lugar de Denuncia
+</button>
+
       </div>
 
       <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">
@@ -351,12 +407,28 @@ export default function LugarDenunciaTable() {
                 <td className="px-4 py-2">{lugar.descripcion}</td>
                 <td className="px-4 py-2 text-left">
                   <div className="flex justify-start w-full">
-                    <button
+                    {/* <button
                       onClick={() => handleEliminar(lugar.id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <FaTrash />
-                    </button>
+                    </button> */}
+                    <button
+  onClick={() => {
+    if (!userPermissions.includes('eliminar_lugardenuncia')) {
+      return Swal.fire(
+        'Permiso denegado',
+        'No tienes permisos para realizar esta acción.',
+        'warning'
+      );
+    }
+    handleEliminar(lugar.id);
+  }}
+  className="text-red-600 hover:text-red-800"
+>
+  <FaTrash />
+</button>
+
                   </div>
                 </td>
               </tr>

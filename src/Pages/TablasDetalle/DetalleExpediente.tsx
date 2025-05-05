@@ -29,12 +29,45 @@ export default function DetalleExpedientePage() {
     fetchExpediente();
   }, [id]);
 
+  // const cambiarEstado = async (nuevoEstado: 'Aprobada' | 'Denegada') => {
+  //   if (!mensaje.trim()) {
+  //     Swal.fire('Escribe un mensaje antes de continuar.');
+  //     return;
+  //   }
+
+  //   const result = await MySwal.fire({
+  //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+  //     text: `Se notificará al usuario con tu mensaje.`,
+  //     icon: 'question',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, continuar',
+  //     cancelButtonText: 'Cancelar',
+  //   });
+
+  //   if (!result.isConfirmed || !expediente) return;
+
+  //   try {
+  //     await ApiService.put(`${ApiRoutes.expedientes}/${expediente.idExpediente}/status`, {
+  //       status: nuevoEstado,
+  //       message: mensaje, // ✅ mensaje personalizado
+  //     });
+      
+
+  //     Swal.fire('Éxito', `Expediente ${nuevoEstado.toLowerCase()} correctamente.`, 'success');
+  //     navigate('/dashboard/expedientes');
+  //   } catch (err) {
+  //     console.error(err);
+  //     Swal.fire('Error', 'Hubo un problema al actualizar el expediente.', 'error');
+  //   }
+  // };
+
+
   const cambiarEstado = async (nuevoEstado: 'Aprobada' | 'Denegada') => {
     if (!mensaje.trim()) {
       Swal.fire('Escribe un mensaje antes de continuar.');
       return;
     }
-
+  
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -43,19 +76,28 @@ export default function DetalleExpedientePage() {
       confirmButtonText: 'Sí, continuar',
       cancelButtonText: 'Cancelar',
     });
-
+  
     if (!result.isConfirmed || !expediente) return;
-
+  
     try {
-      await ApiService.put(`${ApiRoutes.expedientes}/${expediente.idExpediente}/status`, {
-        status: nuevoEstado,
+      const res = await fetch(`${ApiRoutes.urlBase}/expedientes/${expediente.idExpediente}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          status: nuevoEstado,
+          message: mensaje,
+        }),
       });
-
-      await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
-        email: expediente.user?.email,
-        message: mensaje,
-      });
-
+  
+      if (res.status === 403) {
+        return Swal.fire('Acceso denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+      }
+  
+      if (!res.ok) throw new Error();
+  
       Swal.fire('Éxito', `Expediente ${nuevoEstado.toLowerCase()} correctamente.`, 'success');
       navigate('/dashboard/expedientes');
     } catch (err) {
@@ -63,6 +105,7 @@ export default function DetalleExpedientePage() {
       Swal.fire('Error', 'Hubo un problema al actualizar el expediente.', 'error');
     }
   };
+  
 
   if (!expediente) return <p className="p-4">Cargando expediente...</p>;
 

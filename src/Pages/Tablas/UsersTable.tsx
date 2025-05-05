@@ -80,6 +80,35 @@ export default function UsersTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarUsuario = async (id: number) => {
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar usuario?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const response = await fetch(`${ApiRoutes.usuarios}/${id}`, {
+  //       method: 'DELETE',
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (!response.ok) throw new Error('Error al eliminar el usuario');
+
+  //     Swal.fire('¡Eliminado!', 'El usuario fue eliminado correctamente.', 'success');
+  //     setUsuarios((prev) => prev.filter((u) => u.id !== id));
+  //   } catch (err) {
+  //     Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+  //   }
+  // };
   const eliminarUsuario = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar usuario?',
@@ -91,24 +120,30 @@ export default function UsersTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirmacion.isConfirmed) return;
-
+  
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${ApiRoutes.usuarios}/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
+      if (response.status === 403) {
+        return Swal.fire('Permiso denegado', 'No tienes permisos para eliminar este usuario.', 'warning');
+      }
+  
       if (!response.ok) throw new Error('Error al eliminar el usuario');
-
+  
       Swal.fire('¡Eliminado!', 'El usuario fue eliminado correctamente.', 'success');
       setUsuarios((prev) => prev.filter((u) => u.id !== id));
     } catch (err) {
+      console.error(err);
       Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
     }
   };
+  
 
   const usuariosFiltrados = usuarios.filter((usuario) =>
     searchBy === 'nombre'

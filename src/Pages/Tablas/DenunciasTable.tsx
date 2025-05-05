@@ -270,6 +270,29 @@ export default function DenunciasTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarDenuncia = async (id: number) => {
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar denuncia?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     await ApiService.delete(`${ApiRoutes.denuncias}/${id}`);
+  //     setDenuncias(prev => prev.filter(d => d.id !== id));
+  //     Swal.fire('Eliminada', 'La denuncia fue eliminada correctamente.', 'success');
+  //   } catch {
+  //     Swal.fire('Error', 'No se pudo eliminar la denuncia.', 'error');
+  //   }
+  // };
+
   const eliminarDenuncia = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar denuncia?',
@@ -281,17 +304,32 @@ export default function DenunciasTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirmacion.isConfirmed) return;
-
+  
     try {
-      await ApiService.delete(`${ApiRoutes.denuncias}/${id}`);
+      const response = await fetch(`${ApiRoutes.urlBase}/denuncia/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (response.status === 403) {
+        Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+        return;
+      }
+  
+      if (!response.ok) throw new Error('Error al eliminar');
+  
       setDenuncias(prev => prev.filter(d => d.id !== id));
       Swal.fire('Eliminada', 'La denuncia fue eliminada correctamente.', 'success');
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire('Error', 'No se pudo eliminar la denuncia.', 'error');
     }
   };
+  
 
   const filtradas = denuncias.filter((d) => {
     const byEstado = filtroEstado === 'todos' || d.status === filtroEstado;

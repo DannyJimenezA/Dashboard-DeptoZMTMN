@@ -64,12 +64,42 @@ export default function DetalleDenunciaPage() {
     fetchDenuncia()
   }, [id])
 
+  // const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
+  //   if (!mensaje.trim()) {
+  //     Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
+  //     return
+  //   }
+
+  //   const result = await MySwal.fire({
+  //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+  //     text: `Se notificará al usuario con tu mensaje.`,
+  //     icon: "question",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Sí, continuar",
+  //     cancelButtonText: "Cancelar",
+  //   })
+
+  //   if (!result.isConfirmed || !denuncia) return
+
+  //   try {
+  //     await ApiService.put(`${ApiRoutes.denuncias}/${denuncia.id}/status`, {
+  //       status: nuevoEstado,
+  //     })
+
+  //     Swal.fire("Éxito", `Denuncia ${nuevoEstado.toLowerCase()} correctamente.`, "success")
+  //     navigate("/dashboard/denuncias")
+  //   } catch (err) {
+  //     console.error(err)
+  //     Swal.fire("Error", "Hubo un problema al actualizar la denuncia.", "error")
+  //   }
+  // }
+
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
-      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
-      return
+      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning");
+      return;
     }
-
+  
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -77,22 +107,37 @@ export default function DetalleDenunciaPage() {
       showCancelButton: true,
       confirmButtonText: "Sí, continuar",
       cancelButtonText: "Cancelar",
-    })
-
-    if (!result.isConfirmed || !denuncia) return
-
+    });
+  
+    if (!result.isConfirmed || !denuncia) return;
+  
     try {
-      await ApiService.put(`${ApiRoutes.denuncias}/${denuncia.id}/status`, {
-        status: nuevoEstado,
-      })
-
-      Swal.fire("Éxito", `Denuncia ${nuevoEstado.toLowerCase()} correctamente.`, "success")
-      navigate("/dashboard/denuncias")
+      const response = await fetch(`${ApiRoutes.urlBase}/denuncia/${denuncia.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ status: nuevoEstado }),
+      });
+  
+      if (response.status === 403) {
+        Swal.fire("Acceso Denegado", "No tienes permisos para realizar esta acción.", "warning");
+        return;
+      }
+  
+      if (!response.ok) {
+        throw new Error("Error al actualizar");
+      }
+  
+      Swal.fire("Éxito", `Denuncia ${nuevoEstado.toLowerCase()} correctamente.`, "success");
+      navigate("/dashboard/denuncias");
     } catch (err) {
-      console.error(err)
-      Swal.fire("Error", "Hubo un problema al actualizar la denuncia.", "error")
+      console.error(err);
+      Swal.fire("Error", "Hubo un problema al actualizar la denuncia.", "error");
     }
-  }
+  };
+  
 
   const manejarVerArchivo = (index: number) => {
     if (archivos[index]) {

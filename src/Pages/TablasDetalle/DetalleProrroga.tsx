@@ -350,12 +350,45 @@ export default function DetalleProrrogaPage() {
     fetchProrroga()
   }, [id])
 
+
+
+  // const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
+  //   if (!mensaje.trim()) {
+  //     Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning");
+  //     return;
+  //   }
+  
+  //   const result = await MySwal.fire({
+  //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+  //     text: `Se notificará al usuario con tu mensaje.`,
+  //     icon: "question",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Sí, continuar",
+  //     cancelButtonText: "Cancelar",
+  //   });
+  
+  //   if (!result.isConfirmed || !prorroga) return;
+  
+  //   try {
+  //     await ApiService.put(`${ApiRoutes.prorrogas}/${prorroga.id}/status`, {
+  //       status: nuevoEstado,
+  //       message: mensaje,
+  //     });
+  
+  //     Swal.fire("Éxito", `Prórroga ${nuevoEstado.toLowerCase()} correctamente.`, "success");
+  //     navigate("/dashboard/prorrogas");
+  //   } catch (err) {
+  //     console.error(err);
+  //     Swal.fire("Error", "Hubo un problema al actualizar la prórroga.", "error");
+  //   }
+  // };
+
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
-      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
-      return
+      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning");
+      return;
     }
-
+  
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -363,27 +396,39 @@ export default function DetalleProrrogaPage() {
       showCancelButton: true,
       confirmButtonText: "Sí, continuar",
       cancelButtonText: "Cancelar",
-    })
-
-    if (!result.isConfirmed || !prorroga) return
-
+    });
+  
+    if (!result.isConfirmed || !prorroga) return;
+  
     try {
-      await ApiService.put(`${ApiRoutes.prorrogas}/${prorroga.id}/status`, {
-        status: nuevoEstado,
-      })
-
-      await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
-        email: prorroga.user?.email,
-        message: mensaje,
-      })
-
-      Swal.fire("Éxito", `Prórroga ${nuevoEstado.toLowerCase()} correctamente.`, "success")
-      navigate("/dashboard/prorrogas")
+      const res = await fetch(`${ApiRoutes.urlBase}/prorrogas/${prorroga.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          status: nuevoEstado,
+          message: mensaje,
+        }),
+      });
+  
+      if (res.status === 403) {
+        Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+        return;
+      }
+  
+      if (!res.ok) throw new Error();
+  
+      Swal.fire("Éxito", `Prórroga ${nuevoEstado.toLowerCase()} correctamente.`, "success");
+      navigate("/dashboard/prorrogas");
     } catch (err) {
-      console.error(err)
-      Swal.fire("Error", "Hubo un problema al actualizar la prórroga.", "error")
+      console.error(err);
+      Swal.fire("Error", "Hubo un problema al actualizar la prórroga.", "error");
     }
-  }
+  };
+  
+  
 
   const manejarVerArchivo = (index: number) => {
     if (archivos[index]) {

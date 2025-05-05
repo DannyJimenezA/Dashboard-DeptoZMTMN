@@ -237,12 +237,44 @@ export default function DetallePlanoPage() {
     fetchPlano()
   }, [id])
 
+  // const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
+  //   if (!mensaje.trim()) {
+  //     Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
+  //     return
+  //   }
+
+  //   const result = await MySwal.fire({
+  //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+  //     text: `Se notificará al usuario con tu mensaje.`,
+  //     icon: "question",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Sí, continuar",
+  //     cancelButtonText: "Cancelar",
+  //   })
+
+  //   if (!result.isConfirmed || !revisionPlano) return
+
+  //   try {
+  //     await ApiService.put(`${ApiRoutes.planos}/${revisionPlano.id}/status`, {
+  //       status: nuevoEstado,
+  //       message: mensaje,
+  //     })
+      
+
+  //     Swal.fire("Éxito", `Plano ${nuevoEstado.toLowerCase()} correctamente.`, "success")
+  //     navigate("/dashboard/planos")
+  //   } catch (err) {
+  //     console.error(err)
+  //     Swal.fire("Error", "Hubo un problema al actualizar el plano.", "error")
+  //   }
+  // }
+
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
-      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
-      return
+      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning");
+      return;
     }
-
+  
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -250,27 +282,37 @@ export default function DetallePlanoPage() {
       showCancelButton: true,
       confirmButtonText: "Sí, continuar",
       cancelButtonText: "Cancelar",
-    })
-
-    if (!result.isConfirmed || !revisionPlano) return
-
+    });
+  
+    if (!result.isConfirmed || !revisionPlano) return;
+  
     try {
-      await ApiService.put(`${ApiRoutes.planos}/${revisionPlano.id}/status`, {
-        status: nuevoEstado,
-      })
-
-      await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
-        email: revisionPlano.user?.email,
-        message: mensaje,
-      })
-
-      Swal.fire("Éxito", `Plano ${nuevoEstado.toLowerCase()} correctamente.`, "success")
-      navigate("/dashboard/planos")
+      const response = await fetch(`${ApiRoutes.urlBase}/revision-plano/${revisionPlano.id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          status: nuevoEstado,
+          message: mensaje,
+        }),
+      });
+  
+      if (response.status === 403) {
+        return Swal.fire("Permiso denegado", "No tienes permisos para realizar esta acción.", "warning");
+      }
+  
+      if (!response.ok) throw new Error();
+  
+      Swal.fire("Éxito", `Plano ${nuevoEstado.toLowerCase()} correctamente.`, "success");
+      navigate("/dashboard/planos");
     } catch (err) {
-      console.error(err)
-      Swal.fire("Error", "Hubo un problema al actualizar el plano.", "error")
+      console.error(err);
+      Swal.fire("Error", "Hubo un problema al actualizar el plano.", "error");
     }
-  }
+  };
+  
 
   const manejarVerArchivo = (index: number) => {
     if (archivos[index]) {

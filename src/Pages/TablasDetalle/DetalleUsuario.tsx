@@ -4,6 +4,8 @@ import ApiService from '../../Components/ApiService';
 import ApiRoutes from '../../Components/ApiRoutes';
 import Swal from 'sweetalert2';
 import { Usuario } from '../../Types/Types';
+import { useAuth } from '../../Pages/Auth/useAuth';
+
 
 export default function DetalleUsuarioPage() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +15,7 @@ export default function DetalleUsuarioPage() {
   const [rolSeleccionado, setRolSeleccionado] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { userPermissions } = useAuth();
 
   useEffect(() => {
     if (!id) return;
@@ -95,12 +98,28 @@ export default function DetalleUsuarioPage() {
       </div>
 
       <div className="flex gap-4 justify-center">
-        <button
+        {/* <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
           onClick={() => setIsModalOpen(true)}
         >
           Asignar Rol
-        </button>
+        </button> */}
+        <button
+  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+  onClick={() => {
+    if (!userPermissions.includes('patch_users')) {
+      return Swal.fire(
+        'Permiso denegado',
+        'No tienes permisos para realizar esta acción.',
+        'warning'
+      );
+    }
+    setIsModalOpen(true);
+  }}
+>
+  Asignar Rol
+</button>
+
         <button
           className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded"
           onClick={() => navigate(-1)}

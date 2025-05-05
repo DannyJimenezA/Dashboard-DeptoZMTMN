@@ -121,6 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (perm.action === 'GET') return `ver_${perm.resource}`;
             if (perm.action === 'POST') return `crear_${perm.resource}`;
             if (perm.action === 'PUT') return `editar_${perm.resource}`;
+            if (perm.action === 'PATCH') return `editar_${perm.resource}`;
             if (perm.action === 'DELETE') return `eliminar_${perm.resource}`;
             return `${perm.action.toLowerCase()}_${perm.resource}`;
           }

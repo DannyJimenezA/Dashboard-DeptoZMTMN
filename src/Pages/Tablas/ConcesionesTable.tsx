@@ -286,6 +286,29 @@ export default function ConcesionesTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarConcesion = async (id: number) => {
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar solicitud de concesión?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     await ApiService.delete(`${ApiRoutes.concesiones}/${id}`);
+  //     Swal.fire('¡Eliminada!', 'La concesión fue eliminada.', 'success');
+  //     setConcesiones(prev => prev.filter(c => c.id !== id));
+  //   } catch {
+  //     Swal.fire('Error', 'No se pudo eliminar la concesión.', 'error');
+  //   }
+  // };
+
   const eliminarConcesion = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar solicitud de concesión?',
@@ -297,17 +320,34 @@ export default function ConcesionesTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirmacion.isConfirmed) return;
-
+  
     try {
-      await ApiService.delete(`${ApiRoutes.concesiones}/${id}`);
+      const response = await fetch(`${ApiRoutes.urlBase}/concesiones/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (response.status === 403) {
+        Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+        return;
+      }
+  
+      if (!response.ok) {
+        throw new Error('Error en la eliminación');
+      }
+  
       Swal.fire('¡Eliminada!', 'La concesión fue eliminada.', 'success');
       setConcesiones(prev => prev.filter(c => c.id !== id));
-    } catch {
+    } catch (error) {
+      console.error(error);
       Swal.fire('Error', 'No se pudo eliminar la concesión.', 'error');
     }
   };
+  
 
   const concesionesFiltradas = concesiones.filter((c) => {
     const matchEstado = filtroEstado === 'todos' || c.status === filtroEstado;

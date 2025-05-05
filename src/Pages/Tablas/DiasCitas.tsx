@@ -4,7 +4,8 @@ import ApiRoutes from '../../Components/ApiRoutes';
 import Swal from 'sweetalert2';
 import { io } from 'socket.io-client';
 import Paginacion from '../../Components/Paginacion';
-import { FaClock, FaTrash } from 'react-icons/fa';
+import { FaClock, FaPlus, FaTrash } from 'react-icons/fa';
+import { useAuth } from '../Auth/useAuth';
 
 interface FechaCita {
   id: number;
@@ -18,6 +19,7 @@ export default function DiasCitasTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [mostrarProximas, setMostrarProximas] = useState(true); // 🔥 Solo este filtro
+    const { userPermissions } = useAuth();
 
   const navigate = useNavigate();
 
@@ -56,6 +58,9 @@ export default function DiasCitasTable() {
     };
   }, []);
 
+
+
+  
   const eliminarFecha = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar fecha?',
@@ -85,6 +90,19 @@ export default function DiasCitasTable() {
     }
   };
 
+
+  const handleCrearFechaClick = () => {
+    if (!userPermissions.includes('crear_available-dates')) {
+      return Swal.fire(
+        'Permiso denegado',
+        'No tienes permisos para realizar esta acción.',
+        'warning'
+      );
+    }
+  
+    navigate('/dashboard/crear-fecha');
+  };
+
   // 🔥 Aplica solo filtro de fechas próximas/todas
   const fechasFiltradas = fechas.filter((fecha) =>
     mostrarProximas ? new Date(fecha.date) >= new Date() : true
@@ -99,84 +117,6 @@ export default function DiasCitasTable() {
   if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
-    // <div className="flex flex-col p-4">
-    //   <h2 className="text-2xl font-bold mb-4 text-center">Fechas de Citas</h2>
-
-    //   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-    //     {/* 🔥 Filtro solo de próximas/todas */}
-    //     <div>
-    //       <label className="mr-2 font-semibold">Mostrar:</label>
-    //       <select
-    //         value={mostrarProximas ? 'proximas' : 'todas'}
-    //         onChange={(e) => {
-    //           setMostrarProximas(e.target.value === 'proximas');
-    //           setCurrentPage(1); // Reset página
-    //         }}
-    //         className="text-sm border border-gray-300 rounded-md px-3 py-2"
-    //       >
-    //         <option value="proximas">Próximas Fechas</option>
-    //         <option value="todas">Todas las Fechas</option>
-    //       </select>
-    //     </div>
-
-    //     <button
-    //       onClick={() => navigate('/dashboard/crear-fecha')}
-    //       className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-    //     >
-    //       ➕ Crear Nueva Fecha
-    //     </button>
-    //   </div>
-
-    //   <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">
-    //     <table className="min-w-full border border-gray-300 rounded-lg shadow-lg">
-    //       <thead>
-    //         <tr className="bg-gray-200">
-    //           {/* <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">ID</th> */}
-    //           <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
-    //           <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
-    //         </tr>
-    //       </thead>
-    //       <tbody>
-    //         {fechasActuales.length > 0 ? (
-    //           fechasActuales.map((fecha) => (
-    //             <tr key={fecha.id} className="hover:bg-gray-100">
-    //               {/* <td className="px-4 py-2 border-b">{fecha.id}</td> */}
-    //               <td className="px-4 py-2 border-b">{fecha.date}</td>
-    //               <td className="px-4 py-2 border-b space-x-2">
-    //                 <button
-    //                   onClick={() => navigate(`/dashboard/horas-citas/${fecha.id}`)}
-    //                   className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-    //                 >
-    //                   Asignar Horas
-    //                 </button>
-    //                 <button
-    //                   onClick={() => eliminarFecha(fecha.id)}
-    //                   className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-    //                 >
-    //                   Eliminar
-    //                 </button>
-    //               </td>
-    //             </tr>
-    //           ))
-    //         ) : (
-    //           <tr>
-    //             <td colSpan={3} className="p-4 text-center">
-    //               No hay fechas disponibles.
-    //             </td>
-    //           </tr>
-    //         )}
-    //       </tbody>
-    //     </table>
-    //   </div>
-
-    //   <Paginacion
-    //     currentPage={currentPage}
-    //     totalPages={totalPaginas}
-    //     itemsPerPage={itemsPerPage}
-    //     onPageChange={setCurrentPage}
-    //     onItemsPerPageChange={setItemsPerPage}
-    //   />
-    // </div>
     <div className="flex flex-col w-full h-full p-4">
   <h2 className="text-2xl font-bold mb-4 text-center">Fechas de Citas</h2>
 
@@ -196,12 +136,18 @@ export default function DiasCitasTable() {
       </select>
     </div>
 
-    <button
+    {/* <button
       onClick={() => navigate('/dashboard/crear-fecha')}
       className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
     >
      Crear Nueva Fecha
-    </button>
+    </button> */}
+<button
+  onClick={handleCrearFechaClick}
+  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+>
+  <FaPlus className="mr-2" /> Crear Nueva Fecha
+</button>
   </div>
 
   <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">
@@ -212,7 +158,7 @@ export default function DiasCitasTable() {
           <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      {/* <tbody className="divide-y divide-gray-200">
         {fechasActuales.length > 0 ? (
           fechasActuales.map((fecha) => (
             <tr key={fecha.id}>
@@ -241,6 +187,56 @@ export default function DiasCitasTable() {
           </tr>
         )}
       </tbody>
+       */}
+       <tbody className="divide-y divide-gray-200">
+  {fechasActuales.length > 0 ? (
+    fechasActuales.map((fecha) => (
+      <tr key={fecha.id}>
+        <td className="px-4 py-2">{fecha.date}</td>
+        <td className="px-4 py-2 space-x-2">
+          <button
+            onClick={() => {
+              if (!userPermissions.includes('crear_horas-cita')) {
+                return Swal.fire(
+                  'Permiso denegado',
+                  'No tienes permisos para gestionar las horas de esta fecha.',
+                  'warning'
+                );
+              }
+              navigate(`/dashboard/horas-citas/${fecha.id}`);
+            }}
+            className="text-blue-600 hover:text-blue-800"
+          >
+            <FaClock />
+          </button>
+
+          <button
+            onClick={() => {
+              if (!userPermissions.includes('eliminar_available-dates')) {
+                return Swal.fire(
+                  'Permiso denegado',
+                  'No tienes permisos para realizar esta acción.',
+                  'warning'
+                );
+              }
+              eliminarFecha(fecha.id);
+            }}
+            className="text-red-600 hover:text-red-800"
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={2} className="p-4 text-center text-gray-500">
+        No hay fechas disponibles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
     </table>
   </div>
 

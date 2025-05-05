@@ -226,12 +226,43 @@ export default function DetallePrecarioPage() {
     fetchPrecario()
   }, [id])
 
+  // const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
+  //   if (!mensaje.trim()) {
+  //     Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
+  //     return
+  //   }
+
+  //   const result = await MySwal.fire({
+  //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+  //     text: `Se notificará al usuario con tu mensaje.`,
+  //     icon: "question",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Sí, continuar",
+  //     cancelButtonText: "Cancelar",
+  //   })
+
+  //   if (!result.isConfirmed || !precario) return
+
+  //   try {
+  //     await ApiService.put(`${ApiRoutes.precarios}/${precario.id}/status`, {
+  //       status: nuevoEstado,
+  //       message: mensaje,
+  //     })
+      
+  //     Swal.fire("Éxito", `Uso precario ${nuevoEstado.toLowerCase()} correctamente.`, "success")
+  //     navigate("/dashboard/uso-precario")
+  //   } catch (err) {
+  //     console.error(err)
+  //     Swal.fire("Error", "Hubo un problema al actualizar el estado.", "error")
+  //   }
+  // }
+
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
-      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning")
-      return
+      Swal.fire("Atención", "Escribe un mensaje antes de continuar.", "warning");
+      return;
     }
-
+  
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -239,27 +270,37 @@ export default function DetallePrecarioPage() {
       showCancelButton: true,
       confirmButtonText: "Sí, continuar",
       cancelButtonText: "Cancelar",
-    })
-
-    if (!result.isConfirmed || !precario) return
-
+    });
+  
+    if (!result.isConfirmed || !precario) return;
+  
     try {
-      await ApiService.put(`${ApiRoutes.precarios}/${precario.id}/status`, {
-        status: nuevoEstado,
-      })
-
-      await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
-        email: precario.user?.email,
-        message: mensaje,
-      })
-
-      Swal.fire("Éxito", `Uso precario ${nuevoEstado.toLowerCase()} correctamente.`, "success")
-      navigate("/dashboard/uso-precario")
+      const res = await fetch(`${ApiRoutes.urlBase}/precario/${precario.id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          status: nuevoEstado,
+          message: mensaje,
+        }),
+      });
+  
+      if (res.status === 403) {
+        return Swal.fire("Acceso denegado", "No tienes permisos para realizar esta acción.", "warning");
+      }
+  
+      if (!res.ok) throw new Error();
+  
+      Swal.fire("Éxito", `Uso precario ${nuevoEstado.toLowerCase()} correctamente.`, "success");
+      navigate("/dashboard/uso-precario");
     } catch (err) {
-      console.error(err)
-      Swal.fire("Error", "Hubo un problema al actualizar el estado.", "error")
+      console.error(err);
+      Swal.fire("Error", "Hubo un problema al actualizar el estado.", "error");
     }
-  }
+  };
+  
 
   const manejarVerArchivo = (index: number) => {
     if (archivos[index]) {

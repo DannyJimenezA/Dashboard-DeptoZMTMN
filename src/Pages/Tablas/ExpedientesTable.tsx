@@ -304,6 +304,29 @@ export default function ExpedientesTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const handleDelete = async (idExpediente: number) => {
+  //   const confirm = await MySwal.fire({
+  //     title: '¿Eliminar expediente?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //   });
+
+  //   if (confirm.isConfirmed) {
+  //     try {
+  //       await ApiService.delete(`${ApiRoutes.expedientes}/${idExpediente}`);
+  //       setExpedientes(prev => prev.filter(exp => exp.idExpediente !== idExpediente));
+  //       MySwal.fire('¡Eliminado!', 'El expediente ha sido eliminado.', 'success');
+  //     } catch (error) {
+  //       MySwal.fire('Error', 'Hubo un problema al eliminar el expediente.', 'error');
+  //     }
+  //   }
+  // };
+
   const handleDelete = async (idExpediente: number) => {
     const confirm = await MySwal.fire({
       title: '¿Eliminar expediente?',
@@ -315,17 +338,32 @@ export default function ExpedientesTable() {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
     });
-
-    if (confirm.isConfirmed) {
-      try {
-        await ApiService.delete(`${ApiRoutes.expedientes}/${idExpediente}`);
-        setExpedientes(prev => prev.filter(exp => exp.idExpediente !== idExpediente));
-        MySwal.fire('¡Eliminado!', 'El expediente ha sido eliminado.', 'success');
-      } catch (error) {
-        MySwal.fire('Error', 'Hubo un problema al eliminar el expediente.', 'error');
+  
+    if (!confirm.isConfirmed) return;
+  
+    try {
+      const res = await fetch(`${ApiRoutes.urlBase}/expedientes/${idExpediente}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (res.status === 403) {
+        return MySwal.fire('Acceso denegado', 'No tienes permisos para realizar esta acción.', 'warning');
       }
+  
+      if (!res.ok) throw new Error();
+  
+      setExpedientes(prev => prev.filter(exp => exp.idExpediente !== idExpediente));
+      MySwal.fire('¡Eliminado!', 'El expediente ha sido eliminado.', 'success');
+    } catch (error) {
+      console.error(error);
+      MySwal.fire('Error', 'Hubo un problema al eliminar el expediente.', 'error');
     }
   };
+  
 
   const filtrados = expedientes.filter(exp => {
     const matchEstado = filtroEstado === 'todos' || exp.status === filtroEstado;

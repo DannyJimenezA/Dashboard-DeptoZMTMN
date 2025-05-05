@@ -30,13 +30,45 @@ export default function DetalleCitaPage() {
   
       fetchCita();
     }, [id]);
-  
+
+    // const cambiarEstado = async (nuevoEstado: 'Aprobada' | 'Denegada') => {
+    //   if (!mensaje.trim()) {
+    //     Swal.fire('Escribe un mensaje antes de continuar.');
+    //     return;
+    //   }
+    
+    //   const result = await MySwal.fire({
+    //     title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
+    //     text: `Se notificará al usuario con tu mensaje.`,
+    //     icon: 'question',
+    //     showCancelButton: true,
+    //     confirmButtonText: 'Sí, continuar',
+    //     cancelButtonText: 'Cancelar',
+    //   });
+    
+    //   if (!result.isConfirmed || !cita) return;
+    
+    //   try {
+    //     await ApiService.patch(`/appointments/${cita.id}/status`, {
+    //       status: nuevoEstado,
+    //       message: mensaje,
+    //     });
+        
+    
+    //     Swal.fire('Éxito', `Cita ${nuevoEstado.toLowerCase()} correctamente.`, 'success');
+    //     navigate('/dashboard/citas');
+    //   } catch (err) {
+    //     console.error(err);
+    //     Swal.fire('Error', 'Hubo un problema al actualizar la cita.', 'error');
+    //   }
+    // };
+
     const cambiarEstado = async (nuevoEstado: 'Aprobada' | 'Denegada') => {
       if (!mensaje.trim()) {
         Swal.fire('Escribe un mensaje antes de continuar.');
         return;
       }
-  
+    
       const result = await MySwal.fire({
         title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
         text: `Se notificará al usuario con tu mensaje.`,
@@ -45,19 +77,29 @@ export default function DetalleCitaPage() {
         confirmButtonText: 'Sí, continuar',
         cancelButtonText: 'Cancelar',
       });
-  
+    
       if (!result.isConfirmed || !cita) return;
-  
+    
       try {
-        await ApiService.put(`${ApiRoutes.citas}/${cita.id}/status`, {
-          status: nuevoEstado,
+        const response = await fetch(`${ApiRoutes.urlBase}/appointments/${cita.id}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            status: nuevoEstado,
+            message: mensaje,
+          }),
         });
-  
-        await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
-          email: cita.user?.email,
-          message: mensaje,
-        });
-  
+    
+        if (response.status === 403) {
+          Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+          return;
+        }
+    
+        if (!response.ok) throw new Error('Fallo al actualizar la cita');
+    
         Swal.fire('Éxito', `Cita ${nuevoEstado.toLowerCase()} correctamente.`, 'success');
         navigate('/dashboard/citas');
       } catch (err) {
@@ -65,6 +107,8 @@ export default function DetalleCitaPage() {
         Swal.fire('Error', 'Hubo un problema al actualizar la cita.', 'error');
       }
     };
+    
+    
   
     if (!cita) return <p className="p-4">Cargando cita...</p>;
   

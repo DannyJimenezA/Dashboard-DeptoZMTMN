@@ -1,4 +1,4 @@
-const BASE_URL = 'https://backend-deptozmtmn.onrender.com';  // URL base de tu API
+const BASE_URL = 'http://localhost:3000';  // URL base de tu API
 
 
 
@@ -26,6 +26,7 @@ const ApiRoutes = {
   eliminarplano: `${BASE_URL}/revision-plano/my-planos`,
   denuncias: `${BASE_URL}/denuncia`,
   citas: `${BASE_URL}/appointments`,
+citasStatus: (id: number | string) => `/appointments/${id}/status`,
   fechaDisponible: `${BASE_URL}/available-dates`,
   horasDisponibles:  `${BASE_URL}/appointments/citas-disponibles`,
   roles: `${BASE_URL}/roles`,

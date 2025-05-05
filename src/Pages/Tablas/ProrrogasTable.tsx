@@ -284,6 +284,28 @@ export default function ProrrogasTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
+  // const eliminarProrroga = async (id: number) => {
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar prórroga?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     await ApiService.delete(`${ApiRoutes.prorrogas}/${id}`);
+  //     setProrrogas(prev => prev.filter(p => p.id !== id));
+  //     Swal.fire('¡Eliminada!', 'La prórroga fue eliminada correctamente.', 'success');
+  //   } catch {
+  //     Swal.fire('Error', 'No se pudo eliminar la prórroga.', 'error');
+  //   }
+  // };
   const eliminarProrroga = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar prórroga?',
@@ -295,17 +317,31 @@ export default function ProrrogasTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-
+  
     if (!confirmacion.isConfirmed) return;
-
+  
     try {
-      await ApiService.delete(`${ApiRoutes.prorrogas}/${id}`);
-      setProrrogas(prev => prev.filter(p => p.id !== id));
+      const res = await fetch(`${ApiRoutes.urlBase}/prorrogas/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+  
+      if (res.status === 403) {
+        Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
+        return;
+      }
+  
+      if (!res.ok) throw new Error('Error al eliminar');
+  
+      setProrrogas((prev) => prev.filter((p) => p.id !== id));
       Swal.fire('¡Eliminada!', 'La prórroga fue eliminada correctamente.', 'success');
     } catch {
       Swal.fire('Error', 'No se pudo eliminar la prórroga.', 'error');
     }
   };
+  
 
   const filtradas = prorrogas.filter((p) => {
     const byEstado = filtroEstado === 'todos' || p.status === filtroEstado;

@@ -1,3 +1,5 @@
+const BASE_URL = 'http://localhost:3000'; 
+
 const ApiService = {
   // GET request
   async get<T>(url: string): Promise<T> {
@@ -66,14 +68,14 @@ const ApiService = {
   },
 
 
-   async patch<T = any>(url: string, data?: any): Promise<T> {
+  async patch<T = any>(url: string, data?: any): Promise<T> {
     const token = localStorage.getItem('token');
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     };
   
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}${url}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify(data),
@@ -85,6 +87,7 @@ const ApiService = {
   
     return await response.json();
   }
+  
   
 
 };
