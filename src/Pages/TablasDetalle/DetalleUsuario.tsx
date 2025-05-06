@@ -232,7 +232,7 @@ export default function DetalleUsuarioPage() {
 
     try {
       setLoading(true);
-      await ApiService.patch(`${ApiRoutes.users}/${id}/roles`, {
+      await ApiService.patch(`${ApiRoutes.usuarios}/${id}/roles`, {
         roles: [rolSeleccionado],
       });
 

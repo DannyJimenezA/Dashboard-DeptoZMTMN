@@ -8,7 +8,6 @@ const BASE_URL = 'https://backend-deptozmtmn.onrender.com';  // URL base de tu A
 const ApiRoutes = {
   // Definimos las rutas de cada recurso
   usuarios: `${BASE_URL}/users`,
-  users:  "/users",
   auth: {
     login: `${BASE_URL}/auth/login`,
   },
