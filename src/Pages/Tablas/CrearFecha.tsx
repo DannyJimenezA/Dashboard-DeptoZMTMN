@@ -108,7 +108,7 @@ export default function CrearFecha() {
   const handleCrearFecha = async () => {
     const token = localStorage.getItem('token');
 
-    if (!userPermissions.includes('post_available-dates')) {
+    if (!userPermissions.includes('crear_available-dates')) {
       Swal.fire('Permiso denegado', 'No tienes permisos para crear una nueva fecha.', 'warning');
       return;
     }

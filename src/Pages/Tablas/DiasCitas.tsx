@@ -158,36 +158,7 @@ export default function DiasCitasTable() {
           <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
         </tr>
       </thead>
-      {/* <tbody className="divide-y divide-gray-200">
-        {fechasActuales.length > 0 ? (
-          fechasActuales.map((fecha) => (
-            <tr key={fecha.id}>
-              <td className="px-4 py-2">{fecha.date}</td>
-              <td className="px-4 py-2 space-x-2">
-                <button
-                  onClick={() => navigate(`/dashboard/horas-citas/${fecha.id}`)}
-                  className="text-blue-600 hover:text-blue-800" 
-                >
-                  <FaClock />
-                </button>
-                <button
-                  onClick={() => eliminarFecha(fecha.id)}
-                   className="text-red-600 hover:text-red-800"
-                >
-                  <FaTrash />
-                </button>
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={2} className="p-4 text-center text-gray-500">
-              No hay fechas disponibles.
-            </td>
-          </tr>
-        )}
-      </tbody>
-       */}
+
        <tbody className="divide-y divide-gray-200">
   {fechasActuales.length > 0 ? (
     fechasActuales.map((fecha) => (
