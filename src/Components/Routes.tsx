@@ -42,7 +42,7 @@ const AppRoutesContent = () => {
       {/* Rutas públicas */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/confirm-account/:token" element={<ConfirmAccount />} />
+      <Route path="/users/confirm/:token" element={<ConfirmAccount />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/mi-perfil" element={<MiPerfil />} />
