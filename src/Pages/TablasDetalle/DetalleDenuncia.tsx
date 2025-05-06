@@ -329,7 +329,6 @@ export default function DetalleDenunciaPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [denuncia, setDenuncia] = useState<Denuncia | null>(null)
-  const [mensaje, setMensaje] = useState("")
   const [archivos, setArchivos] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 

@@ -209,12 +209,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ApiRoutes from '../../Components/ApiRoutes';
 import Swal from 'sweetalert2';
-import {
-  Clock,
-  Check,
-  X,
-  RotateCw,
-} from 'lucide-react';
+
 
 export default function AgregarHorasPage() {
   const { id } = useParams<{ id: string }>();
