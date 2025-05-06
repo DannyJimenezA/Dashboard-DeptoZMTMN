@@ -49,25 +49,24 @@ export default function Login() {
   
       // 🔥 Verificamos si tiene permisos de "ver_"
       const permissions = decoded.permissions || [];
-      const hasViewPermission = permissions.some((perm: { action: string }) => perm.action === 'GET');
-  
-      if (!hasViewPermission) {
+      const hasDashboardAccess = permissions.some(
+        (perm: { resource: string, action: string }) =>
+          perm.resource === 'dashboard' && perm.action === 'GET'
+      );
+      
+      if (!hasDashboardAccess) {
         await Swal.fire({
           icon: 'warning',
           title: 'Acceso Denegado',
-          text: 'No tienes permisos para acceder al sistema.',
+          text: 'No tienes permisos para acceder al panel administrativo.',
           confirmButtonColor: '#3085d6',
           confirmButtonText: 'Entendido',
         });
-  
-        // Limpias y rediriges a login
+      
         localStorage.removeItem('token');
         return navigate('/'), window.location.reload();
-        ;
-        
-
       }
-  
+      
       // ✅ SweetAlert de bienvenida si tiene permisos
       await Swal.fire({
         title: '¡Bienvenido!',
