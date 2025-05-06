@@ -1,5 +1,3 @@
-const BASE_URL = 'http://localhost:3000'; 
-
 const ApiService = {
   // GET request
   async get<T>(url: string): Promise<T> {
@@ -75,7 +73,7 @@ const ApiService = {
       ...(token && { Authorization: `Bearer ${token}` }),
     };
   
-    const response = await fetch(`${BASE_URL}${url}`, {
+    const response = await fetch(url, {
       method: 'PATCH',
       headers,
       body: JSON.stringify(data),
