@@ -150,6 +150,16 @@ export default function Sidebar() {
   const linkClass = (isActive: boolean) =>
     `block px-4 py-2 rounded hover:bg-gray-700 ${isActive ? 'bg-gray-800' : ''}`;
 
+  const gestionPermissions = [
+    'ver_roles',
+    'ver_available-dates',
+    'ver_tipodenuncia',
+    'ver_lugardenuncia',
+  ];
+  
+  const showGestion = gestionPermissions.some(perm => hasPermission(perm));
+  
+
   return (
     <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col overflow-y-auto">
       <div className="flex flex-col h-screen bg-sidebar p-4 justify-between">
@@ -223,7 +233,7 @@ export default function Sidebar() {
             )}
 
             {/* Gestión */}
-            <Disclosure>
+            {/* <Disclosure>
               {({ open }) => (
                 <>
                   <Disclosure.Button className="w-full flex justify-between items-center px-4 py-2 rounded hover:bg-gray-700">
@@ -254,7 +264,42 @@ export default function Sidebar() {
                   </Disclosure.Panel>
                 </>
               )}
-            </Disclosure>
+            </Disclosure> */}
+            {showGestion && (
+  <Disclosure>
+    {({ open }) => (
+      <>
+        <Disclosure.Button className="w-full flex justify-between items-center px-4 py-2 rounded hover:bg-gray-700">
+          <span>Gestión</span>
+          <ChevronUpIcon className={`${open ? 'rotate-180 transform' : ''} h-4 w-4`} />
+        </Disclosure.Button>
+        <Disclosure.Panel className="pl-4 mt-1 space-y-1 transition-all duration-300 ease-in-out">
+          {hasPermission('ver_roles') && (
+            <NavLink to="/dashboard/roles" className={({ isActive }) => linkClass(isActive)}>
+              Roles
+            </NavLink>
+          )}
+          {hasPermission('ver_available-dates') && (
+            <NavLink to="/dashboard/dias-citas" className={({ isActive }) => linkClass(isActive)}>
+              Días Citas
+            </NavLink>
+          )}
+          {hasPermission('ver_tipodenuncia') && (
+            <NavLink to="/dashboard/tipo-denuncia" className={({ isActive }) => linkClass(isActive)}>
+              Tipo Denuncia
+            </NavLink>
+          )}
+          {hasPermission('ver_lugardenuncia') && (
+            <NavLink to="/dashboard/lugar-denuncia" className={({ isActive }) => linkClass(isActive)}>
+              Lugar Denuncia
+            </NavLink>
+          )}
+        </Disclosure.Panel>
+      </>
+    )}
+  </Disclosure>
+)}
+
           </nav>
         </div>
 
