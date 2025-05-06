@@ -1,9 +1,9 @@
 // src/Pages/TipoDenuncia/CrearTipoDenunciaPage.tsx
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import ApiRoutes from '../../Components/ApiRoutes';
+
 
 export default function CrearTipoDenunciaPage() {
   const [descripcion, setDescripcion] = useState('');
@@ -37,39 +37,47 @@ export default function CrearTipoDenunciaPage() {
         navigate('/dashboard/tipo-denuncia')
       );
     } catch (error) {
-      Swal.fire('Error', 'Ocurrió un error al agregar.', 'error');
+      Swal.fire('Error', 'Ocurrió un error al agregar el tipo de denuncia.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Agregar Tipo de Denuncia</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Descripción</label>
+    <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
+        <h2 className="text-xl font-bold">Agregar Tipo de Denuncia</h2>
+      </div>
+
+      {/* Formulario */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
           <input
             type="text"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Escriba el tipo de denuncia"
             required
           />
         </div>
-        <div className="flex justify-between">
+
+        {/* Acciones */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3">
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2 justify-center"
           >
             {loading ? 'Guardando...' : 'Guardar Tipo'}
           </button>
+
           <button
             type="button"
             onClick={() => navigate('/dashboard/tipo-denuncia')}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 flex items-center gap-2 justify-center"
           >
             Cancelar
           </button>

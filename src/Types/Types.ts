@@ -43,6 +43,7 @@ export interface Concesion {
     apellido1: string;
     apellido2: string;
     email: string;
+    telefono: number,
   };
 }
 
@@ -118,6 +119,7 @@ export interface Prorroga {
     apellido2: string;
     cedula: string;
     email: string;
+    telefono: number,
   };
 }
 

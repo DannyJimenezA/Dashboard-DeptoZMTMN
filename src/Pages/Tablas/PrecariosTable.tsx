@@ -355,7 +355,7 @@ export default function PrecariosTable() {
     if (!confirm.isConfirmed) return;
   
     try {
-      const res = await fetch(`${ApiRoutes.urlBase}/precarios/${id}`, {
+      const res = await fetch(`${ApiRoutes.urlBase}/precario/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
