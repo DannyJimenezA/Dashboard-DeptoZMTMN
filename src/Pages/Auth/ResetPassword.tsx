@@ -376,7 +376,7 @@ setTimeout(() => {
 
                 <button
                   type="button"
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/')}
                   disabled={!!countdown}
                   className="w-full mt-2 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
