@@ -7,7 +7,6 @@ import ApiService from '../../Components/ApiService';
 import image from '../../Img/Img01.jpg'
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
-import { login } from './AuthContextHelper';
 
 
 export default function Login() {
