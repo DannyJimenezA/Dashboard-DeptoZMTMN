@@ -7,15 +7,18 @@ import ApiService from '../../Components/ApiService';
 import image from '../../Img/Img01.jpg'
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
+import { login } from './AuthContextHelper';
 
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  // const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+   const { login: loginWithContext } = useAuth();
 
   useEffect(() => {
     const listener = (event: StorageEvent) => {
@@ -34,58 +37,108 @@ export default function Login() {
     };
   }, []);
   
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  
+  //   try {
+  //     const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
+  //     console.log('JWT received:', data.access_token);
+  
+  //     // Guarda el token en localStorage
+  //     login(data.access_token);
+  
+  //     // Decodificar el token
+  //     const decoded = jwtDecode<any>(data.access_token);
+  
+  //     // 🔥 Verificamos si tiene permisos de "ver_"
+  //     const permissions = decoded.permissions || [];
+  //     const hasDashboardAccess = permissions.some(
+  //       (perm: { resource: string, action: string }) =>
+  //         perm.resource === 'dashboard' && perm.action === 'GET'
+  //     );
+      
+  //     if (!hasDashboardAccess) {
+  //       await Swal.fire({
+  //         icon: 'warning',
+  //         title: 'Acceso Denegado',
+  //         text: 'No tienes permisos para acceder al panel administrativo.',
+  //         confirmButtonColor: '#3085d6',
+  //         confirmButtonText: 'Entendido',
+  //       });
+      
+  //       localStorage.removeItem('token');
+  //       return navigate('/'), window.location.reload();
+  //     }
+      
+  //     // ✅ SweetAlert de bienvenida si tiene permisos
+  //     await Swal.fire({
+  //       title: '¡Bienvenido!',
+  //       text: `Has iniciado sesión como: ${decoded.email}`,
+  //       icon: 'success',
+  //       timer: 3000,
+  //       showConfirmButton: false,
+  //     });
+  
+  //     // Navegar normalmente
+  //     navigate('/dashboard');
+  
+  //   } catch (err) {
+  //     setError('Error al iniciar sesión. Verifica tus credenciales.');
+  //     console.error('Login error:', err);
+  //   }
+  // };
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
-    try {
-      const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
-      console.log('JWT received:', data.access_token);
-  
-      // Guarda el token en localStorage
-      login(data.access_token);
-  
-      // Decodificar el token
-      const decoded = jwtDecode<any>(data.access_token);
-  
-      // 🔥 Verificamos si tiene permisos de "ver_"
-      const permissions = decoded.permissions || [];
-      const hasDashboardAccess = permissions.some(
-        (perm: { resource: string, action: string }) =>
-          perm.resource === 'dashboard' && perm.action === 'GET'
-      );
-      
-      if (!hasDashboardAccess) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Acceso Denegado',
-          text: 'No tienes permisos para acceder al panel administrativo.',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido',
-        });
-      
-        localStorage.removeItem('token');
-        return navigate('/'), window.location.reload();
-      }
-      
-      // ✅ SweetAlert de bienvenida si tiene permisos
+  e.preventDefault();
+
+  try {
+    const data = await ApiService.post<{ access_token: string }>(
+      ApiRoutes.auth.login,
+      { email, password }
+    );
+
+    console.log('✅ JWT recibido:', data.access_token);
+
+    // ✅ Guarda el token y actualiza contexto
+    loginWithContext(data.access_token);
+
+    // Decodificar token
+    const decoded = jwtDecode<any>(data.access_token);
+    const permissions = decoded.permissions || [];
+
+    const hasDashboardAccess = permissions.some(
+      (perm: { resource: string; action: string }) =>
+        perm.resource === 'dashboard' && perm.action === 'GET'
+    );
+
+    if (!hasDashboardAccess) {
       await Swal.fire({
-        title: '¡Bienvenido!',
-        text: `Has iniciado sesión como: ${decoded.email}`,
-        icon: 'success',
-        timer: 3000,
-        showConfirmButton: false,
+        icon: 'warning',
+        title: 'Acceso Denegado',
+        text: 'No tienes permisos para acceder al panel administrativo.',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Entendido',
       });
-  
-      // Navegar normalmente
-      navigate('/dashboard');
-  
-    } catch (err) {
-      setError('Error al iniciar sesión. Verifica tus credenciales.');
-      console.error('Login error:', err);
+      localStorage.removeItem('token');
+      return navigate('/'), window.location.reload();
     }
-  };
-  
-  
+
+    await Swal.fire({
+      title: '¡Bienvenido!',
+      text: `Has iniciado sesión como: ${decoded.email}`,
+      icon: 'success',
+      timer: 3000,
+      showConfirmButton: false,
+    });
+
+    navigate('/dashboard');
+
+  } catch (err) {
+    setError('Error al iniciar sesión. Verifica tus credenciales.');
+    console.error('Login error:', err);
+  }
+};
+
 
   const handleBack = () => {
     navigate('/');

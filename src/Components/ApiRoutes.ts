@@ -1,4 +1,4 @@
-const BASE_URL = 'https://backend-deptozmtmn.onrender.com';  // URL base de tu API
+const BASE_URL = 'http://localhost:3000';  // URL base de tu API
 
 
 
