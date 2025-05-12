@@ -203,14 +203,14 @@ export default function Register() {
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div className="grid gap-6 md:grid-cols-2">
-                {renderInput('nombre', 'Nombre', 'text', <UserIcon className="h-5 w-5 text-gray-400" />)}
-                {renderInput('apellido1', 'Primer apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />)}
-                {renderInput('apellido2', 'Segundo apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />)}
-                {renderInput('cedula', 'Cédula', 'text', <IdentificationIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 12, 9)}
-                {renderInput('email', 'Correo electrónico', 'email', <EnvelopeIcon className="h-5 w-5 text-gray-400" />)}
-                {renderInput('telefono', 'Teléfono', 'tel', <PhoneIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 8)}
-                {renderInput('password', 'Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showPassword, setShowPassword)}
-                {renderInput('confirmPassword', 'Confirmar Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showConfirmPassword, setShowConfirmPassword)}
+                  {renderInput('nombre', 'Nombre', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
+{renderInput('apellido1', 'Primer apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
+{renderInput('apellido2', 'Segundo apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
+{renderInput('cedula', 'Cédula', 'text', <IdentificationIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 12, 9)}
+{renderInput('email', 'Correo electrónico', 'email', <EnvelopeIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 60)}
+{renderInput('telefono', 'Teléfono', 'tel', <PhoneIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 8)}
+{renderInput('password', 'Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showPassword, setShowPassword, 25)}
+{renderInput('confirmPassword', 'Confirmar Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showConfirmPassword, setShowConfirmPassword, 25)}
               </div>
 
               {errorMessage && <p className="text-red-500 text-center">{errorMessage}</p>}

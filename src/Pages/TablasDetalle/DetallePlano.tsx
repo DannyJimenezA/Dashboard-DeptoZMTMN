@@ -182,10 +182,16 @@ export default function DetallePlanoPage() {
               Detalles del Plano
             </h3>
             <div className="space-y-3">
+              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium">{revisionPlano.Date}</span></div>
               <div className="flex"><span className="text-gray-500 w-24">Expediente:</span><span className="font-medium">{revisionPlano.NumeroExpediente}</span></div>
               <div className="flex"><span className="text-gray-500 w-24">Plano:</span><span className="font-medium">{revisionPlano.NumeroPlano}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium">{revisionPlano.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Comentario:</span><span className="font-medium">{revisionPlano.Comentario || "No especificado"}</span></div>
+              {/* <div className="flex"><span className="text-gray-500 w-24">Comentario:</span><span className="font-medium">{revisionPlano.Comentario || "No especificado"}</span></div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Comentario:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {revisionPlano.Comentario || "No especificado"}
+  </div>
+</div>
             </div>
           </div>
         </div>

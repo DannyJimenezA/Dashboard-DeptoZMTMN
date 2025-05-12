@@ -196,7 +196,13 @@ export default function DetalleProrrogaPage() {
             </h3>
             <div className="space-y-3">
               <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{prorroga.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium">{prorroga.Detalle}</span></div>
+              {/* <div className="flex"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium">{prorroga.Detalle}</span></div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Detalle:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {prorroga.Detalle || "No especificado"}
+  </div>
+</div>
             </div>
           </div>
         </div>

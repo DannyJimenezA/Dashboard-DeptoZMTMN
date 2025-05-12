@@ -196,7 +196,20 @@ export default function DetalleConcesionPage() {
             <div className="space-y-3">
 
               <div className="flex items-center"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{concesion.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Detalle de la conseción:</span><span className="font-medium">{concesion.Detalle || "No especificado"}</span></div>
+              {/* <div className="flex items-center"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium flex items-center">{concesion.Detalle || "No especificado"}</span></div> */}
+<div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Detalle:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {concesion.Detalle || "No especificado"}
+  </div>
+</div>
+
+
+
+
+
+
+
             </div>
           </div>
         </div>

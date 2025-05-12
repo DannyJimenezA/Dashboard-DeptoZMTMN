@@ -6,6 +6,7 @@ import type { Cita } from "../../Types/Types"
 import Swal from "sweetalert2"
 import withReactContent from "sweetalert2-react-content"
 import { ArrowLeft, Calendar, User, UserCheck, X } from "lucide-react"
+import { socket } from "../../context/socket"; 
 
 const MySwal = withReactContent(Swal)
 
@@ -85,6 +86,9 @@ export default function DetalleCitaPage() {
       }
 
       if (!response.ok) throw new Error("Fallo al actualizar la cita")
+
+
+    socket.emit("actualizar-solicitudes", { tipo: "citas" }); 
 
       Swal.fire({
         title: "¡Éxito!",
@@ -197,7 +201,7 @@ export default function DetalleCitaPage() {
               </div>
               <div className="flex">
                 <span className="text-gray-500 w-24">Apellidos:</span>
-                <span className="font-medium">{cita.user?.apellido1 + cita.user?.apellido2 || "No disponible"}</span>
+                <span className="font-medium">{cita.user?.apellido1 || "No disponible"} {cita.user?.apellido2 || "No disponible"}</span>
               </div>
               <div className="flex">
                 <span className="text-gray-500 w-24">Email:</span>
@@ -231,7 +235,7 @@ export default function DetalleCitaPage() {
                   {cita.horaCita?.hora || "No disponible"}
                 </span>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-start">
                 <span className="text-gray-500 w-24">Descripción:</span>
                 <span className="font-medium flex items-center">
 

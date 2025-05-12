@@ -187,9 +187,14 @@ export default function DetallePrecarioPage() {
               Detalles de la Solicitud
             </h3>
             <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-24">ID:</span><span className="font-medium">{precario.id}</span></div>
               <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium">{precario.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Tipo:</span><span className="font-medium">{precario.Detalle}</span></div>
+              {/* <div className="flex"><span className="text-gray-500 w-24">Tipo:</span><span className="font-medium">{precario.Detalle}</span></div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Detalle:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {precario.Detalle || "No especificado"}
+  </div>
+</div>
             </div>
           </div>
         </div>

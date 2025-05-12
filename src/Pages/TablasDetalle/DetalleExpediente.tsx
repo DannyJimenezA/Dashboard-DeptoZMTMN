@@ -190,7 +190,9 @@ export default function DetalleExpedientePage() {
                 <span className="text-gray-500 w-28">Medio de notificación:</span>
                 <span className="font-medium flex items-center">
                 
-                  {expediente.medioNotificacion}
+                  {/* {expediente.medioNotificacion} */}
+                  {expediente.medioNotificacion.charAt(0).toUpperCase() + expediente.medioNotificacion.slice(1).toLowerCase()}
+
                 </span>
               </div>
             </div>

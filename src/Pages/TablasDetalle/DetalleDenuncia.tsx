@@ -23,7 +23,6 @@
 //   const { id } = useParams()
 //   const navigate = useNavigate()
 //   const [denuncia, setDenuncia] = useState<Denuncia | null>(null)
-//   const [mensaje, setMensaje] = useState("")
 //   const [archivos, setArchivos] = useState<string[]>([])
 //   const [loading, setLoading] = useState<boolean>(true)
 
@@ -67,29 +66,19 @@
 //   }, [id])
 
 //   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
-//     if (!mensaje.trim()) {
-//       Swal.fire({
-//         title: "Mensaje requerido",
-//         text: "Escribe un mensaje antes de continuar.",
-//         icon: "warning",
-//         confirmButtonColor: "#00a884",
-//       })
-//       return
-//     }
-
 //     const result = await MySwal.fire({
 //       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
-//       text: `Se notificará al usuario con tu mensaje.`,
+//       text: `¿Estás seguro que deseas marcar esta denuncia como ${nuevoEstado.toLowerCase()}?`,
 //       icon: "question",
 //       showCancelButton: true,
 //       confirmButtonText: "Sí, continuar",
 //       cancelButtonText: "Cancelar",
 //       confirmButtonColor: nuevoEstado === "Aprobada" ? "#00a884" : "#e53935",
 //       cancelButtonColor: "#546e7a",
-//     })
-
-//     if (!result.isConfirmed || !denuncia) return
-
+//     });
+  
+//     if (!result.isConfirmed || !denuncia) return;
+  
 //     try {
 //       const response = await fetch(`${ApiRoutes.urlBase}/denuncia/${denuncia.id}/status`, {
 //         method: "PUT",
@@ -98,37 +87,29 @@
 //           Authorization: `Bearer ${localStorage.getItem("token")}`,
 //         },
 //         body: JSON.stringify({ status: nuevoEstado }),
-//       })
-
-//       if (response.status === 403) {
-//         Swal.fire({
-//           title: "Acceso Denegado",
-//           text: "No tienes permisos para realizar esta acción.",
-//           icon: "warning",
-//           confirmButtonColor: "#00a884",
-//         })
-//         return
-//       }
-
-//       if (!response.ok) throw new Error("Error al actualizar")
-
+//       });
+  
+//       if (!response.ok) throw new Error();
+  
 //       Swal.fire({
 //         title: "¡Éxito!",
 //         text: `Denuncia ${nuevoEstado.toLowerCase()} correctamente.`,
 //         icon: "success",
 //         confirmButtonColor: "#00a884",
-//       })
-//       navigate("/dashboard/denuncias")
+//       });
+  
+//       navigate("/dashboard/denuncias");
 //     } catch (err) {
-//       console.error(err)
+//       console.error(err);
 //       Swal.fire({
 //         title: "Error",
 //         text: "Hubo un problema al actualizar la denuncia.",
 //         icon: "error",
 //         confirmButtonColor: "#00a884",
-//       })
+//       });
 //     }
-//   }
+//   };
+  
 
 //   const abrirArchivo = (index: number) => {
 //     if (!archivos[index]) return
@@ -206,9 +187,15 @@
 //               Información del Denunciante
 //             </h3>
 //             <div className="space-y-3">
-//               <div className="flex"><span className="text-gray-500 w-28">Nombre:</span><span className="font-medium">{denuncia.nombreDenunciante || "Anónimo"}</span></div>
+//               {/* <div className="flex"><span className="text-gray-500 w-28">Nombre:</span><span className="font-medium ">{denuncia.nombreDenunciante || "Anónimo"}</span></div> */}
+//               <div className="grid grid-cols-[6rem_1fr] gap-2">
+//   <span className="text-gray-500 pt-1">Nombre:</span>
+//   <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+//     {denuncia.nombreDenunciante || "Anónimo"}
+//   </div>
+// </div>
 //               <div className="flex"><span className="text-gray-500 w-28">Cédula:</span><span className="font-medium">{denuncia.cedulaDenunciante || "Anónimo"}</span></div>
-//               <div className="flex"><span className="text-gray-500 w-28">ID Denuncia:</span><span className="font-medium">{denuncia.id}</span></div>
+
 //               <div className="flex"><span className="text-gray-500 w-28">Notificación:</span><span className="font-medium">{denuncia.metodoNotificacion || "No especificado"}</span></div>
 //               <div className="flex"><span className="text-gray-500 w-28">Medio:</span><span className="font-medium">{denuncia.medioNotificacion || "No especificado"}</span></div>
 //             </div>
@@ -223,9 +210,21 @@
 //             <div className="space-y-3">
 //               <div className="flex"><span className="text-gray-500 w-28">Fecha:</span><span className="font-medium flex items-center"><Calendar className="h-4 w-4 mr-1 text-teal-600" />{denuncia.Date || "No disponible"}</span></div>
 //               <div className="flex"><span className="text-gray-500 w-28">Tipo:</span><span className="font-medium">{denuncia.tipoDenuncia?.descripcion || "No especificado"}</span></div>
-//               <div className="flex"><span className="text-gray-500 w-28">Descripción:</span><span className="font-medium">{denuncia.descripcion || "No especificado"}</span></div>
+//               {/* <div className="flex"><span className="text-gray-500 w-28">Descripción:</span><span className="font-medium">{denuncia.descripcion || "No especificado"}</span></div> */}
+//               <div className="grid grid-cols-[6rem_1fr] gap-2">
+//   <span className="text-gray-500 pt-1">Descripción:</span>
+//   <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+//     {denuncia.descripcion || "No especificado"}
+//   </div>
+// </div>
 //               <div className="flex"><span className="text-gray-500 w-28">Lugar:</span><span className="font-medium">{denuncia.lugarDenuncia?.descripcion || "No especificado"}</span></div>
-//               <div className="flex"><span className="text-gray-500 w-28">Ubicación exacta:</span><span className="font-medium">{denuncia.ubicacion || "No especificado"}</span></div>
+//               {/* <div className="flex"><span className="text-gray-500 w-28">Ubicación exacta:</span><span className="font-medium">{denuncia.ubicacion || "No especificado"}</span></div> */}
+//               <div className="grid grid-cols-[6rem_1fr] gap-2">
+//   <span className="text-gray-500 pt-1">Ubicación exacta:</span>
+//   <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+//     {denuncia.ubicacion || "No especificado"}
+//   </div>
+// </div>
               
 //             </div>
 //           </div>
@@ -237,8 +236,14 @@
 //             <File className="h-5 w-5 text-teal-600" />
 //             Evidencias
 //           </h3>
-//           <p className="text-gray-700 bg-gray-50 p-3 rounded-md mb-4">{denuncia.detallesEvidencia || "No se proporcionaron detalles de evidencia."}</p>
-
+//           {/* <p className="text-gray-700 bg-gray-50 p-3 rounded-md mb-4">{denuncia.detallesEvidencia || "No se proporcionaron detalles de evidencia."}</p> */}
+//           <div className="grid grid-cols-[6rem_1fr] gap-2">
+//   <span className="text-gray-500 pt-1">Detalle:</span>
+//   <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+//     {denuncia.detallesEvidencia || "No especificado"}
+//   </div>
+// </div>
+//   <span className="text-gray-500 pt-1">Imagenes:</span>
 //           {archivos.length > 0 ? (
 //             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
 //               {archivos.map((archivo, index) => (
@@ -260,32 +265,33 @@
 
 //         {/* Respuesta */}
 //         {isEditable && (
-//           <div className="bg-white border border-gray-200 rounded-lg p-4">
-//             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-//               <UserCheck className="h-5 w-5 text-teal-600" />
-//               Respuesta al Usuario
-//             </h3>
-//             <textarea
-//               value={mensaje}
-//               onChange={(e) => setMensaje(e.target.value)}
-//               rows={4}
-//               className="w-full border border-gray-300 rounded-md p-3 resize-none focus:ring-2 focus:ring-teal-500"
-//               placeholder="Escribe aquí el mensaje que se enviará al usuario..."
-//             />
-//             <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado como notificación.</p>
+//   <div className="bg-white border border-gray-200 rounded-lg p-4">
+//     <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+//       <UserCheck className="h-5 w-5 text-teal-600" />
+//       Gestionar Estado de la Denuncia
+//     </h3>
+//     <p className="text-sm text-gray-600 mb-4">
+//       Puedes aprobar o denegar esta denuncia. No se enviará mensaje ya que puede ser anónima.
+//     </p>
+//     <div className="flex flex-col sm:flex-row gap-3">
+//       <button
+//         onClick={() => cambiarEstado("Aprobada")}
+//         className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center justify-center gap-2"
+//       >
+//         <UserCheck className="h-5 w-5" />
+//          Denuncia Atendida
+//       </button>
+//       <button
+//         onClick={() => cambiarEstado("Denegada")}
+//         className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center justify-center gap-2"
+//       >
+//         <X className="h-5 w-5" />
+//          Denuncia Denegada
+//       </button>
+//     </div>
+//   </div>
+// )}
 
-//             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-//               <button onClick={() => cambiarEstado("Aprobada")} className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center justify-center gap-2">
-//                 <UserCheck className="h-5 w-5" />
-//                 Aprobar Denuncia
-//               </button>
-//               <button onClick={() => cambiarEstado("Denegada")} className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center justify-center gap-2">
-//                 <X className="h-5 w-5" />
-//                 Denegar Denuncia
-//               </button>
-//             </div>
-//           </div>
-//         )}
 
 //         {/* Botón volver */}
 //         <div className="text-right">
@@ -302,8 +308,6 @@
 //   )
 // }
 
-
-
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import type { Denuncia } from "../../Types/Types"
@@ -311,6 +315,7 @@ import ApiService from "../../Components/ApiService"
 import ApiRoutes from "../../Components/ApiRoutes"
 import Swal from "sweetalert2"
 import withReactContent from "sweetalert2-react-content"
+import { socket } from "../../context/socket";
 import {
   ArrowLeft,
   Calendar,
@@ -331,6 +336,7 @@ export default function DetalleDenunciaPage() {
   const [denuncia, setDenuncia] = useState<Denuncia | null>(null)
   const [archivos, setArchivos] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  
 
   useEffect(() => {
     const fetchDenuncia = async () => {
@@ -372,9 +378,11 @@ export default function DetalleDenunciaPage() {
   }, [id])
 
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
+    const estadoVisual = nuevoEstado === "Aprobada" ? "atendida" : nuevoEstado.toLowerCase()
+
     const result = await MySwal.fire({
-      title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
-      text: `¿Estás seguro que deseas marcar esta denuncia como ${nuevoEstado.toLowerCase()}?`,
+      title: `¿Confirmar ${estadoVisual}?`,
+      text: `¿Estás seguro que deseas marcar esta denuncia como ${estadoVisual}?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Sí, continuar",
@@ -382,9 +390,9 @@ export default function DetalleDenunciaPage() {
       confirmButtonColor: nuevoEstado === "Aprobada" ? "#00a884" : "#e53935",
       cancelButtonColor: "#546e7a",
     });
-  
+
     if (!result.isConfirmed || !denuncia) return;
-  
+
     try {
       const response = await fetch(`${ApiRoutes.urlBase}/denuncia/${denuncia.id}/status`, {
         method: "PUT",
@@ -394,16 +402,18 @@ export default function DetalleDenunciaPage() {
         },
         body: JSON.stringify({ status: nuevoEstado }),
       });
-  
+
       if (!response.ok) throw new Error();
-  
+
+      socket.emit('actualizar-solicitudes', { tipo: 'denuncias' });
+
       Swal.fire({
         title: "¡Éxito!",
-        text: `Denuncia ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Denuncia ${estadoVisual} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
       });
-  
+
       navigate("/dashboard/denuncias");
     } catch (err) {
       console.error(err);
@@ -415,7 +425,6 @@ export default function DetalleDenunciaPage() {
       });
     }
   };
-  
 
   const abrirArchivo = (index: number) => {
     if (!archivos[index]) return
@@ -435,7 +444,7 @@ export default function DetalleDenunciaPage() {
       case "Pendiente":
         return <span className={`${base} bg-amber-100 text-amber-800 border-amber-200`}>Pendiente</span>
       case "Aprobada":
-        return <span className={`${base} bg-teal-100 text-teal-800 border-teal-200`}>Aprobada</span>
+        return <span className={`${base} bg-teal-100 text-teal-800 border-teal-200`}>Atendida</span>
       case "Denegada":
         return <span className={`${base} bg-red-100 text-red-800 border-red-200`}>Denegada</span>
       default:
@@ -477,25 +486,27 @@ export default function DetalleDenunciaPage() {
 
   return (
     <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
-      {/* Encabezado */}
       <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
         <h2 className="text-xl font-bold">Detalles de la Denuncia</h2>
         {getStatusBadge(denuncia.status || "Pendiente")}
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Grid principal */}
+        {/* Información del denunciante */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Información del denunciante */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <User className="h-5 w-5 text-teal-600" />
               Información del Denunciante
             </h3>
             <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-28">Nombre:</span><span className="font-medium">{denuncia.nombreDenunciante || "Anónimo"}</span></div>
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+                <span className="text-gray-500 pt-1">Nombre:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {denuncia.nombreDenunciante || "Anónimo"}
+                </div>
+              </div>
               <div className="flex"><span className="text-gray-500 w-28">Cédula:</span><span className="font-medium">{denuncia.cedulaDenunciante || "Anónimo"}</span></div>
-              <div className="flex"><span className="text-gray-500 w-28">ID Denuncia:</span><span className="font-medium">{denuncia.id}</span></div>
               <div className="flex"><span className="text-gray-500 w-28">Notificación:</span><span className="font-medium">{denuncia.metodoNotificacion || "No especificado"}</span></div>
               <div className="flex"><span className="text-gray-500 w-28">Medio:</span><span className="font-medium">{denuncia.medioNotificacion || "No especificado"}</span></div>
             </div>
@@ -510,10 +521,19 @@ export default function DetalleDenunciaPage() {
             <div className="space-y-3">
               <div className="flex"><span className="text-gray-500 w-28">Fecha:</span><span className="font-medium flex items-center"><Calendar className="h-4 w-4 mr-1 text-teal-600" />{denuncia.Date || "No disponible"}</span></div>
               <div className="flex"><span className="text-gray-500 w-28">Tipo:</span><span className="font-medium">{denuncia.tipoDenuncia?.descripcion || "No especificado"}</span></div>
-              <div className="flex"><span className="text-gray-500 w-28">Descripción:</span><span className="font-medium">{denuncia.descripcion || "No especificado"}</span></div>
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+                <span className="text-gray-500 pt-1">Descripción:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {denuncia.descripcion || "No especificado"}
+                </div>
+              </div>
               <div className="flex"><span className="text-gray-500 w-28">Lugar:</span><span className="font-medium">{denuncia.lugarDenuncia?.descripcion || "No especificado"}</span></div>
-              <div className="flex"><span className="text-gray-500 w-28">Ubicación exacta:</span><span className="font-medium">{denuncia.ubicacion || "No especificado"}</span></div>
-              
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+                <span className="text-gray-500 pt-1">Ubicación exacta:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {denuncia.ubicacion || "No especificado"}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -524,8 +544,13 @@ export default function DetalleDenunciaPage() {
             <File className="h-5 w-5 text-teal-600" />
             Evidencias
           </h3>
-          <p className="text-gray-700 bg-gray-50 p-3 rounded-md mb-4">{denuncia.detallesEvidencia || "No se proporcionaron detalles de evidencia."}</p>
-
+          <div className="grid grid-cols-[6rem_1fr] gap-2">
+            <span className="text-gray-500 pt-1">Detalle:</span>
+            <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+              {denuncia.detallesEvidencia || "No especificado"}
+            </div>
+          </div>
+          <span className="text-gray-500 pt-1">Imágenes:</span>
           {archivos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {archivos.map((archivo, index) => (
@@ -545,35 +570,34 @@ export default function DetalleDenunciaPage() {
           )}
         </div>
 
-        {/* Respuesta */}
+        {/* Acciones */}
         {isEditable && (
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-      <UserCheck className="h-5 w-5 text-teal-600" />
-      Gestionar Estado de la Denuncia
-    </h3>
-    <p className="text-sm text-gray-600 mb-4">
-      Puedes aprobar o denegar esta denuncia. No se enviará mensaje ya que puede ser anónima.
-    </p>
-    <div className="flex flex-col sm:flex-row gap-3">
-      <button
-        onClick={() => cambiarEstado("Aprobada")}
-        className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center justify-center gap-2"
-      >
-        <UserCheck className="h-5 w-5" />
-        Aprobar Denuncia
-      </button>
-      <button
-        onClick={() => cambiarEstado("Denegada")}
-        className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center justify-center gap-2"
-      >
-        <X className="h-5 w-5" />
-        Denegar Denuncia
-      </button>
-    </div>
-  </div>
-)}
-
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+              <UserCheck className="h-5 w-5 text-teal-600" />
+              Gestionar Estado de la Denuncia
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Puedes atender o denegar esta denuncia. No se enviará mensaje ya que puede ser anónima.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => cambiarEstado("Aprobada")}
+                className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center justify-center gap-2"
+              >
+                <UserCheck className="h-5 w-5" />
+                Denuncia Atendida
+              </button>
+              <button
+                onClick={() => cambiarEstado("Denegada")}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 flex items-center justify-center gap-2"
+              >
+                <X className="h-5 w-5" />
+                Denuncia Denegada
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Botón volver */}
         <div className="text-right">

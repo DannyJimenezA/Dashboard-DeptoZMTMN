@@ -96,7 +96,7 @@ export default function Login() {
       { email, password }
     );
 
-    console.log('✅ JWT recibido:', data.access_token);
+    // console.log('✅ JWT recibido:', data.access_token);
 
     // ✅ Guarda el token y actualiza contexto
     loginWithContext(data.access_token);
@@ -166,6 +166,7 @@ export default function Login() {
               </div>
               <input
                 id="email-address"
+                maxLength={60}
                 name="email"
                 type="email"
                 autoComplete="email"
@@ -188,6 +189,7 @@ export default function Login() {
               </div>
               <input
                 id="password"
+                maxLength={25}
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
