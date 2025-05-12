@@ -185,7 +185,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (countdown === null) return;
 
     if (countdown === 0) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 

@@ -203,10 +203,16 @@ export default function DetalleCitaPage() {
                 <span className="text-gray-500 w-24">Apellidos:</span>
                 <span className="font-medium">{cita.user?.apellido1 || "No disponible"} {cita.user?.apellido2 || "No disponible"}</span>
               </div>
-              <div className="flex">
+              {/* <div className="flex">
                 <span className="text-gray-500 w-24">Email:</span>
                 <span className="font-medium">{cita.user?.email || "No disponible"}</span>
-              </div>
+              </div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Correo:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {cita.user?.email || "No especificado"}
+  </div>
+</div>
               <div className="flex">
                 <span className="text-gray-500 w-24">Telefono:</span>
                 <span className="font-medium">{cita.user?.telefono || "No disponible"}</span>
@@ -235,13 +241,19 @@ export default function DetalleCitaPage() {
                   {cita.horaCita?.hora || "No disponible"}
                 </span>
               </div>
-              <div className="flex items-start">
+              {/* <div className="flex items-start">
                 <span className="text-gray-500 w-24">Descripción:</span>
                 <span className="font-medium flex items-center">
 
                   {cita.description || "No disponible"}
                 </span>
-              </div>
+              </div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Descripción:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {cita.description || "No especificado"}
+  </div>
+</div>
             </div>
           </div>
         </div>
