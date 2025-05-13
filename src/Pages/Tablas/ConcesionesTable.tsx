@@ -111,7 +111,15 @@ export default function ConcesionesTable() {
         throw new Error('Error en la eliminación');
       }
 
-      Swal.fire('¡Eliminada!', 'La concesión fue eliminada.', 'success');
+      // Swal.fire('¡Eliminada!', 'La concesión fue eliminada.', 'success');
+      Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La solicitud de concesión ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
       setConcesiones(prev => prev.filter(c => c.id !== id));
     } catch (error) {
       console.error(error);

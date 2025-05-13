@@ -96,9 +96,11 @@ export default function DetalleProrrogaPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Prórroga ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de prórroga ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
 
       navigate("/dashboard/prorrogas");

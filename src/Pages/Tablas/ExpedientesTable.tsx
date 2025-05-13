@@ -306,7 +306,15 @@ export default function ExpedientesTable() {
       if (!res.ok) throw new Error();
 
       setExpedientes(prev => prev.filter(exp => exp.idExpediente !== idExpediente));
-      MySwal.fire('¡Eliminado!', 'El expediente ha sido eliminado.', 'success');
+//      MySwal.fire('¡Eliminado!', 'El expediente ha sido eliminado.', 'success');
+Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La solicitud de expediente ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
     } catch (error) {
       console.error(error);
       MySwal.fire('Error', 'Hubo un problema al eliminar el expediente.', 'error');

@@ -88,9 +88,11 @@ export default function DetallePlanoPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Plano ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de revisión de plano ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
       navigate("/dashboard/planos");
     } catch {

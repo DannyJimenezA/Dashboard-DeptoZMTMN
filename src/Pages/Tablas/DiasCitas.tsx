@@ -61,34 +61,90 @@ export default function DiasCitasTable() {
 
 
   
+  // const eliminarFecha = async (id: number) => {
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar fecha?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     await fetch(`${ApiRoutes.fechaCitas}/${id}`, {
+  //       method: 'DELETE',
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     Swal.fire('¡Eliminado!', 'La fecha fue eliminada correctamente.', 'success');
+  //     setFechas((prev) => prev.filter((f) => f.id !== id));
+  //   } catch (err) {
+  //     console.error(err);
+  //     Swal.fire('Error', 'No se pudo eliminar la fecha.', 'error');
+  //   }
+  // };
   const eliminarFecha = async (id: number) => {
-    const confirmacion = await Swal.fire({
-      title: '¿Eliminar fecha?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#dc3545',
+  const confirmacion = await Swal.fire({
+    title: '¿Eliminar fecha?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#dc3545',
+  });
+
+  if (!confirmacion.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${ApiRoutes.fechaCitas}/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!confirmacion.isConfirmed) return;
-
+    let data : any= {};
     try {
-      const token = localStorage.getItem('token');
-      await fetch(`${ApiRoutes.fechaCitas}/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      Swal.fire('¡Eliminado!', 'La fecha fue eliminada correctamente.', 'success');
-      setFechas((prev) => prev.filter((f) => f.id !== id));
-    } catch (err) {
-      console.error(err);
-      Swal.fire('Error', 'No se pudo eliminar la fecha.', 'error');
+      data = await response.json();
+    } catch (_) {
+      // Puede ser 204 No Content
     }
-  };
+
+    if (!response.ok) {
+      if (data && typeof data === 'object' && 'message' in data && data.message.includes('citas agendadas')) {
+        return Swal.fire({
+          icon: 'warning',
+          title: 'No se puede eliminar',
+          text: 'Esta fecha tiene citas agendadas. Elimínelas antes de intentar eliminar esta fecha.',
+          confirmButtonColor: '#dc3545',
+        });
+      }
+
+      throw new Error('Error al eliminar la fecha');
+    }
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Eliminada!',
+      text: 'La fecha fue eliminada correctamente.',
+      timer: 3000,
+      showConfirmButton: false,
+    });
+
+    setFechas((prev) => prev.filter((f) => f.id !== id));
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'No se pudo eliminar la fecha.', 'error');
+  }
+};
+
 
 
   const handleCrearFechaClick = () => {

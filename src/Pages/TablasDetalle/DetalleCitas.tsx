@@ -95,6 +95,8 @@ export default function DetalleCitaPage() {
         text: `Cita ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       })
       navigate("/dashboard/citas")
     } catch (err) {

@@ -106,7 +106,15 @@ const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort()
       if (!response.ok) throw new Error('Error al eliminar');
   
       setDenuncias(prev => prev.filter(d => d.id !== id));
-      Swal.fire('Eliminada', 'La denuncia fue eliminada correctamente.', 'success');
+      // Swal.fire('Eliminada', 'La denuncia fue eliminada correctamente.', 'success');
+      Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La denuncia ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
     } catch (err) {
       console.error(err);
       Swal.fire('Error', 'No se pudo eliminar la denuncia.', 'error');

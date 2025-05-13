@@ -88,9 +88,11 @@ export default function DetallePrecarioPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Uso precario ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de Uso precario ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       })
       navigate("/dashboard/uso-precario")
     } catch {

@@ -93,9 +93,11 @@ export default function DetalleConcesionPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Concesión ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de concesión ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
       navigate("/dashboard/concesiones");
     } catch (err) {

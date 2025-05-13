@@ -107,7 +107,15 @@ export default function PrecariosTable() {
       if (!res.ok) throw new Error();
   
       setPrecarios(prev => prev.filter(p => p.id !== id));
-      Swal.fire('¡Eliminada!', 'La solicitud fue eliminada correctamente.', 'success');
+//      Swal.fire('¡Eliminada!', 'La solicitud fue eliminada correctamente.', 'success');
+Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La solicitud de uso precario ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
     } catch (err) {
       console.error(err);
       Swal.fire('Error', 'No se pudo eliminar la solicitud.', 'error');

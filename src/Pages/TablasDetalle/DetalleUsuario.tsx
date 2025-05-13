@@ -250,7 +250,9 @@ await Swal.fire({
   title: 'Rol Asignado',
   text: `El rol "${rolNombre}" fue asignado correctamente.`,
   icon: 'success',
-  confirmButtonText: 'Aceptar'
+  confirmButtonText: 'Aceptar',
+      timer: 3000,
+      showConfirmButton: false,
 });
 
 

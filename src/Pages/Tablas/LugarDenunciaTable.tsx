@@ -281,33 +281,6 @@ export default function LugarDenunciaTable() {
     };
   }, []);
 
-  // const handleEliminar = async (id: number) => {
-  //   const confirm = await Swal.fire({
-  //     title: '¿Eliminar lugar?',
-  //     text: 'Esta acción no se puede deshacer.',
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Sí, eliminar',
-  //     cancelButtonText: 'Cancelar',
-  //   });
-
-  //   if (!confirm.isConfirmed) return;
-
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia/${id}`, {
-  //       method: 'DELETE',
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     if (!res.ok) throw new Error();
-
-  //     setLugares(prev => prev.filter(l => l.id !== id));
-  //     Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
-  //   } catch (err) {
-  //     Swal.fire('Error', 'No se pudo eliminar el lugar.', 'error');
-  //   }
-  // };
   const handleEliminar = async (id: number) => {
     const confirm = await Swal.fire({
       title: '¿Eliminar lugar?',
@@ -316,6 +289,8 @@ export default function LugarDenunciaTable() {
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#28a745',
+    cancelButtonColor: '#dc3545',
     });
   
     if (!confirm.isConfirmed) return;
@@ -338,7 +313,15 @@ export default function LugarDenunciaTable() {
       if (!res.ok) throw new Error();
   
       setLugares((prev) => prev.filter((l) => l.id !== id));
-      Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
+      // Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
+            Swal.fire({
+        title: "¡Éxito!",
+        text: `Lugar de denuncia eliminado correctamente.`,
+        icon: "success",
+        confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
+      })
     } catch (err) {
       Swal.fire('Error', 'No se pudo eliminar el lugar.', 'error');
     }

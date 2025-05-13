@@ -14,7 +14,7 @@ export default function CrearTipoDenunciaPage() {
     e.preventDefault();
 
     if (!descripcion.trim()) {
-      Swal.fire('Campo requerido', 'Por favor, ingresa una descripción.', 'info');
+      Swal.fire('Campo requerido', 'Por favor, ingresa un tipo de denuncia.', 'warning');
       return;
     }
 
@@ -33,7 +33,14 @@ export default function CrearTipoDenunciaPage() {
 
       if (!response.ok) throw new Error();
 
-      Swal.fire('¡Guardado!', 'Tipo de denuncia agregado correctamente.', 'success').then(() =>
+      Swal.fire({
+        title: "¡Éxito!",
+        text: `Tipo de denuncia creado correctamente.`,
+        icon: "success",
+        confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
+      }).then(() =>
         navigate('/dashboard/tipo-denuncia')
       );
     } catch (error) {
@@ -53,14 +60,14 @@ export default function CrearTipoDenunciaPage() {
       {/* Formulario */}
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de denuncia</label>
           <input
             type="text"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Escriba el tipo de denuncia"
-            required
+            // required
           />
         </div>
 

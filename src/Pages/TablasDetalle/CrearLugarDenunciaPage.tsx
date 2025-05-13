@@ -93,7 +93,7 @@ export default function CrearLugarDenunciaPage() {
     e.preventDefault();
 
     if (!descripcion.trim()) {
-      Swal.fire('Campo requerido', 'Por favor, ingresa una descripción.', 'info');
+      Swal.fire('Campo requerido', 'Por favor, ingresa un lugar de denuncia.', 'warning');
       return;
     }
 
@@ -112,7 +112,16 @@ export default function CrearLugarDenunciaPage() {
 
       if (!response.ok) throw new Error();
 
-      Swal.fire('¡Agregado!', 'Lugar de denuncia creado correctamente.', 'success').then(() => {
+      // Swal.fire('¡Agregado!', 'Lugar de denuncia creado correctamente.', 'success')
+            Swal.fire({
+        title: "¡Éxito!",
+        text: `Lugar de denuncia creado correctamente.`,
+        icon: "success",
+        confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
+      })
+      .then(() => {
         navigate('/dashboard/lugar-denuncia');
       });
     } catch (error) {
@@ -132,14 +141,14 @@ export default function CrearLugarDenunciaPage() {
       {/* Formulario */}
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Lugar</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Lugar de denuncia</label>
           <input
             type="text"
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             placeholder="Escriba el nombre del lugar de denuncia"
-            required
+            // required
           />
         </div>
 

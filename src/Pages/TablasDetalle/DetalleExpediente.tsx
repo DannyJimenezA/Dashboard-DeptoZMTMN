@@ -86,9 +86,11 @@ export default function DetalleExpedientePage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Expediente ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de expediente ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
       navigate("/dashboard/expedientes");
     } catch (err) {

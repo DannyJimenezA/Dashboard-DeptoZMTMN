@@ -112,7 +112,16 @@ const fetchCitas = async () => {
       }
       if (!res.ok) throw new Error('Falló la eliminación');
 
-      Swal.fire('¡Eliminada!', 'La cita ha sido eliminada.', 'success');
+      // Swal.fire('¡Eliminada!', 'La cita ha sido eliminada.', 'success', );
+      Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La cita ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
+      
       setCitas(prev => prev.filter(c => c.id !== id));
     } catch (error) {
       console.error('Error al eliminar cita:', error);

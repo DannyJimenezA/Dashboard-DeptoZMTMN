@@ -412,6 +412,8 @@ export default function DetalleDenunciaPage() {
         text: `Denuncia ${estadoVisual} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
 
       navigate("/dashboard/denuncias");

@@ -110,7 +110,15 @@ setFechasDisponibles(fechasUnicas);
       if (!res.ok) throw new Error('Error al eliminar');
   
       setProrrogas((prev) => prev.filter((p) => p.id !== id));
-      Swal.fire('¡Eliminada!', 'La prórroga fue eliminada correctamente.', 'success');
+      // Swal.fire('¡Eliminada!', 'La prórroga fue eliminada correctamente.', 'success');
+      Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La solicitud de prórroga ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
     } catch {
       Swal.fire('Error', 'No se pudo eliminar la prórroga.', 'error');
     }
