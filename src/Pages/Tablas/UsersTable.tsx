@@ -208,7 +208,7 @@ export default function UsersTable() {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {usuariosActuales.map((usuario) => (
               <tr key={usuario.id}>
                 <td className="px-4 py-2">{usuario.nombre}</td>
@@ -231,7 +231,40 @@ export default function UsersTable() {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {usuariosActuales.length > 0 ? (
+    usuariosActuales.map((usuario) => (
+      <tr key={usuario.id}>
+        <td className="px-4 py-2">{usuario.nombre}</td>
+        <td className="px-4 py-2">{usuario.apellido1} {usuario.apellido2}</td>
+        <td className="px-4 py-2">{usuario.cedula}</td>
+        <td className="px-4 py-2">{usuario.email}</td>
+        <td className="px-4 py-2">
+          {usuario.roles && usuario.roles.length > 0
+            ? usuario.roles.map((rol) => rol.name).join(', ')
+            : 'Sin rol'}
+        </td>
+        <td className="px-4 py-2 space-x-2">
+          <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/usuario/${usuario.id}`)}>
+            <FaEye />
+          </button>
+          <button onClick={() => eliminarUsuario(usuario.id)}
+            className="text-red-600 hover:text-red-800">
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={6} className="p-4 text-center text-gray-500">
+        No se encontraron usuarios.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

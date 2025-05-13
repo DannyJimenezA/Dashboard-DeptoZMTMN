@@ -289,19 +289,19 @@ export default function LugarDenunciaTable() {
       showCancelButton: true,
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#28a745',
-    cancelButtonColor: '#dc3545',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#dc3545',
     });
-  
+
     if (!confirm.isConfirmed) return;
-  
+
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${ApiRoutes.urlBase}/lugar-denuncia/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (res.status === 403) {
         return Swal.fire(
           'Permiso denegado',
@@ -309,24 +309,24 @@ export default function LugarDenunciaTable() {
           'warning'
         );
       }
-  
+
       if (!res.ok) throw new Error();
-  
+
       setLugares((prev) => prev.filter((l) => l.id !== id));
       // Swal.fire('Eliminado', 'Lugar eliminado correctamente.', 'success');
-            Swal.fire({
+      Swal.fire({
         title: "¡Éxito!",
         text: `Lugar de denuncia eliminado correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       })
     } catch (err) {
       Swal.fire('Error', 'No se pudo eliminar el lugar.', 'error');
     }
   };
-  
+
 
   const lugaresFiltrados = lugares.filter(lugar =>
     lugar.descripcion.toLowerCase().includes(searchText.toLowerCase())
@@ -359,20 +359,20 @@ export default function LugarDenunciaTable() {
           <FaPlus className="mr-2" /> Agregar Lugar de Denuncia
         </button> */}
         <button
-  onClick={() => {
-    if (!userPermissions.includes('crear_lugardenuncia')) {
-      return Swal.fire(
-        'Permiso denegado',
-        'No tienes permisos para realizar esta acción',
-        'warning'
-      );
-    }
-    navigate('/dashboard/crear-lugardenuncia');
-  }}
-  className="px-4 py-2 bg-blue-600 text-white rounded flex items-center hover:bg-blue-700 self-end"
->
-  <FaPlus className="mr-2" /> Agregar Lugar de Denuncia
-</button>
+          onClick={() => {
+            if (!userPermissions.includes('crear_lugardenuncia')) {
+              return Swal.fire(
+                'Permiso denegado',
+                'No tienes permisos para realizar esta acción',
+                'warning'
+              );
+            }
+            navigate('/dashboard/crear-lugardenuncia');
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded flex items-center hover:bg-blue-700 self-end"
+        >
+          <FaPlus className="mr-2" /> Agregar Lugar de Denuncia
+        </button>
 
       </div>
 
@@ -384,39 +384,69 @@ export default function LugarDenunciaTable() {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {lugaresActuales.map((lugar) => (
               <tr key={lugar.id}>
                 <td className="px-4 py-2">{lugar.descripcion}</td>
                 <td className="px-4 py-2 text-left">
                   <div className="flex justify-start w-full">
-                    {/* <button
-                      onClick={() => handleEliminar(lugar.id)}
+
+                    <button
+                      onClick={() => {
+                        if (!userPermissions.includes('eliminar_lugardenuncia')) {
+                          return Swal.fire(
+                            'Permiso denegado',
+                            'No tienes permisos para realizar esta acción.',
+                            'warning'
+                          );
+                        }
+                        handleEliminar(lugar.id);
+                      }}
                       className="text-red-600 hover:text-red-800"
                     >
                       <FaTrash />
-                    </button> */}
-                    <button
-  onClick={() => {
-    if (!userPermissions.includes('eliminar_lugardenuncia')) {
-      return Swal.fire(
-        'Permiso denegado',
-        'No tienes permisos para realizar esta acción.',
-        'warning'
-      );
-    }
-    handleEliminar(lugar.id);
-  }}
-  className="text-red-600 hover:text-red-800"
->
-  <FaTrash />
-</button>
+                    </button>
 
                   </div>
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {lugaresActuales.length > 0 ? (
+    lugaresActuales.map((lugar) => (
+      <tr key={lugar.id}>
+        <td className="px-4 py-2">{lugar.descripcion}</td>
+        <td className="px-4 py-2 text-left">
+          <div className="flex justify-start w-full">
+            <button
+              onClick={() => {
+                if (!userPermissions.includes('eliminar_lugardenuncia')) {
+                  return Swal.fire(
+                    'Permiso denegado',
+                    'No tienes permisos para realizar esta acción.',
+                    'warning'
+                  );
+                }
+                handleEliminar(lugar.id);
+              }}
+              className="text-red-600 hover:text-red-800"
+            >
+              <FaTrash />
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={2} className="p-4 text-center text-gray-500">
+        No se encontraron lugares de denuncia.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

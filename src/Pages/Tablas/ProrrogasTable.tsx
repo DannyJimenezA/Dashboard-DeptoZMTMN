@@ -21,29 +21,29 @@ export default function ProrrogasTable() {
   const [searchBy, setSearchBy] = useState<'nombre' | 'cedula'>('nombre');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  
-  
+
+
   const formatFechaFiltro = (fecha: Date | null): string | null => {
     if (!fecha) return null;
-    
+
     const year = fecha.getFullYear();
     const month = String(fecha.getMonth() + 1).padStart(2, '0');
     const day = String(fecha.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-  
-  
+
+
   const navigate = useNavigate();
   const { isAuthenticated, userPermissions } = useAuth();
-  
+
   const [fechasDisponibles, setFechasDisponibles] = useState<string[]>([]);
   const cargarProrrogas = async () => {
     try {
       const data = await ApiService.get<Prorroga[]>(ApiRoutes.prorrogas);
       setProrrogas(data);
-  const fechasUnicas = Array.from(new Set(data.map(p => p.Date as string))).sort();
+      const fechasUnicas = Array.from(new Set(data.map(p => p.Date as string))).sort();
 
-setFechasDisponibles(fechasUnicas);
+      setFechasDisponibles(fechasUnicas);
 
     } catch (error) {
       console.error('Error cargando prórrogas', error);
@@ -91,9 +91,9 @@ setFechasDisponibles(fechasUnicas);
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-  
+
     if (!confirmacion.isConfirmed) return;
-  
+
     try {
       const res = await fetch(`${ApiRoutes.urlBase}/prorrogas/${id}`, {
         method: 'DELETE',
@@ -101,29 +101,29 @@ setFechasDisponibles(fechasUnicas);
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-  
+
       if (res.status === 403) {
         Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
         return;
       }
-  
+
       if (!res.ok) throw new Error('Error al eliminar');
-  
+
       setProrrogas((prev) => prev.filter((p) => p.id !== id));
       // Swal.fire('¡Eliminada!', 'La prórroga fue eliminada correctamente.', 'success');
       Swal.fire({
-  icon: 'success',
-  title: '¡Eliminada!',
-  text: 'La solicitud de prórroga ha sido eliminada.',
-  timer: 3000,
-  showConfirmButton: false,
-});
+        icon: 'success',
+        title: '¡Eliminada!',
+        text: 'La solicitud de prórroga ha sido eliminada.',
+        timer: 3000,
+        showConfirmButton: false,
+      });
 
     } catch {
       Swal.fire('Error', 'No se pudo eliminar la prórroga.', 'error');
     }
   };
-  
+
 
   const filtradas = prorrogas.filter((p) => {
     const byEstado = filtroEstado === 'todos' || p.status === filtroEstado;
@@ -169,12 +169,11 @@ setFechasDisponibles(fechasUnicas);
               <option value="Aprobada">Aprobada</option>
               <option value="Denegada">Denegada</option>
             </select>
-            {/* <FiltroFecha fechaFiltro={fechaFiltro} onChangeFecha={setFechaFiltro} /> */}
             <FiltroFecha
-  fechaFiltro={fechaFiltro}
-  onChangeFecha={setFechaFiltro}
-  fechasDisponibles={fechasDisponibles}
-/>
+              fechaFiltro={fechaFiltro}
+              onChangeFecha={setFechaFiltro}
+              fechasDisponibles={fechasDisponibles}
+            />
 
           </div>
         }
@@ -191,14 +190,13 @@ setFechasDisponibles(fechasUnicas);
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {paginaActual.map((p) => (
               <tr key={p.id}>
                 <td className="px-4 py-2">{p.user?.nombre || '—'}</td>
                 <td className="px-4 py-2">{p.user?.cedula || '—'}</td>
                 <td className="px-4 py-2">{p.Date}</td>
-                {/* <td className="px-4 py-2">{p.status}</td> */}
-                                <td className="px-4 py-2">
+                <td className="px-4 py-2">
                   <span className={`font-semibold px-3 py-1 rounded-full text-sm
                     ${p.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
                       p.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
@@ -209,13 +207,13 @@ setFechasDisponibles(fechasUnicas);
                 </td>
                 <td className="px-4 py-2 space-x-2">
                   <button
-className="text-blue-600 hover:text-blue-800" 
+                    className="text-blue-600 hover:text-blue-800"
                     onClick={() => navigate(`/dashboard/prorroga/${p.id}`)}
                   >
                     <FaEye />
                   </button>
                   <button
-               className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800"
                     onClick={() => eliminarProrroga(p.id)}
                   >
                     <FaTrash />
@@ -223,7 +221,48 @@ className="text-blue-600 hover:text-blue-800"
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {paginaActual.length > 0 ? (
+    paginaActual.map((p) => (
+      <tr key={p.id}>
+        <td className="px-4 py-2">{p.user?.nombre || '—'}</td>
+        <td className="px-4 py-2">{p.user?.cedula || '—'}</td>
+        <td className="px-4 py-2">{p.Date}</td>
+        <td className="px-4 py-2">
+          <span className={`font-semibold px-3 py-1 rounded-full text-sm
+            ${p.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+              p.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+              p.status === 'Denegada' ? 'bg-red-100 text-red-800' :
+              'bg-gray-100 text-gray-800'}`}>
+            {p.status}
+          </span>
+        </td>
+        <td className="px-4 py-2 space-x-2">
+          <button
+            className="text-blue-600 hover:text-blue-800"
+            onClick={() => navigate(`/dashboard/prorroga/${p.id}`)}
+          >
+            <FaEye />
+          </button>
+          <button
+            className="text-red-600 hover:text-red-800"
+            onClick={() => eliminarProrroga(p.id)}
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={5} className="p-4 text-center text-gray-500">
+        No hay solicitudes de prórrogas disponibles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

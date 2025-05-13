@@ -21,7 +21,7 @@ export default function DenunciasTable() {
   const [searchBy, setSearchBy] = useState<'nombreDenunciante' | 'cedulaDenunciante'>('nombreDenunciante');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort();
+  const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort();
 
 
 
@@ -29,13 +29,13 @@ const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort()
   const { isAuthenticated, userPermissions } = useAuth();
 
   const formatFechaFiltro = (fecha: Date | null): string | null => {
-  if (!fecha) return null;
+    if (!fecha) return null;
 
-  const year = fecha.getFullYear();
-  const month = String(fecha.getMonth() + 1).padStart(2, '0');
-  const day = String(fecha.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
 
   // 🚀 Función para cargar las denuncias
@@ -87,9 +87,9 @@ const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort()
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-  
+
     if (!confirmacion.isConfirmed) return;
-  
+
     try {
       const response = await fetch(`${ApiRoutes.urlBase}/denuncia/${id}`, {
         method: 'DELETE',
@@ -97,35 +97,35 @@ const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort()
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-  
+
       if (response.status === 403) {
         Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
         return;
       }
-  
+
       if (!response.ok) throw new Error('Error al eliminar');
-  
+
       setDenuncias(prev => prev.filter(d => d.id !== id));
       // Swal.fire('Eliminada', 'La denuncia fue eliminada correctamente.', 'success');
       Swal.fire({
-  icon: 'success',
-  title: '¡Eliminada!',
-  text: 'La denuncia ha sido eliminada.',
-  timer: 3000,
-  showConfirmButton: false,
-});
+        icon: 'success',
+        title: '¡Eliminada!',
+        text: 'La denuncia ha sido eliminada.',
+        timer: 3000,
+        showConfirmButton: false,
+      });
 
     } catch (err) {
       console.error(err);
       Swal.fire('Error', 'No se pudo eliminar la denuncia.', 'error');
     }
   };
-  
+
 
   const filtradas = denuncias.filter((d) => {
     const byEstado = filtroEstado === 'todos' || d.status === filtroEstado;
     // const byFecha = !fechaFiltro || d.Date === fechaFiltro.toISOString().split('T')[0];
-const byFecha = !fechaFiltro || d.Date === formatFechaFiltro(fechaFiltro);
+    const byFecha = !fechaFiltro || d.Date === formatFechaFiltro(fechaFiltro);
 
 
 
@@ -170,11 +170,11 @@ const byFecha = !fechaFiltro || d.Date === formatFechaFiltro(fechaFiltro);
               <option value="Denegada">Denegada</option>
             </select>
             {/* <FiltroFecha fechaFiltro={fechaFiltro} onChangeFecha={setFechaFiltro} /> */}
-<FiltroFecha
-  fechaFiltro={fechaFiltro}
-  onChangeFecha={setFechaFiltro}
-  fechasDisponibles={fechasConDenuncia}
-/>
+            <FiltroFecha
+              fechaFiltro={fechaFiltro}
+              onChangeFecha={setFechaFiltro}
+              fechasDisponibles={fechasConDenuncia}
+            />
 
 
           </div>
@@ -194,7 +194,7 @@ const byFecha = !fechaFiltro || d.Date === formatFechaFiltro(fechaFiltro);
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {paginaActual.map((d) => (
               <tr key={d.id}>
                 <td className="px-4 py-2">{d.nombreDenunciante || 'Anónimo'}</td>
@@ -202,38 +202,65 @@ const byFecha = !fechaFiltro || d.Date === formatFechaFiltro(fechaFiltro);
                 <td className="px-4 py-2">{d.Date}</td>
                 <td className="px-4 py-2">{d.tipoDenuncia?.descripcion || '—'}</td>
                 <td className="px-4 py-2">{d.lugarDenuncia?.descripcion || '—'}</td>
-                {/* <td className="px-4 py-2">{d.status}</td> */}
-                {/* <td className="px-4 py-2">
-  <span className={`font-semibold px-3 py-1 rounded-full text-sm
+                <td className="px-4 py-2">
+                  <span className={`font-semibold px-3 py-1 rounded-full text-sm
     ${d.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-      d.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-      d.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-      'bg-gray-100 text-gray-800'}`}>
-    {d.status}
-  </span>
-</td> */}
-<td className="px-4 py-2">
-  <span className={`font-semibold px-3 py-1 rounded-full text-sm
-    ${d.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-      d.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-      d.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-      'bg-gray-100 text-gray-800'}`}>
-    {d.status === 'Aprobada' ? 'Atendida' : d.status}
-  </span>
-</td>
+                      d.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+                        d.status === 'Denegada' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'}`}>
+                    {d.status === 'Aprobada' ? 'Atendida' : d.status}
+                  </span>
+                </td>
 
 
                 <td className="px-4 py-2 space-x-2">
-                  <button className="text-blue-600 hover:text-blue-800"  onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}>
+                  <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}>
                     <FaEye />
                   </button>
-                  <button  className="text-red-600 hover:text-red-800" onClick={() => eliminarDenuncia(d.id)}>
+                  <button className="text-red-600 hover:text-red-800" onClick={() => eliminarDenuncia(d.id)}>
                     <FaTrash />
                   </button>
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {paginaActual.length > 0 ? (
+    paginaActual.map((d) => (
+      <tr key={d.id}>
+        <td className="px-4 py-2">{d.nombreDenunciante || 'Anónimo'}</td>
+        <td className="px-4 py-2">{d.cedulaDenunciante || 'Anónimo'}</td>
+        <td className="px-4 py-2">{d.Date}</td>
+        <td className="px-4 py-2">{d.tipoDenuncia?.descripcion || '—'}</td>
+        <td className="px-4 py-2">{d.lugarDenuncia?.descripcion || '—'}</td>
+        <td className="px-4 py-2">
+          <span className={`font-semibold px-3 py-1 rounded-full text-sm
+            ${d.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+              d.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+              d.status === 'Denegada' ? 'bg-red-100 text-red-800' :
+              'bg-gray-100 text-gray-800'}`}>
+            {d.status === 'Aprobada' ? 'Atendida' : d.status}
+          </span>
+        </td>
+        <td className="px-4 py-2 space-x-2">
+          <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}>
+            <FaEye />
+          </button>
+          <button className="text-red-600 hover:text-red-800" onClick={() => eliminarDenuncia(d.id)}>
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={7} className="p-4 text-center text-gray-500">
+        No hay denuncias disponibles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

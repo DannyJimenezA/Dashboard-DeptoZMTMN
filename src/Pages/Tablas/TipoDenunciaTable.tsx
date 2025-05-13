@@ -448,7 +448,7 @@ try {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {tiposActuales.map((tipo) => (
               <tr key={tipo.id}>
                 <td className="px-4 py-2">{tipo.descripcion}</td>
@@ -462,7 +462,31 @@ try {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {tiposActuales.length > 0 ? (
+    tiposActuales.map((tipo) => (
+      <tr key={tipo.id}>
+        <td className="px-4 py-2">{tipo.descripcion}</td>
+        <td className="px-4 py-2 text-left">
+          <button
+            onClick={() => handleEliminar(tipo.id)}
+            className="text-red-600 hover:text-red-800"
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={2} className="p-4 text-center text-gray-500">
+        No se encontraron tipos de denuncia.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

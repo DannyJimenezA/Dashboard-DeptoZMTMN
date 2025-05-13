@@ -210,7 +210,7 @@ const tiposGraficables = [
   'citas',
   'denuncias',
   'concesiones',
-  'prorrogas',
+  'prórrogas',
   'precarios',
   'planos',
   'expedientes',
@@ -229,7 +229,7 @@ export default function DashboardHome() {
     citas: 'ver_appointments',
     denuncias: 'ver_denuncia',
     concesiones: 'ver_concesiones',
-    prorrogas: 'ver_prorrogas',
+    prórrogas: 'ver_prorrogas',
     precarios: 'ver_precario',
     planos: 'ver_revisionplano',
     expedientes: 'ver_copia_expediente',
@@ -301,7 +301,7 @@ export default function DashboardHome() {
     );
 
     const pendientes = solicitudesFiltradas.filter((s) => s.status === 'Pendiente').length;
-    const aprobadas = solicitudesFiltradas.filter((s) => s.status === 'Aprobada').length;
+    const aprobadas = solicitudesFiltradas.filter((s) => s.status === 'Aprobada ').length;
     const denegadas = solicitudesFiltradas.filter((s) => s.status === 'Denegada').length;
 
     return { tipo, pendientes, aprobadas, denegadas };
@@ -321,7 +321,7 @@ export default function DashboardHome() {
         backgroundColor: '#fbbf24',
       },
       {
-        label: 'Aprobadas',
+        label: 'Aprobadas / Atendidas',
         data: dataGraficada.map((d) => d.aprobadas),
         backgroundColor: '#10b981',
       },

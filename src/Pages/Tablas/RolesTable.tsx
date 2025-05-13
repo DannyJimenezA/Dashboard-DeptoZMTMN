@@ -459,7 +459,7 @@ const manejarEliminarRol = async (id: number) => {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {rolesActuales.map((rol) => (
               <tr key={rol.id}>
                 <td className="px-4 py-2">{rol.name}</td>
@@ -490,7 +490,48 @@ const manejarEliminarRol = async (id: number) => {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {rolesActuales.length > 0 ? (
+    rolesActuales.map((rol) => (
+      <tr key={rol.id}>
+        <td className="px-4 py-2">{rol.name}</td>
+        <td className="px-4 py-2">{rol.description || 'Sin descripción'}</td>
+        <td className="px-4 py-2 space-x-2">
+          <button
+            className="text-blue-600 hover:text-blue-800"
+            onClick={() => {
+              if (!userPermissions.includes('editar_roles')) {
+                return Swal.fire(
+                  'Permiso denegado',
+                  'No tienes permisos para editar roles.',
+                  'warning'
+                );
+              }
+              navigate(`/dashboard/asignar-permisos/${rol.id}`);
+            }}
+          >
+            <FaScrewdriverWrench />
+          </button>
+
+          <button
+            onClick={() => manejarEliminarRol(rol.id)}
+            className="text-red-600 hover:text-red-800"
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={3} className="p-4 text-center text-gray-500">
+        No se encontraron roles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

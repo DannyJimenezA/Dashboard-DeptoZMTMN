@@ -195,13 +195,12 @@ const matchFecha =
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {citasActuales.map((cita) => (
               <tr key={cita.id}>
                 <td className="px-4 py-2">{cita.user?.nombre ?? '-'}</td>
                 <td className="px-4 py-2">{cita.user?.cedula ?? '-'}</td>
                 <td className="px-4 py-2">{`${cita.availableDate?.date ?? '-'} ${cita.horaCita?.hora ?? ''}`}</td>
-                {/* <td className="px-4 py-2">{cita.status}</td> */}
                 <td className="px-4 py-2">
   <span className={`font-semibold px-3 py-1 rounded-full text-sm
     ${cita.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
@@ -222,7 +221,42 @@ const matchFecha =
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {citasActuales.length > 0 ? (
+    citasActuales.map((cita) => (
+      <tr key={cita.id}>
+        <td className="px-4 py-2">{cita.user?.nombre ?? '-'}</td>
+        <td className="px-4 py-2">{cita.user?.cedula ?? '-'}</td>
+        <td className="px-4 py-2">{`${cita.availableDate?.date ?? '-'} ${cita.horaCita?.hora ?? ''}`}</td>
+        <td className="px-4 py-2">
+          <span className={`font-semibold px-3 py-1 rounded-full text-sm
+            ${cita.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+              cita.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+              cita.status === 'Denegada' ? 'bg-red-100 text-red-800' :
+              'bg-gray-100 text-gray-800'}`}>
+            {cita.status}
+          </span>
+        </td>
+        <td className="px-4 py-2 space-x-2">
+          <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
+            <FaEye />
+          </button>
+          <button className="text-red-600 hover:text-red-800" onClick={() => eliminarCita(cita.id)}>
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={5} className="p-4 text-center text-gray-500">
+        No hay solicitudes de citas disponibles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 
