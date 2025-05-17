@@ -7,15 +7,18 @@ import Swal from "sweetalert2"
 import withReactContent from "sweetalert2-react-content"
 import { ArrowLeft, Calendar, User, UserCheck, X } from "lucide-react"
 import { socket } from "../../context/socket"; 
+import { useAuth } from "../Auth/AuthContext"
 
 const MySwal = withReactContent(Swal)
 
 export default function DetalleCitaPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { userPermissions } = useAuth();
   const [cita, setCita] = useState<Cita | null>(null)
   const [mensaje, setMensaje] = useState("")
   const [loading, setLoading] = useState(true)
+  const canEditCita = userPermissions.includes('PATCH_appointments');
 
   useEffect(() => {
     const fetchCita = async () => {
@@ -263,7 +266,7 @@ export default function DetalleCitaPage() {
 
 
         {/* Formulario de respuesta (solo si es editable) */}
-        {isEditable && (
+        {isEditable &&  canEditCita &&(
           <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

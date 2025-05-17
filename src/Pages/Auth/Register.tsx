@@ -83,59 +83,137 @@ export default function Register() {
     return '';
   };
 
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   setErrorMessage('');
+  //   setIsSubmitting(true); // Bloquea botones al enviar
+  
+  //   const newErrors: { [key: string]: string } = {};
+  //   Object.entries(formData).forEach(([key, value]) => {
+  //     const error = validateField(key, value);
+  //     if (error) newErrors[key] = error;
+  //   });
+  
+  //   if (Object.keys(newErrors).length > 0) {
+  //     setFieldErrors(newErrors);
+  //     setErrorMessage('Corrige los campos marcados.');
+  //     setIsSubmitting(false); // Reactiva si hay errores
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await axios.post(`${ApiRoutes.usuarios}/register`, formData);
+    
+  //     // 🎉 Alerta visual como en denuncias
+  //     await MySwal.fire({
+  //       icon: 'success',
+  //       title: '¡Registro Exitoso!',
+  //       text: response.data.message || 'Usuario registrado correctamente. Revisa tu correo electrónico.',
+  //       confirmButtonText: 'Ir al inicio de sesión',
+  //       confirmButtonColor: '#2563eb',
+  //     });
+    
+  //     navigate('/');
+  //   } catch (error) {
+  //     if (axios.isAxiosError(error) && error.response) {
+  //       setErrorMessage(error.response.data.message || 'Error en el registro');
+  //     } else {
+  //       setErrorMessage('Error de conexión con el servidor');
+  //     }
+  //     setIsSubmitting(false); // Reactiva si hay fallo
+  //   }
+  // };
+  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setIsSubmitting(true); // Bloquea botones al enviar
-  
-    const newErrors: { [key: string]: string } = {};
-    Object.entries(formData).forEach(([key, value]) => {
-      const error = validateField(key, value);
-      if (error) newErrors[key] = error;
+  e.preventDefault();
+  setErrorMessage('');
+  setIsSubmitting(true);
+
+  const newErrors: { [key: string]: string } = {};
+  Object.entries(formData).forEach(([key, value]) => {
+    const error = validateField(key, value);
+    if (error) newErrors[key] = error;
+  });
+
+  // ⚠️ Validación específica: contraseñas no coinciden
+  if (formData.password !== formData.confirmPassword) {
+    await MySwal.fire({
+      icon: 'error',
+      title: 'Contraseñas no coinciden',
+      text: 'Asegúrate de que ambas contraseñas sean iguales.',
+      confirmButtonColor: '#ef4444',
     });
-  
-    if (Object.keys(newErrors).length > 0) {
-      setFieldErrors(newErrors);
-      setErrorMessage('Corrige los campos marcados.');
-      setIsSubmitting(false); // Reactiva si hay errores
-      return;
-    }
-  
-    // try {
-    //   const response = await axios.post(`${ApiRoutes.usuarios}/register`, formData);
-    //   window.alert(response.data.message || 'Usuario registrado. Por favor, revisa tu correo.');
-    //   navigate('/login');
-    // } catch (error) {
-    //   if (axios.isAxiosError(error) && error.response) {
-    //     setErrorMessage(error.response.data.message || 'Error en el registro');
-    //   } else {
-    //     setErrorMessage('Error de conexión con el servidor');
-    //   }
-    //   setIsSubmitting(false); // Reactiva si hay fallo
-    // }
-    try {
-      const response = await axios.post(`${ApiRoutes.usuarios}/register`, formData);
-    
-      // 🎉 Alerta visual como en denuncias
+
+    setFieldErrors(prev => ({
+      ...prev,
+      confirmPassword: 'Las contraseñas no coinciden',
+    }));
+
+    setIsSubmitting(false);
+    return;
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setFieldErrors(newErrors);
+
+    // 👉 Alertas específicas
+    if (newErrors.email) {
       await MySwal.fire({
-        icon: 'success',
-        title: '¡Registro Exitoso!',
-        text: response.data.message || 'Usuario registrado correctamente. Revisa tu correo electrónico.',
-        confirmButtonText: 'Ir al inicio de sesión',
-        confirmButtonColor: '#2563eb',
+        icon: 'error',
+        title: 'Correo Inválido',
+        text: 'Por favor ingresa un correo electrónico válido.',
+        confirmButtonColor: '#ef4444',
       });
-    
-      navigate('/');
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setErrorMessage(error.response.data.message || 'Error en el registro');
-      } else {
-        setErrorMessage('Error de conexión con el servidor');
-      }
-      setIsSubmitting(false); // Reactiva si hay fallo
+    } else if (newErrors.confirmPassword) {
+      await MySwal.fire({
+        icon: 'error',
+        title: 'Contraseña Inválida',
+        text: 'La contraseña debe tener mínimo 8 caracteres, una letra y un número.',
+        confirmButtonColor: '#ef4444',
+      });
+    } else {
+      await MySwal.fire({
+        icon: 'error',
+        title: 'Error de Validación',
+        text: 'Corrige los campos marcados antes de continuar.',
+        confirmButtonColor: '#ef4444',
+      });
     }
-  };
-  
+
+    setIsSubmitting(false);
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${ApiRoutes.usuarios}/register`, formData);
+
+    await MySwal.fire({
+      icon: 'success',
+      title: '¡Registro Exitoso!',
+      text: response.data.message || 'Usuario registrado correctamente. Revisa tu correo electrónico.',
+      confirmButtonText: 'Ir al inicio de sesión',
+      confirmButtonColor: '#2563eb',
+    });
+
+    navigate('/');
+  } catch (error) {
+    let mensaje = 'Error de conexión con el servidor';
+    if (axios.isAxiosError(error) && error.response) {
+      mensaje = error.response.data.message || 'Error en el registro';
+    }
+
+    await MySwal.fire({
+      icon: 'error',
+      title: '¡Ups!',
+      text: mensaje,
+      confirmButtonColor: '#ef4444',
+    });
+
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleBack = () => navigate('/');
 

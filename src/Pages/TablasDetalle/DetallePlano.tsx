@@ -7,6 +7,7 @@ import ApiService from "../../Components/ApiService";
 import ApiRoutes from "../../Components/ApiRoutes";
 import { ArrowLeft, File, FileText, User, UserCheck, X, ExternalLink, } from "lucide-react";
 import type { RevisionPlano } from "../../Types/Types";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
@@ -18,10 +19,12 @@ interface ArchivoPlano {
 export default function DetallePlanoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [revisionPlano, setRevisionPlano] = useState<RevisionPlano | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
   const [archivos, setArchivos] = useState<ArchivoPlano[]>([]);
+    const canEditPlano = userPermissions.includes('PUT_revisionplano');
 
   useEffect(() => {
     const fetchPlano = async () => {
@@ -225,7 +228,7 @@ export default function DetallePlanoPage() {
           )}
         </div>
 
-        {isEditable && (
+        {isEditable && canEditPlano &&(
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

@@ -15,7 +15,7 @@ const ApiRoutes = {
   concesiones: `${BASE_URL}/Concesiones`,
   misconcesiones: `${BASE_URL}/Concesiones/my-concesiones`,
   eliminarconcesion: `${BASE_URL}/Concesiones/my-concesiones`,
-  prorrogas: `${BASE_URL}/Prorrogas`,
+  prorrogas: `${BASE_URL}/prorrogas`,
   misprorrogas: `${BASE_URL}/Prorrogas/my-prorrogas`,
   eliminarprorroga: `${BASE_URL}/Prorrogas/my-prorrogas`,
   precarios: `${BASE_URL}/Precario`,

@@ -151,6 +151,7 @@ export default function Sidebar() {
     `block px-4 py-2 rounded hover:bg-gray-700 ${isActive ? 'bg-gray-800' : ''}`;
 
   const gestionPermissions = [
+    'ver_users',
     'ver_roles',
     'ver_available-dates',
     'ver_tipodenuncia',
@@ -225,13 +226,6 @@ export default function Sidebar() {
               </NavLink>
             )}
 
-            {/* Usuarios */}
-            {hasPermission('ver_users') && (
-              <NavLink to="/dashboard/usuarios" className={({ isActive }) => linkClass(isActive)}>
-                Usuarios
-              </NavLink>
-            )}
-
             {/* Gestión */}
             {/* <Disclosure>
               {({ open }) => (
@@ -274,6 +268,11 @@ export default function Sidebar() {
           <ChevronUpIcon className={`${open ? 'rotate-180 transform' : ''} h-4 w-4`} />
         </Disclosure.Button>
         <Disclosure.Panel className="pl-4 mt-1 space-y-1 transition-all duration-300 ease-in-out">
+                      {hasPermission('ver_users') && (
+              <NavLink to="/dashboard/usuarios" className={({ isActive }) => linkClass(isActive)}>
+                Usuarios
+              </NavLink>
+            )}
           {hasPermission('ver_roles') && (
             <NavLink to="/dashboard/roles" className={({ isActive }) => linkClass(isActive)}>
               Roles

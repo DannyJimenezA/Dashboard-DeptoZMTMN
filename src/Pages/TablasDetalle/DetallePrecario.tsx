@@ -15,16 +15,19 @@ import {
   UserCheck,
   X,
 } from "lucide-react"
+import { useAuth } from "../Auth/AuthContext"
 
 const MySwal = withReactContent(Swal)
 
 export default function DetallePrecarioPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+    const { userPermissions } = useAuth();
   const [precario, setPrecario] = useState<Precario | null>(null)
   const [mensaje, setMensaje] = useState("")
   const [archivos, setArchivos] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+    const canEditPrecario = userPermissions.includes('PUT_precario');
 
   useEffect(() => {
     const fetchPrecario = async () => {
@@ -231,7 +234,7 @@ export default function DetallePrecarioPage() {
           
         </div>
 
-        {isEditable && (
+        {isEditable && canEditPrecario &&(
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

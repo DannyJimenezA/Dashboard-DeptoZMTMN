@@ -14,15 +14,18 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
 export default function DetalleExpedientePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [expediente, setExpediente] = useState<CopiaExpediente | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
+    const canEditExpediente = userPermissions.includes('PUT_copia_expediente');
 
   useEffect(() => {
     const fetchExpediente = async () => {
@@ -236,7 +239,7 @@ export default function DetalleExpedientePage() {
         </div>
 
         {/* Formulario de respuesta */}
-        {isEditable && (
+        {isEditable && canEditExpediente && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

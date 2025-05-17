@@ -80,9 +80,9 @@ const AppRoutesContent = () => {
 />
 
 <Route
-  path="prorroga/:id"
+  path="prorrogas/:id"
   element={
-    <ProtectedRoute requiredPermission="ver_prorroga">
+    <ProtectedRoute requiredPermission="ver_prorrogas">
       <DetalleProrrogaPage />
     </ProtectedRoute>
   }

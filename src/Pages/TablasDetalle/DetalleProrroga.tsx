@@ -14,16 +14,19 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
 export default function DetalleProrrogaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [prorroga, setProrroga] = useState<Prorroga | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [archivos, setArchivos] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const canEditProrroga = userPermissions.includes('PUT_prorrogas');
 
   useEffect(() => {
     const fetchProrroga = async () => {
@@ -238,7 +241,7 @@ export default function DetalleProrrogaPage() {
         </div>
 
         {/* Formulario de respuesta */}
-        {isEditable && (
+        {isEditable && canEditProrroga && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />
