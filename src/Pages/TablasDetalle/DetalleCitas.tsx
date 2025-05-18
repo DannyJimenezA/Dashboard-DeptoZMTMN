@@ -18,7 +18,7 @@ export default function DetalleCitaPage() {
   const [cita, setCita] = useState<Cita | null>(null)
   const [mensaje, setMensaje] = useState("")
   const [loading, setLoading] = useState(true)
-  const canEditCita = userPermissions.includes('PATCH_appointments');
+  const canEditCita = userPermissions.includes('editar_appointments');
 
   useEffect(() => {
     const fetchCita = async () => {

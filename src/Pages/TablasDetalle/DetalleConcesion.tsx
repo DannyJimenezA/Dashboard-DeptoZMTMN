@@ -26,7 +26,7 @@ export default function DetalleConcesionPage() {
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
   const [archivos, setArchivos] = useState<string[]>([]);
-    const canEditConcesion = userPermissions.includes('PUT_concesiones');
+    const canEditConcesion = userPermissions.includes('editar_concesiones');
 
   useEffect(() => {
     const fetchConcesion = async () => {

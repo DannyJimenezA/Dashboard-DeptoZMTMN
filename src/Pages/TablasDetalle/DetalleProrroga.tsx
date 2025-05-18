@@ -26,7 +26,7 @@ export default function DetalleProrrogaPage() {
   const [mensaje, setMensaje] = useState("");
   const [archivos, setArchivos] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const canEditProrroga = userPermissions.includes('PUT_prorrogas');
+  const canEditProrroga = userPermissions.includes('editar_prorrogas');
 
   useEffect(() => {
     const fetchProrroga = async () => {

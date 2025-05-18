@@ -24,7 +24,7 @@ export default function DetallePlanoPage() {
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
   const [archivos, setArchivos] = useState<ArchivoPlano[]>([]);
-    const canEditPlano = userPermissions.includes('PUT_revisionplano');
+    const canEditPlano = userPermissions.includes('editar_revisionplano');
 
   useEffect(() => {
     const fetchPlano = async () => {

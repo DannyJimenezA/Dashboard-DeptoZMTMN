@@ -338,7 +338,7 @@ export default function DetalleDenunciaPage() {
   const [denuncia, setDenuncia] = useState<Denuncia | null>(null)
   const [archivos, setArchivos] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-    const canEditDenuncia = userPermissions.includes('PUT_denuncia');
+    const canEditDenuncia = userPermissions.includes('editar_denuncia');
   
 
   useEffect(() => {

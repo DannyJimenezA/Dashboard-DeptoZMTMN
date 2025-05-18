@@ -27,7 +27,7 @@ export default function DetallePrecarioPage() {
   const [mensaje, setMensaje] = useState("")
   const [archivos, setArchivos] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-    const canEditPrecario = userPermissions.includes('PUT_precario');
+    const canEditPrecario = userPermissions.includes('editar_precario');
 
   useEffect(() => {
     const fetchPrecario = async () => {

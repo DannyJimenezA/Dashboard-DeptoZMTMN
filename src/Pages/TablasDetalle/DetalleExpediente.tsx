@@ -25,7 +25,7 @@ export default function DetalleExpedientePage() {
   const [expediente, setExpediente] = useState<CopiaExpediente | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
-    const canEditExpediente = userPermissions.includes('PUT_copia_expediente');
+    const canEditExpediente = userPermissions.includes('editar_copia_expediente');
 
   useEffect(() => {
     const fetchExpediente = async () => {
