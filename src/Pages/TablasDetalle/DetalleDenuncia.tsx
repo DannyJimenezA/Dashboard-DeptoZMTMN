@@ -318,7 +318,7 @@ import withReactContent from "sweetalert2-react-content"
 import { socket } from "../../context/socket";
 import {
   ArrowLeft,
-  Calendar,
+
   FileText,
   User,
   UserCheck,
@@ -524,7 +524,7 @@ export default function DetalleDenunciaPage() {
               Detalles de la Denuncia
             </h3>
             <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-28">Fecha:</span><span className="font-medium flex items-center"><Calendar className="h-4 w-4 mr-1 text-teal-600" />{denuncia.Date || "No disponible"}</span></div>
+              <div className="flex"><span className="text-gray-500 w-28">Fecha:</span><span className="font-medium flex items-center">{denuncia.Date || "No disponible"}</span></div>
               <div className="flex"><span className="text-gray-500 w-28">Tipo:</span><span className="font-medium">{denuncia.tipoDenuncia?.descripcion || "No especificado"}</span></div>
               <div className="grid grid-cols-[6rem_1fr] gap-2">
                 <span className="text-gray-500 pt-1">Descripción:</span>

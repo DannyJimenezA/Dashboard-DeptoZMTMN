@@ -25,7 +25,9 @@ export default function DetalleConcesionPage() {
   const [concesion, setConcesion] = useState<Concesion | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
-  const [archivos, setArchivos] = useState<string[]>([]);
+  // const [archivos, setArchivos] = useState<string[]>([]);
+  const [archivos, setArchivos] = useState<{ nombre: string; ruta: string }[]>([]);
+
     const canEditConcesion = userPermissions.includes('editar_concesiones');
 
   useEffect(() => {
@@ -35,14 +37,20 @@ export default function DetalleConcesionPage() {
         const data = await ApiService.get<Concesion>(`${ApiRoutes.concesiones}/${id}`);
         setConcesion(data);
 
-        if (data.ArchivoAdjunto) {
-          try {
-            const archivosParseados = JSON.parse(data.ArchivoAdjunto);
-            setArchivos(Array.isArray(archivosParseados) ? archivosParseados : [archivosParseados]);
-          } catch {
-            setArchivos([data.ArchivoAdjunto]);
-          }
-        }
+        // if (data.ArchivoAdjunto) {
+        //   try {
+        //     const archivosParseados = JSON.parse(data.ArchivoAdjunto);
+        //     setArchivos(Array.isArray(archivosParseados) ? archivosParseados : [archivosParseados]);
+        //   } catch {
+        //     setArchivos([data.ArchivoAdjunto]);
+        //   }
+        // }
+        if (Array.isArray(data.ArchivoAdjunto)) {
+  setArchivos(data.ArchivoAdjunto);
+} else {
+  setArchivos([]);
+}
+
       } catch {
         Swal.fire({
           title: "Error",
@@ -114,13 +122,19 @@ export default function DetalleConcesionPage() {
     }
   };
 
-  const abrirArchivo = (archivo: string) => {
-    const archivoFinal = archivo.replace(/[[\]"]/g, "");
-    if (archivoFinal) {
-      const fileUrl = `${ApiRoutes.urlBase}/${archivoFinal}`;
-      window.open(fileUrl, "_blank");
-    }
-  };
+  // const abrirArchivo = (archivo: string) => {
+  //   const archivoFinal = archivo.replace(/[[\]"]/g, "");
+  //   if (archivoFinal) {
+  //     const fileUrl = `${ApiRoutes.urlBase}/${archivoFinal}`;
+  //     window.open(fileUrl, "_blank");
+  //   }
+  // };
+
+const abrirArchivo = (ruta: string) => {
+  const fileUrl = `${ApiRoutes.urlBase}/${ruta}`;
+  window.open(fileUrl, "_blank");
+};
+
 
   const getStatusBadge = (status: string) => {
     const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border";
@@ -228,7 +242,7 @@ export default function DetalleConcesionPage() {
 
           {archivos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {archivos.map((archivo, index) => (
+              {/* {archivos.map((archivo, index) => (
                 <div
                   key={index}
                   onClick={() => abrirArchivo(archivo)}
@@ -240,7 +254,22 @@ export default function DetalleConcesionPage() {
                   </span>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
                 </div>
-              ))}
+              ))} */}
+
+              {archivos.map((archivo, index) => (
+  <div
+    key={index}
+    onClick={() => abrirArchivo(archivo.ruta)}
+    className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+  >
+    <File className="h-5 w-5 text-red-500 mr-2" />
+    <span className="text-sm text-gray-700 flex-1 truncate">
+      {archivo.nombre || `Documento ${index + 1}`}
+    </span>
+    <ExternalLink className="h-4 w-4 text-gray-400" />
+  </div>
+))}
+
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4 bg-gray-50 rounded-md">No hay archivos adjuntos</p>
