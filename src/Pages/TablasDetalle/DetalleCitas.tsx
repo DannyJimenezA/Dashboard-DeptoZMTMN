@@ -281,7 +281,7 @@ export default function DetalleCitaPage() {
                 className="w-full border border-gray-300 rounded-md p-3 resize-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
                 placeholder="Escribe aquí el mensaje que se enviará al usuario..."
               />
-              <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al paciente como notificación.</p>
+              <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al solicitante como notificación.</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">

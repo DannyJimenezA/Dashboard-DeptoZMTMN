@@ -62,29 +62,62 @@ const fetchCitas = async () => {
 };
 
 
+  // useEffect(() => {
+  //   if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   fetchCitas();
+
+  //   const socket: Socket = io(ApiRoutes.urlBase, {
+  //     transports: ['websocket'],
+  //     auth: { token: localStorage.getItem('token') },
+  //   });
+
+  //   socket.on('nueva-solicitud', (data) => {
+  //     if (data.tipo === 'citas') {
+  //       fetchCitas();
+  //     }
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [isAuthenticated, userPermissions, navigate]);
   useEffect(() => {
-    if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
-      navigate('/unauthorized');
-      return;
+  if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
+    navigate('/unauthorized');
+    return;
+  }
+
+  fetchCitas(); // Carga inicial
+
+  const socket: Socket = io(ApiRoutes.urlBase, {
+    transports: ['websocket'],
+    auth: { token: localStorage.getItem('token') },
+  });
+
+  // 🔥 Escucha eventos WebSocket
+  const actualizarCitas = (data: any) => {
+    if (data.tipo === 'citas') {
+      console.log('🔄 Evento WebSocket recibido:', data);
+      fetchCitas();
     }
+  };
 
-    fetchCitas();
+  socket.on('nueva-solicitud', actualizarCitas);
+  socket.on('actualizar-solicitudes', actualizarCitas);
+  socket.on('eliminar-solicitud', actualizarCitas);
 
-    const socket: Socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: { token: localStorage.getItem('token') },
-    });
+  return () => {
+    socket.off('nueva-solicitud', actualizarCitas);
+    socket.off('actualizar-solicitudes', actualizarCitas);
+    socket.off('eliminar-solicitud', actualizarCitas);
+    socket.disconnect();
+  };
+}, [isAuthenticated, userPermissions, navigate]);
 
-    socket.on('nueva-solicitud', (data) => {
-      if (data.tipo === 'citas') {
-        fetchCitas();
-      }
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [isAuthenticated, userPermissions, navigate]);
 
   const eliminarCita = async (id: number) => {
     const confirmar = await Swal.fire({

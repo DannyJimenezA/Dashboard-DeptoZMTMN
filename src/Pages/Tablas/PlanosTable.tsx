@@ -36,48 +36,99 @@ export default function PlanosTable() {
 };
 
 
-  useEffect(() => {
-    let socket: Socket | null = null;
+  // useEffect(() => {
+  //   let socket: Socket | null = null;
 
-    if (!isAuthenticated || !userPermissions.includes('ver_revisionplano')) {
-      navigate('/unauthorized');
-      return;
+  //   if (!isAuthenticated || !userPermissions.includes('ver_revisionplano')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   const cargarDatos = async () => {
+  //     try {
+  //       const data = await ApiService.get<RevisionPlano[]>(ApiRoutes.planos);
+  //       setPlanos(data);
+  //           const fechasUnicas = Array.from(new Set(data.map(p => p.Date))).sort();
+  //   setFechasDisponibles(fechasUnicas);
+  //     } catch {
+  //       setError('Error al cargar las revisiones de planos.');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   cargarDatos();
+
+  //   socket = io(ApiRoutes.urlBase, {
+  //     transports: ['websocket'],
+  //     auth: {
+  //       token: localStorage.getItem('token'),
+  //     },
+  //   });
+
+  //   socket.on('nueva-solicitud', (data) => {
+  //     if (data.tipo === 'planos') {
+  //       cargarDatos();
+  //     }
+  //   });
+
+  //   return () => {
+  //     if (socket) {
+  //       socket.disconnect();
+  //     }
+  //   };
+  // }, [isAuthenticated, userPermissions, navigate]);
+
+useEffect(() => {
+  let socket: Socket | null = null;
+
+  if (!isAuthenticated || !userPermissions.includes('ver_revisionplano')) {
+    navigate('/unauthorized');
+    return;
+  }
+
+  const cargarDatos = async () => {
+    try {
+      const data = await ApiService.get<RevisionPlano[]>(ApiRoutes.planos);
+      setPlanos(data);
+      const fechasUnicas = Array.from(new Set(data.map(p => p.Date))).sort();
+      setFechasDisponibles(fechasUnicas);
+    } catch {
+      setError('Error al cargar las revisiones de planos.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const cargarDatos = async () => {
-      try {
-        const data = await ApiService.get<RevisionPlano[]>(ApiRoutes.planos);
-        setPlanos(data);
-            const fechasUnicas = Array.from(new Set(data.map(p => p.Date))).sort();
-    setFechasDisponibles(fechasUnicas);
-      } catch {
-        setError('Error al cargar las revisiones de planos.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  cargarDatos(); // 👈 carga inicial
 
-    cargarDatos();
+  socket = io(ApiRoutes.urlBase, {
+    transports: ['websocket'],
+    auth: {
+      token: localStorage.getItem('token'),
+    },
+  });
 
-    socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: {
-        token: localStorage.getItem('token'),
-      },
-    });
+  const manejarEvento = (data: any) => {
+    if (data.tipo === 'planos') {
+      console.log('📡 WebSocket evento (planos):', data);
+      cargarDatos();
+    }
+  };
 
-    socket.on('nueva-solicitud', (data) => {
-      if (data.tipo === 'planos') {
-        cargarDatos();
-      }
-    });
+  socket.on('nueva-solicitud', manejarEvento);
+  socket.on('actualizar-solicitudes', manejarEvento);
+  socket.on('eliminar-solicitud', manejarEvento);
 
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
-  }, [isAuthenticated, userPermissions, navigate]);
+  return () => {
+    socket.off('nueva-solicitud', manejarEvento);
+    socket.off('actualizar-solicitudes', manejarEvento);
+    socket.off('eliminar-solicitud', manejarEvento);
+    socket.disconnect();
+  };
+}, [isAuthenticated, userPermissions, navigate]);
+
+
 
   const eliminarRevisionPlano = async (id: number) => {
     const confirmacion = await Swal.fire({

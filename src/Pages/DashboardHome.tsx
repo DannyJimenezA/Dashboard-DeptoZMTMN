@@ -1,8 +1,9 @@
-// import { useState } from 'react';
+// import { useState, useEffect } from 'react';
 // import { Bar } from 'react-chartjs-2';
 // import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 // import { useSolicitudesGraficas } from '../context/SolicitudesGraficasContext';
 // import { useAuth } from '../Pages/Auth/useAuth';
+// import { socket } from '../context/socket'; // 🔥 Importa el socket
 
 // ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -19,7 +20,7 @@
 // type TipoGraficable = typeof tiposGraficables[number];
 
 // export default function DashboardHome() {
-//   const { solicitudes, loadingSolicitudes } = useSolicitudesGraficas();
+//   const { solicitudes, loadingSolicitudes, fetchSolicitudes } = useSolicitudesGraficas();
 //   const { userPermissions } = useAuth();
 
 //   const [anioSeleccionado, setAnioSeleccionado] = useState<string>('todos');
@@ -38,6 +39,27 @@
 //   const tiposPermitidos = tiposGraficables.filter((tipo) =>
 //     userPermissions.includes(permisosMap[tipo])
 //   );
+
+//   // 🔥 WebSocket para actualizar datos en tiempo real
+//   useEffect(() => {
+//     const onActualizar = (payload: any) => {
+//       console.log('📈 Evento WebSocket: actualizar-solicitudes', payload);
+//       fetchSolicitudes();
+//     };
+
+//     const onNueva = (payload: any) => {
+//       console.log('📥 Evento WebSocket: nueva-solicitud', payload);
+//       fetchSolicitudes();
+//     };
+
+//     socket.on('actualizar-solicitudes', onActualizar);
+//     socket.on('nueva-solicitud', onNueva);
+
+//     return () => {
+//       socket.off('actualizar-solicitudes', onActualizar);
+//       socket.off('nueva-solicitud', onNueva);
+//     };
+//   }, [fetchSolicitudes]);
 
 //   const filtrarSolicitudes = (solicitudesArray: any[], tipo: string) => {
 //     return solicitudesArray.filter((sol) => {
@@ -91,8 +113,21 @@
 //     0
 //   );
 
+// const displayNames: Record<TipoGraficable, string> = {
+//   citas: 'Citas',
+//   denuncias: 'Denuncias',
+//   concesiones: 'Concesiones',
+//   prorrogas: 'Prórrogas', // ← con tilde
+//   precarios: 'Precarios',
+//   planos: 'Planos',
+//   expedientes: 'Expedientes',
+// };
+
+
 //   const chartData = {
-//     labels: dataGraficada.map((d) => d.tipo),
+//     // labels: dataGraficada.map((d) => d.tipo),
+//     labels: dataGraficada.map((d) => displayNames[d.tipo as TipoGraficable]),
+
 //     datasets: [
 //       {
 //         label: 'Pendientes',
@@ -100,7 +135,7 @@
 //         backgroundColor: '#fbbf24',
 //       },
 //       {
-//         label: 'Aprobadas',
+//         label: 'Aprobadas / Atendidas',
 //         data: dataGraficada.map((d) => d.aprobadas),
 //         backgroundColor: '#10b981',
 //       },
@@ -127,6 +162,7 @@
 //     <div className="p-6">
 //       <h1 className="text-3xl font-bold mb-6">📊 Resumen de Solicitudes</h1>
 
+//       {/* Filtros */}
 //       <div className="flex gap-4 mb-6">
 //         <select
 //           value={anioSeleccionado}
@@ -173,6 +209,7 @@
 //         </select>
 //       </div>
 
+//       {/* Cards */}
 //       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 //         {dataGraficada.map(({ tipo, pendientes, aprobadas, denegadas }) => (
 //           <div key={tipo} className="bg-white rounded shadow p-4 text-center">
@@ -188,6 +225,7 @@
 //         </div>
 //       </div>
 
+//       {/* Gráfica */}
 //       <div className="bg-white p-6 rounded shadow">
 //         <h2 className="text-xl font-semibold mb-4">Distribución Comparativa</h2>
 //         <Bar data={chartData} options={chartOptions} />
@@ -202,7 +240,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { useSolicitudesGraficas } from '../context/SolicitudesGraficasContext';
 import { useAuth } from '../Pages/Auth/useAuth';
-import { socket } from '../context/socket'; // 🔥 Importa el socket
+import { socket } from '../context/socket';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -210,13 +248,23 @@ const tiposGraficables = [
   'citas',
   'denuncias',
   'concesiones',
-  'prórrogas',
+  'prorrogas',
   'precarios',
   'planos',
   'expedientes',
 ] as const;
 
 type TipoGraficable = typeof tiposGraficables[number];
+
+const displayNames: Record<TipoGraficable, string> = {
+  citas: 'Citas',
+  denuncias: 'Denuncias',
+  concesiones: 'Concesiones',
+  prorrogas: 'Prórrogas',
+  precarios: 'Precarios',
+  planos: 'Planos',
+  expedientes: 'Expedientes',
+};
 
 export default function DashboardHome() {
   const { solicitudes, loadingSolicitudes, fetchSolicitudes } = useSolicitudesGraficas();
@@ -229,7 +277,7 @@ export default function DashboardHome() {
     citas: 'ver_appointments',
     denuncias: 'ver_denuncia',
     concesiones: 'ver_concesiones',
-    prórrogas: 'ver_prorrogas',
+    prorrogas: 'ver_prorrogas',
     precarios: 'ver_precario',
     planos: 'ver_revisionplano',
     expedientes: 'ver_copia_expediente',
@@ -239,26 +287,67 @@ export default function DashboardHome() {
     userPermissions.includes(permisosMap[tipo])
   );
 
-  // 🔥 WebSocket para actualizar datos en tiempo real
-  useEffect(() => {
-    const onActualizar = (payload: any) => {
-      console.log('📈 Evento WebSocket: actualizar-solicitudes', payload);
-      fetchSolicitudes();
-    };
+  // useEffect(() => {
+  //   const onActualizar = (payload: any) => {
+  //     console.log('📈 Evento WebSocket: actualizar-solicitudes', payload);
+  //     fetchSolicitudes();
+  //   };
 
-    const onNueva = (payload: any) => {
-      console.log('📥 Evento WebSocket: nueva-solicitud', payload);
-      fetchSolicitudes();
-    };
+  //   const onNueva = (payload: any) => {
+  //     console.log('📥 Evento WebSocket: nueva-solicitud', payload);
+  //     fetchSolicitudes();
+  //   };
 
-    socket.on('actualizar-solicitudes', onActualizar);
-    socket.on('nueva-solicitud', onNueva);
+  //   const onEliminar = (payload: any) => {
+  //     console.log('🗑️ Evento WebSocket: eliminar-solicitud', payload);
+  //     fetchSolicitudes();
+  //   };
 
-    return () => {
-      socket.off('actualizar-solicitudes', onActualizar);
-      socket.off('nueva-solicitud', onNueva);
-    };
-  }, [fetchSolicitudes]);
+  //   socket.on('actualizar-solicitudes', onActualizar);
+  //   socket.on('nueva-solicitud', onNueva);
+  //   socket.on('eliminar-solicitud', onEliminar);
+
+  //   return () => {
+  //     socket.off('actualizar-solicitudes', onActualizar);
+  //     socket.off('nueva-solicitud', onNueva);
+  //     socket.off('eliminar-solicitud', onEliminar);
+  //   };
+  // }, [fetchSolicitudes]);
+
+// 🚀 Fetch inicial cuando se monta el componente
+useEffect(() => {
+  fetchSolicitudes();
+}, []);
+
+// 🔁 Escuchar eventos WebSocket para actualizar en tiempo real
+useEffect(() => {
+  const onActualizar = (payload: any) => {
+    console.log('📈 WebSocket: actualizar-solicitudes', payload);
+    fetchSolicitudes();
+  };
+
+  const onNueva = (payload: any) => {
+    console.log('📥 WebSocket: nueva-solicitud', payload);
+    fetchSolicitudes();
+  };
+
+  const onEliminar = (payload: any) => {
+    console.log('🗑️ WebSocket: eliminar-solicitud', payload);
+    fetchSolicitudes();
+  };
+
+  socket.on('actualizar-solicitudes', onActualizar);
+  socket.on('nueva-solicitud', onNueva);
+  socket.on('eliminar-solicitud', onEliminar);
+
+  return () => {
+    socket.off('actualizar-solicitudes', onActualizar);
+    socket.off('nueva-solicitud', onNueva);
+    socket.off('eliminar-solicitud', onEliminar);
+  };
+}, [fetchSolicitudes]);
+
+
 
   const filtrarSolicitudes = (solicitudesArray: any[], tipo: string) => {
     return solicitudesArray.filter((sol) => {
@@ -300,9 +389,9 @@ export default function DashboardHome() {
       tipo
     );
 
-    const pendientes = solicitudesFiltradas.filter((s) => s.status === 'Pendiente').length;
-    const aprobadas = solicitudesFiltradas.filter((s) => s.status === 'Aprobada ').length;
-    const denegadas = solicitudesFiltradas.filter((s) => s.status === 'Denegada').length;
+    const pendientes = solicitudesFiltradas.filter((s) => s.status?.trim() === 'Pendiente').length;
+    const aprobadas = solicitudesFiltradas.filter((s) => s.status?.trim() === 'Aprobada').length;
+    const denegadas = solicitudesFiltradas.filter((s) => s.status?.trim() === 'Denegada').length;
 
     return { tipo, pendientes, aprobadas, denegadas };
   });
@@ -313,7 +402,7 @@ export default function DashboardHome() {
   );
 
   const chartData = {
-    labels: dataGraficada.map((d) => d.tipo),
+    labels: dataGraficada.map((d) => displayNames[d.tipo as TipoGraficable]),
     datasets: [
       {
         label: 'Pendientes',
@@ -399,7 +488,7 @@ export default function DashboardHome() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         {dataGraficada.map(({ tipo, pendientes, aprobadas, denegadas }) => (
           <div key={tipo} className="bg-white rounded shadow p-4 text-center">
-            <p className="text-sm uppercase text-gray-500">{tipo}</p>
+            <p className="text-sm uppercase text-gray-500">{displayNames[tipo as TipoGraficable]}</p>
             <p className="text-lg font-semibold text-black-500">
               {pendientes + aprobadas + denegadas}
             </p>

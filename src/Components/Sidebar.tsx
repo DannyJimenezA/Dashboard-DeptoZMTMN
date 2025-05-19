@@ -201,7 +201,7 @@ export default function Sidebar() {
             {/* Prorrogas */}
             {hasPermission('ver_prorrogas') && (
               <NavLink to="/dashboard/prorrogas" className={({ isActive }) => linkClass(isActive)}>
-                Prorrogas {!loadingCounters && counters.prorrogas > 0 && <span className="ml-2 bg-red-600 text-white rounded-full px-2">{counters.prorrogas}</span>}
+                Prórrogas {!loadingCounters && counters.prorrogas > 0 && <span className="ml-2 bg-red-600 text-white rounded-full px-2">{counters.prorrogas}</span>}
               </NavLink>
             )}
 

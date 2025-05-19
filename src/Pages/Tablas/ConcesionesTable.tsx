@@ -52,32 +52,66 @@ export default function ConcesionesTable() {
     }
   };
 
-  useEffect(() => {
-    if (!isAuthenticated || !userPermissions.includes('ver_concesiones')) {
-      navigate('/unauthorized');
-      return;
+  // useEffect(() => {
+  //   if (!isAuthenticated || !userPermissions.includes('ver_concesiones')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   fetchConcesiones();
+
+  //   const socket: Socket = io(ApiRoutes.urlBase, {
+  //     transports: ['websocket'],
+  //     auth: {
+  //       token: localStorage.getItem('token'),
+  //     },
+  //   });
+
+  //   // 🚀 Escuchar cuando llega una nueva concesión
+  //   socket.on('nueva-solicitud', (data) => {
+  //     if (data.tipo === 'concesiones') {
+  //       fetchConcesiones(); // 🔥 recargar automáticamente
+  //     }
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [isAuthenticated, userPermissions, navigate]);
+
+useEffect(() => {
+  if (!isAuthenticated || !userPermissions.includes('ver_concesiones')) {
+    navigate('/unauthorized');
+    return;
+  }
+
+  fetchConcesiones(); // 🔄 Cargar al montar
+
+  const socket: Socket = io(ApiRoutes.urlBase, {
+    transports: ['websocket'],
+    auth: { token: localStorage.getItem('token') },
+  });
+
+  const actualizarTabla = (data: any) => {
+    if (data.tipo === 'concesiones') {
+      console.log('📡 Evento WebSocket recibido:', data);
+      fetchConcesiones();
     }
+  };
 
-    fetchConcesiones();
+  // 👂 Suscribirse a los 3 tipos de eventos
+  socket.on('nueva-solicitud', actualizarTabla);
+  socket.on('actualizar-solicitudes', actualizarTabla);
+  socket.on('eliminar-solicitud', actualizarTabla);
 
-    const socket: Socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: {
-        token: localStorage.getItem('token'),
-      },
-    });
+  return () => {
+    socket.off('nueva-solicitud', actualizarTabla);
+    socket.off('actualizar-solicitudes', actualizarTabla);
+    socket.off('eliminar-solicitud', actualizarTabla);
+    socket.disconnect();
+  };
+}, [isAuthenticated, userPermissions, navigate]);
 
-    // 🚀 Escuchar cuando llega una nueva concesión
-    socket.on('nueva-solicitud', (data) => {
-      if (data.tipo === 'concesiones') {
-        fetchConcesiones(); // 🔥 recargar automáticamente
-      }
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [isAuthenticated, userPermissions, navigate]);
 
 
   const eliminarConcesion = async (id: number) => {

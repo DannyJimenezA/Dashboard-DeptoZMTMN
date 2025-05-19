@@ -53,32 +53,68 @@ export default function ProrrogasTable() {
     }
   };
 
-  useEffect(() => {
-    if (!isAuthenticated || !userPermissions.includes('ver_prorrogas')) {
-      navigate('/unauthorized');
-      return;
+  // useEffect(() => {
+  //   if (!isAuthenticated || !userPermissions.includes('ver_prorrogas')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   cargarProrrogas();
+
+  //   const socket: Socket = io(ApiRoutes.urlBase, {
+  //     transports: ['websocket'],
+  //     auth: {
+  //       token: localStorage.getItem('token'),
+  //     },
+  //   });
+
+  //   // 🚀 Escuchar cuando llega una nueva prórroga
+  //   socket.on('nueva-solicitud', (data) => {
+  //     if (data.tipo === 'prorrogas') {
+  //       cargarProrrogas(); // 🔥 recargar automáticamente
+  //     }
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [isAuthenticated, userPermissions, navigate]);
+
+useEffect(() => {
+  if (!isAuthenticated || !userPermissions.includes('ver_prorrogas')) {
+    navigate('/unauthorized');
+    return;
+  }
+
+  cargarProrrogas(); // 🔄 Cargar al montar
+
+  const socket: Socket = io(ApiRoutes.urlBase, {
+    transports: ['websocket'],
+    auth: {
+      token: localStorage.getItem('token'),
+    },
+  });
+
+  const actualizarTabla = (data: any) => {
+    if (data.tipo === 'prorrogas') {
+      console.log('📡 Evento WebSocket recibido:', data);
+      cargarProrrogas();
     }
+  };
 
-    cargarProrrogas();
+  socket.on('nueva-solicitud', actualizarTabla);
+  socket.on('actualizar-solicitudes', actualizarTabla);
+  socket.on('eliminar-solicitud', actualizarTabla);
 
-    const socket: Socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: {
-        token: localStorage.getItem('token'),
-      },
-    });
+  return () => {
+    socket.off('nueva-solicitud', actualizarTabla);
+    socket.off('actualizar-solicitudes', actualizarTabla);
+    socket.off('eliminar-solicitud', actualizarTabla);
+    socket.disconnect();
+  };
+}, [isAuthenticated, userPermissions, navigate]);
 
-    // 🚀 Escuchar cuando llega una nueva prórroga
-    socket.on('nueva-solicitud', (data) => {
-      if (data.tipo === 'prorrogas') {
-        cargarProrrogas(); // 🔥 recargar automáticamente
-      }
-    });
 
-    return () => {
-      socket.disconnect();
-    };
-  }, [isAuthenticated, userPermissions, navigate]);
 
   const eliminarProrroga = async (id: number) => {
     const confirmacion = await Swal.fire({

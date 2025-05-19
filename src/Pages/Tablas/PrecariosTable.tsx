@@ -49,34 +49,72 @@ export default function PrecariosTable() {
     }
   };
 
-  useEffect(() => {
-    let socket: Socket | null = null;
+  // useEffect(() => {
+  //   let socket: Socket | null = null;
 
-    if (!isAuthenticated || !userPermissions.includes('ver_precario')) {
-      navigate('/unauthorized');
-      return;
+  //   if (!isAuthenticated || !userPermissions.includes('ver_precario')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   cargarPrecarios();
+
+  //   socket = io(ApiRoutes.urlBase, {
+  //     transports: ['websocket'],
+  //     auth: {
+  //       token: localStorage.getItem('token'),
+  //     },
+  //   });
+
+  //   // 🔥 Escuchamos nueva solicitud de precario
+  //   socket.on('nueva-solicitud', (data) => {
+  //     if (data.tipo === 'usoPrecario') {
+  //       cargarPrecarios();
+  //     }
+  //   });
+
+  //   return () => {
+  //     if (socket) socket.disconnect();
+  //   };
+  // }, [isAuthenticated, userPermissions, navigate]);
+
+useEffect(() => {
+  let socket: Socket | null = null;
+
+  if (!isAuthenticated || !userPermissions.includes('ver_precario')) {
+    navigate('/unauthorized');
+    return;
+  }
+
+  cargarPrecarios(); // 🔄 Cargar inmediatamente al montar
+
+  socket = io(ApiRoutes.urlBase, {
+    transports: ['websocket'],
+    auth: {
+      token: localStorage.getItem('token'),
+    },
+  });
+
+  const manejarEvento = (data: any) => {
+    if (data.tipo === 'usoPrecario') {
+      console.log('🔁 Evento WebSocket precario:', data);
+      cargarPrecarios(); // 🔄 Recargar datos
     }
+  };
 
-    cargarPrecarios();
+  socket.on('nueva-solicitud', manejarEvento);
+  socket.on('actualizar-solicitudes', manejarEvento);
+  socket.on('eliminar-solicitud', manejarEvento);
 
-    socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: {
-        token: localStorage.getItem('token'),
-      },
-    });
+  return () => {
+    socket.off('nueva-solicitud', manejarEvento);
+    socket.off('actualizar-solicitudes', manejarEvento);
+    socket.off('eliminar-solicitud', manejarEvento);
+    socket.disconnect();
+  };
+}, [isAuthenticated, userPermissions, navigate]);
 
-    // 🔥 Escuchamos nueva solicitud de precario
-    socket.on('nueva-solicitud', (data) => {
-      if (data.tipo === 'usoPrecario') {
-        cargarPrecarios();
-      }
-    });
 
-    return () => {
-      if (socket) socket.disconnect();
-    };
-  }, [isAuthenticated, userPermissions, navigate]);
 
   const eliminarPrecario = async (id: number) => {
     const confirm = await Swal.fire({
