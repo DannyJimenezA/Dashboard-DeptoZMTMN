@@ -14,50 +14,84 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
 export default function DetalleProrrogaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [prorroga, setProrroga] = useState<Prorroga | null>(null);
   const [mensaje, setMensaje] = useState("");
-  const [archivos, setArchivos] = useState<string[]>([]);
+  // const [archivos, setArchivos] = useState<string[]>([]);
+  const [archivos, setArchivos] = useState<{ nombre: string; ruta: string }[]>([]);
+
   const [loading, setLoading] = useState(true);
+  const canEditProrroga = userPermissions.includes('editar_prorrogas');
 
-  useEffect(() => {
-    const fetchProrroga = async () => {
-      setLoading(true);
-      try {
-        const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
-        setProrroga(data);
+  // useEffect(() => {
+  //   const fetchProrroga = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
+  //       setProrroga(data);
 
-        if (data.ArchivoAdjunto) {
-          try {
-            const archivosParseados = JSON.parse(data.ArchivoAdjunto);
-            setArchivos(
-              Array.isArray(archivosParseados)
-                ? archivosParseados.map((a: string) => a.replace(/[[\]"]/g, ""))
-                : [archivosParseados.replace(/[[\]"]/g, "")]
-            );
-          } catch {
-            setArchivos([data.ArchivoAdjunto.replace(/[[\]"]/g, "")]);
-          }
-        }
-      } catch {
-        Swal.fire({
-          title: "Error",
-          text: "Error al cargar la prórroga",
-          icon: "error",
-          confirmButtonColor: "#00a884",
-        });
-      } finally {
-        setLoading(false);
+  //       if (data.ArchivoAdjunto) {
+  //         try {
+  //           const archivosParseados = JSON.parse(data.ArchivoAdjunto);
+  //           setArchivos(
+  //             Array.isArray(archivosParseados)
+  //               ? archivosParseados.map((a: string) => a.replace(/[[\]"]/g, ""))
+  //               : [archivosParseados.replace(/[[\]"]/g, "")]
+  //           );
+  //         } catch {
+  //           setArchivos([data.ArchivoAdjunto.replace(/[[\]"]/g, "")]);
+  //         }
+  //       }
+  //     } catch {
+  //       Swal.fire({
+  //         title: "Error",
+  //         text: "Error al cargar la prórroga",
+  //         icon: "error",
+  //         confirmButtonColor: "#00a884",
+  //       });
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchProrroga();
+  // }, [id]);
+
+useEffect(() => {
+  const fetchProrroga = async () => {
+    setLoading(true);
+    try {
+      const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
+      setProrroga(data);
+
+      if (Array.isArray(data.ArchivoAdjunto)) {
+        setArchivos(data.ArchivoAdjunto);
+      } else {
+        setArchivos([]);
       }
-    };
+    } catch (err) {
+      Swal.fire({
+        title: "Error",
+        text: "Error al cargar la prórroga",
+        icon: "error",
+        confirmButtonColor: "#00a884",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchProrroga();
-  }, [id]);
+  fetchProrroga();
+}, [id]);
+
+
 
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
@@ -96,9 +130,11 @@ export default function DetalleProrrogaPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Prórroga ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de prórroga ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
 
       navigate("/dashboard/prorrogas");
@@ -196,7 +232,13 @@ export default function DetalleProrrogaPage() {
             </h3>
             <div className="space-y-3">
               <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{prorroga.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium">{prorroga.Detalle}</span></div>
+              {/* <div className="flex"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium">{prorroga.Detalle}</span></div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Detalle:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {prorroga.Detalle || "No especificado"}
+  </div>
+</div>
             </div>
           </div>
         </div>
@@ -208,29 +250,30 @@ export default function DetalleProrrogaPage() {
             Archivos Adjuntos
           </h3>
 
-          {archivos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {archivos.map((archivo, index) => (
-                <div
-                  key={index}
-                  onClick={() => abrirArchivo(archivo)}
-                  className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <File className="h-5 w-5 text-red-500 mr-2" />
-                  <span className="text-sm text-gray-700 flex-1 truncate">
-                    {archivo.split("/").pop() || `Documento ${index + 1}`}
-                  </span>
-                  <ExternalLink className="h-4 w-4 text-gray-400" />
-                </div>
-              ))}
-            </div>
-          ) : (
+{archivos.length > 0 ? (
+  <div className="flex flex-col gap-2">
+    {archivos.map((archivo, index) => (
+      <div
+        key={index}
+        onClick={() => abrirArchivo(archivo.ruta)}
+        className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+      >
+        <File className="h-5 w-5 text-red-500 mr-2" />
+        <span className="text-sm text-blue-600 hover:underline flex-1 truncate">
+          {archivo.nombre || `Archivo ${index + 1}`}
+        </span>
+        <ExternalLink className="h-4 w-4 text-gray-400" />
+      </div>
+    ))}
+  </div>
+) : (
+
             <p className="text-gray-500 text-center py-4 bg-gray-50 rounded-md">No hay archivos adjuntos</p>
           )}
         </div>
 
         {/* Formulario de respuesta */}
-        {isEditable && (
+        {isEditable && canEditProrroga && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

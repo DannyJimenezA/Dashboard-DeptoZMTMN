@@ -17,7 +17,7 @@
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const [itemsPerPage, setItemsPerPage] = useState(5);
 //   const [searchText, setSearchText] = useState('');
- 
+
 
 //   const navigate = useNavigate();
 //   const { isAuthenticated, userPermissions } = useAuth();
@@ -71,7 +71,7 @@
 
 
 
- 
+
 
 
 //   const manejarEliminarRol = async (id: number) => {
@@ -120,7 +120,7 @@
 //   const totalPaginas = Math.ceil(rolesFiltrados.length / itemsPerPage);
 
 //   return (
-   
+
 // <div className="flex flex-col w-full h-full p-4">
 //   <h2 className="text-2xl font-bold mb-4 text-center">Lista de Roles</h2>
 
@@ -254,54 +254,159 @@ export default function RolesTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
-  const manejarEliminarRol = async (id: number) => {
-    if (!userPermissions.includes('eliminar_roles')) {
+  // const manejarEliminarRol = async (id: number) => {
+  //   if (!userPermissions.includes('eliminar_roles')) {
+  //     return Swal.fire(
+  //       'Permiso denegado',
+  //       'No tienes permisos para eliminar roles.',
+  //       'warning'
+  //     );
+  //   }
+
+  //   const confirmacion = await Swal.fire({
+  //     title: '¿Eliminar rol?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#28a745',
+  //     cancelButtonColor: '#dc3545',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     const response = await fetch(`${ApiRoutes.roles}/${id}`, {
+  //       method: 'DELETE',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${localStorage.getItem('token')}`,
+  //       },
+  //     });
+
+  //     if (response.status === 403) {
+  //       return Swal.fire(
+  //         'Permiso denegado',
+  //         'No tienes permisos para eliminar este rol.',
+  //         'warning'
+  //       );
+  //     }
+
+  //     if (!response.ok) throw new Error(`Error eliminando el rol`);
+
+  //     // Swal.fire('¡Eliminado!', 'El rol fue eliminado correctamente.', 'success');
+  //     Swal.fire({
+  //       icon: 'success',
+  //       title: '¡Eliminada!',
+  //       text: 'El rol ha sido eliminado.',
+  //       timer: 3000,
+  //       showConfirmButton: false,
+  //     });
+
+  //     setRoles((prev) => prev.filter((rol) => rol.id !== id));
+  //   } catch (err: any) {
+  //     console.error('Error eliminando el rol:', err);
+
+  //     try {
+  //       const errorResponse = await err?.response?.json();
+  //       const message = errorResponse?.message;
+
+  //       if (message?.includes('usuarios que lo tienen asignado')) {
+  //         return Swal.fire({
+  //           icon: 'warning',
+  //           title: 'No se puede eliminar el rol',
+  //           text: 'Este rol tiene usuarios que lo tienen asignado. Debes reasignar los roles de esos usuarios antes de poder eliminarlo.',
+  //           confirmButtonColor: '#dc3545',
+  //         });
+  //       }
+
+  //       Swal.fire('Error', message || 'Ocurrió un error al eliminar el rol.', 'error');
+  //     } catch {
+  //       Swal.fire('Error', 'Ocurrió un error al eliminar el rol.', 'error');
+  //     }
+  //   }
+
+
+
+  // };
+
+const manejarEliminarRol = async (id: number) => {
+  if (!userPermissions.includes('eliminar_roles')) {
+    return Swal.fire(
+      'Permiso denegado',
+      'No tienes permisos para eliminar roles.',
+      'warning'
+    );
+  }
+
+  const confirmacion = await Swal.fire({
+    title: '¿Eliminar rol?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#dc3545',
+  });
+
+  if (!confirmacion.isConfirmed) return;
+
+  try {
+    const response = await fetch(`${ApiRoutes.roles}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    let data: any = {};
+    try {
+      data = await response.json();
+    } catch (_) {
+      // Puede estar vacío si es 204 No Content
+    }
+
+    if (response.status === 403) {
       return Swal.fire(
         'Permiso denegado',
-        'No tienes permisos para eliminar roles.',
+        'No tienes permisos para eliminar este rol.',
         'warning'
       );
     }
 
-    const confirmacion = await Swal.fire({
-      title: '¿Eliminar rol?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#28a745',
-      cancelButtonColor: '#dc3545',
-    });
-
-    if (!confirmacion.isConfirmed) return;
-
-    try {
-      const response = await fetch(`${ApiRoutes.roles}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (response.status === 403) {
-        return Swal.fire(
-          'Permiso denegado',
-          'No tienes permisos para eliminar este rol.',
-          'warning'
-        );
+    if (!response.ok) {
+      if (data.message?.includes('usuarios que lo tienen asignado')) {
+        return Swal.fire({
+          icon: 'warning',
+          title: 'No se puede eliminar el rol',
+          text: 'Este rol tiene usuarios que lo tienen asignado. Debes reasignar los roles de esos usuarios antes de poder eliminarlo.',
+          confirmButtonColor: '#dc3545',
+        });
       }
 
-      if (!response.ok) throw new Error(`Error eliminando el rol`);
-
-      Swal.fire('¡Eliminado!', 'El rol fue eliminado correctamente.', 'success');
-      setRoles((prev) => prev.filter((rol) => rol.id !== id));
-    } catch (error) {
-      console.error('Error eliminando el rol:', error);
-      Swal.fire('Error', 'Ocurrió un error al eliminar el rol.', 'error');
+      throw new Error(data.message || 'Error al eliminar el rol.');
     }
-  };
+
+    // ✅ Actualizar el estado local
+    setRoles((prev) => prev.filter((rol) => rol.id !== id));
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Eliminado!',
+      text: 'El rol ha sido eliminado.',
+      timer: 3000,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    console.error('Error eliminando el rol:', err);
+    Swal.fire('Error', 'Ocurrió un error al eliminar el rol.', 'error');
+  }
+};
+
+
 
   const rolesFiltrados = roles.filter((rol) =>
     rol.name.toLowerCase().includes(searchText.toLowerCase())
@@ -354,7 +459,7 @@ export default function RolesTable() {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {rolesActuales.map((rol) => (
               <tr key={rol.id}>
                 <td className="px-4 py-2">{rol.name}</td>
@@ -385,7 +490,48 @@ export default function RolesTable() {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {rolesActuales.length > 0 ? (
+    rolesActuales.map((rol) => (
+      <tr key={rol.id}>
+        <td className="px-4 py-2">{rol.name}</td>
+        <td className="px-4 py-2">{rol.description || 'Sin descripción'}</td>
+        <td className="px-4 py-2 space-x-2">
+          <button
+            className="text-blue-600 hover:text-blue-800"
+            onClick={() => {
+              if (!userPermissions.includes('editar_roles')) {
+                return Swal.fire(
+                  'Permiso denegado',
+                  'No tienes permisos para editar roles.',
+                  'warning'
+                );
+              }
+              navigate(`/dashboard/asignar-permisos/${rol.id}`);
+            }}
+          >
+            <FaScrewdriverWrench />
+          </button>
+
+          <button
+            onClick={() => manejarEliminarRol(rol.id)}
+            className="text-red-600 hover:text-red-800"
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={3} className="p-4 text-center text-gray-500">
+        No se encontraron roles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

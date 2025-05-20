@@ -14,16 +14,21 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
 export default function DetalleConcesionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [concesion, setConcesion] = useState<Concesion | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
-  const [archivos, setArchivos] = useState<string[]>([]);
+  // const [archivos, setArchivos] = useState<string[]>([]);
+  const [archivos, setArchivos] = useState<{ nombre: string; ruta: string }[]>([]);
+
+    const canEditConcesion = userPermissions.includes('editar_concesiones');
 
   useEffect(() => {
     const fetchConcesion = async () => {
@@ -32,14 +37,20 @@ export default function DetalleConcesionPage() {
         const data = await ApiService.get<Concesion>(`${ApiRoutes.concesiones}/${id}`);
         setConcesion(data);
 
-        if (data.ArchivoAdjunto) {
-          try {
-            const archivosParseados = JSON.parse(data.ArchivoAdjunto);
-            setArchivos(Array.isArray(archivosParseados) ? archivosParseados : [archivosParseados]);
-          } catch {
-            setArchivos([data.ArchivoAdjunto]);
-          }
-        }
+        // if (data.ArchivoAdjunto) {
+        //   try {
+        //     const archivosParseados = JSON.parse(data.ArchivoAdjunto);
+        //     setArchivos(Array.isArray(archivosParseados) ? archivosParseados : [archivosParseados]);
+        //   } catch {
+        //     setArchivos([data.ArchivoAdjunto]);
+        //   }
+        // }
+        if (Array.isArray(data.ArchivoAdjunto)) {
+  setArchivos(data.ArchivoAdjunto);
+} else {
+  setArchivos([]);
+}
+
       } catch {
         Swal.fire({
           title: "Error",
@@ -93,9 +104,11 @@ export default function DetalleConcesionPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Concesión ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de concesión ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
       navigate("/dashboard/concesiones");
     } catch (err) {
@@ -109,13 +122,19 @@ export default function DetalleConcesionPage() {
     }
   };
 
-  const abrirArchivo = (archivo: string) => {
-    const archivoFinal = archivo.replace(/[[\]"]/g, "");
-    if (archivoFinal) {
-      const fileUrl = `${ApiRoutes.urlBase}/${archivoFinal}`;
-      window.open(fileUrl, "_blank");
-    }
-  };
+  // const abrirArchivo = (archivo: string) => {
+  //   const archivoFinal = archivo.replace(/[[\]"]/g, "");
+  //   if (archivoFinal) {
+  //     const fileUrl = `${ApiRoutes.urlBase}/${archivoFinal}`;
+  //     window.open(fileUrl, "_blank");
+  //   }
+  // };
+
+const abrirArchivo = (ruta: string) => {
+  const fileUrl = `${ApiRoutes.urlBase}/${ruta}`;
+  window.open(fileUrl, "_blank");
+};
+
 
   const getStatusBadge = (status: string) => {
     const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border";
@@ -196,7 +215,20 @@ export default function DetalleConcesionPage() {
             <div className="space-y-3">
 
               <div className="flex items-center"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{concesion.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Detalle de la conseción:</span><span className="font-medium">{concesion.Detalle || "No especificado"}</span></div>
+              {/* <div className="flex items-center"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium flex items-center">{concesion.Detalle || "No especificado"}</span></div> */}
+<div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Detalle:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {concesion.Detalle || "No especificado"}
+  </div>
+</div>
+
+
+
+
+
+
+
             </div>
           </div>
         </div>
@@ -210,7 +242,7 @@ export default function DetalleConcesionPage() {
 
           {archivos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {archivos.map((archivo, index) => (
+              {/* {archivos.map((archivo, index) => (
                 <div
                   key={index}
                   onClick={() => abrirArchivo(archivo)}
@@ -222,7 +254,22 @@ export default function DetalleConcesionPage() {
                   </span>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
                 </div>
-              ))}
+              ))} */}
+
+              {archivos.map((archivo, index) => (
+  <div
+    key={index}
+    onClick={() => abrirArchivo(archivo.ruta)}
+    className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+  >
+    <File className="h-5 w-5 text-red-500 mr-2" />
+    <span className="text-sm text-gray-700 flex-1 truncate">
+      {archivo.nombre || `Documento ${index + 1}`}
+    </span>
+    <ExternalLink className="h-4 w-4 text-gray-400" />
+  </div>
+))}
+
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4 bg-gray-50 rounded-md">No hay archivos adjuntos</p>
@@ -230,7 +277,7 @@ export default function DetalleConcesionPage() {
         </div>
 
         {/* Formulario de respuesta */}
-        {isEditable && (
+        {isEditable && canEditConcesion &&(
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

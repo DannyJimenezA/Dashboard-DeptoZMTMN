@@ -139,7 +139,15 @@ export default function CrearFecha() {
         throw new Error(`Error al crear la fecha: ${responseFecha.statusText}`);
       }
 
-      await Swal.fire('Éxito', 'Fecha creada correctamente.', 'success');
+      // await Swal.fire('Éxito', 'Fecha creada correctamente.', 'success');
+            Swal.fire({
+              title: "¡Éxito!",
+              text: `Fecha creada correctamente.`,
+              icon: "success",
+              confirmButtonColor: "#00a884",
+                  timer: 3000,
+            showConfirmButton: false,
+            })
       setNuevaFecha('');
       navigate('/dashboard/dias-citas');
     } catch (error) {
@@ -151,6 +159,8 @@ export default function CrearFecha() {
       );
     }
   };
+
+  
 
   return (
     <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">

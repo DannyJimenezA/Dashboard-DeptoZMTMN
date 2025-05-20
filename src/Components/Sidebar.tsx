@@ -151,6 +151,7 @@ export default function Sidebar() {
     `block px-4 py-2 rounded hover:bg-gray-700 ${isActive ? 'bg-gray-800' : ''}`;
 
   const gestionPermissions = [
+    'ver_users',
     'ver_roles',
     'ver_available-dates',
     'ver_tipodenuncia',
@@ -200,7 +201,7 @@ export default function Sidebar() {
             {/* Prorrogas */}
             {hasPermission('ver_prorrogas') && (
               <NavLink to="/dashboard/prorrogas" className={({ isActive }) => linkClass(isActive)}>
-                Prorrogas {!loadingCounters && counters.prorrogas > 0 && <span className="ml-2 bg-red-600 text-white rounded-full px-2">{counters.prorrogas}</span>}
+                Prórrogas {!loadingCounters && counters.prorrogas > 0 && <span className="ml-2 bg-red-600 text-white rounded-full px-2">{counters.prorrogas}</span>}
               </NavLink>
             )}
 
@@ -222,13 +223,6 @@ export default function Sidebar() {
             {hasPermission('ver_revisionplano') && (
               <NavLink to="/dashboard/planos" className={({ isActive }) => linkClass(isActive)}>
                 Planos {!loadingCounters && counters.planos > 0 && <span className="ml-2 bg-red-600 text-white rounded-full px-2">{counters.planos}</span>}
-              </NavLink>
-            )}
-
-            {/* Usuarios */}
-            {hasPermission('ver_users') && (
-              <NavLink to="/dashboard/usuarios" className={({ isActive }) => linkClass(isActive)}>
-                Usuarios
               </NavLink>
             )}
 
@@ -274,6 +268,11 @@ export default function Sidebar() {
           <ChevronUpIcon className={`${open ? 'rotate-180 transform' : ''} h-4 w-4`} />
         </Disclosure.Button>
         <Disclosure.Panel className="pl-4 mt-1 space-y-1 transition-all duration-300 ease-in-out">
+                      {hasPermission('ver_users') && (
+              <NavLink to="/dashboard/usuarios" className={({ isActive }) => linkClass(isActive)}>
+                Usuarios
+              </NavLink>
+            )}
           {hasPermission('ver_roles') && (
             <NavLink to="/dashboard/roles" className={({ isActive }) => linkClass(isActive)}>
               Roles

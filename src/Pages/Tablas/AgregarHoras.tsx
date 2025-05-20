@@ -325,7 +325,15 @@ export default function AgregarHorasPage() {
       }
 
       await response.json();
-      Swal.fire('¡Éxito!', 'Horas agregadas correctamente.', 'success');
+      // Swal.fire('¡Éxito!', 'Horas agregadas correctamente.', 'success');
+            Swal.fire({
+              title: "¡Éxito!",
+              text: `Horas agregadas correctamente.`,
+              icon: "success",
+              confirmButtonColor: "#00a884",
+                  timer: 3000,
+            showConfirmButton: false,
+            })
       navigate('/dashboard/dias-citas');
     } catch (error) {
       console.error('Error al agregar horas:', error);

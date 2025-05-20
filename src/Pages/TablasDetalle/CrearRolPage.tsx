@@ -332,7 +332,16 @@ export default function CrearRolPage() {
         return;
       }
 
-      Swal.fire('Éxito', 'Rol creado correctamente', 'success').then(() => {
+      // Swal.fire('Éxito', 'Rol creado correctamente', 'success')
+      Swal.fire({
+  icon: 'success',
+  title: 'Éxito!',
+  text: 'Rol creado correctamente.',
+  timer: 3000,
+  showConfirmButton: false,
+})
+
+      .then(() => {
         navigate('/dashboard/roles');
       });
     } catch (error) {

@@ -6,6 +6,32 @@
 // import { fetchWithAuth } from '../../Components/ApiService';
 // import { ArrowLeft, ShieldCheck } from 'lucide-react';
 
+// const accionesLegibles: Record<string, string> = {
+//   GET: 'Ver',
+//   POST: 'Crear',
+//   PUT: 'Editar',
+//   PATCH: 'Editar Estado',
+//   DELETE: 'Eliminar',
+// };
+
+// const recursoLegible = (resource: string) => {
+//   const mapa: Record<string, string> = {
+//     'available-dates': 'Fechas disponibles',
+//     'horas-cita': 'Horas de cita',
+//     'users': 'Usuarios',
+//     'roles': 'Roles',
+//     'denuncia': 'Denuncias',
+//     'concesiones': 'Concesiones',
+//     'expedientes': 'Expedientes',
+//     'appointments': 'Citas',
+//     'revision-plano': 'Planos',
+//     'permissions': 'Permisos',
+//     'tipo-denuncia': 'Tipo de Denuncia',
+//     'lugar-denuncia': 'Lugar de Denuncia',
+//   };
+//   return mapa[resource] || resource.charAt(0).toUpperCase() + resource.slice(1).replace(/-/g, ' ');
+// };
+
 // export default function AsignarPermisos() {
 //   const { id } = useParams();
 //   const navigate = useNavigate();
@@ -104,14 +130,14 @@
 //   return (
 //     <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
 //       <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
-//         <h2 className="text-xl font-bold">Asignar Permisos</h2>
+//         <h2 className="text-xl font-bold">Gestión de Permisos</h2>
 //         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">
-//           Rol: {rol.name}
+//           Permisos para: <strong className="ml-1">{rol.name}</strong>
 //         </span>
 //       </div>
 
 //       <div className="p-6 space-y-6">
-//         {/* Tabs */}
+//         {/* Tabs por recurso */}
 //         <div className="flex flex-wrap gap-2 border-b pb-4">
 //           {recursosUnicos.map((recurso) => (
 //             <button
@@ -123,12 +149,12 @@
 //                   : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
 //               }`}
 //             >
-//               {recurso}
+//               {recursoLegible(recurso)}
 //             </button>
 //           ))}
 //         </div>
 
-//         {/* Permisos por recurso */}
+//         {/* Permisos de recurso activo */}
 //         <div className="grid sm:grid-cols-2 gap-4">
 //           {permisos
 //             .filter((p) => p.resource === recursoActivo)
@@ -142,8 +168,10 @@
 //                   `}
 //                 >
 //                   <span className="font-medium text-gray-800">
-//                     {permiso.action.toUpperCase()}
-//                     <span className="text-gray-500 text-sm ml-2">{permiso.resource}</span>
+//                     {accionesLegibles[permiso.action.toUpperCase()] || permiso.action}
+//                     <span className="text-gray-500 text-sm ml-2">
+//                       {recursoLegible(permiso.resource)}
+//                     </span>
 //                   </span>
 
 //                   <label className="inline-flex items-center cursor-pointer">
@@ -177,7 +205,7 @@
 //             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
 //           >
 //             <ShieldCheck className="h-4 w-4" />
-//             Guardar Permisos
+//             Guardar Cambios
 //           </button>
 
 //           <button
@@ -205,7 +233,7 @@ const accionesLegibles: Record<string, string> = {
   GET: 'Ver',
   POST: 'Crear',
   PUT: 'Editar',
-  PATCH: 'Editar Estado',
+  PATCH: 'Editar',
   DELETE: 'Eliminar',
 };
 
@@ -227,6 +255,27 @@ const recursoLegible = (resource: string) => {
   return mapa[resource] || resource.charAt(0).toUpperCase() + resource.slice(1).replace(/-/g, ' ');
 };
 
+const solicitudesRecursos = [
+  'dashboard',
+  'appointments',
+  'denuncia',
+  'concesiones',
+  'prorrogas',
+  'precario',
+  'copia_expediente',
+  'revisionplano',
+];
+
+const administrativosRecursos = [
+  'users',
+  'available-dates',
+  'horas-cita',
+  'roles',
+  'permissions',
+  'tipodenuncia',
+  'lugardenuncia',
+];
+
 export default function AsignarPermisos() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -234,6 +283,7 @@ export default function AsignarPermisos() {
   const [rol, setRol] = useState<Role | null>(null);
   const [permisos, setPermisos] = useState<Permission[]>([]);
   const [permisosSeleccionados, setPermisosSeleccionados] = useState<Permission[]>([]);
+  const [pestaniaActiva, setPestaniaActiva] = useState<'solicitudes' | 'administrativos'>('solicitudes');
   const [recursoActivo, setRecursoActivo] = useState<string>('');
 
   useEffect(() => {
@@ -301,7 +351,14 @@ export default function AsignarPermisos() {
 
       if (!res?.ok) throw new Error('Error al actualizar permisos');
 
-      await Swal.fire('Actualizado', 'Permisos guardados correctamente.', 'success');
+      await 
+            Swal.fire({
+              icon: 'success',
+              title: 'Rol actualizado',
+              text: 'Permisos guardados correctamente.',
+              timer: 3000,
+              showConfirmButton: false,
+            });
       navigate('/dashboard/roles');
     } catch (error) {
       console.error(error);
@@ -320,7 +377,14 @@ export default function AsignarPermisos() {
     );
   }
 
-  const recursosUnicos = Array.from(new Set(permisos.map((p) => p.resource)));
+  const recursosFiltrados = permisos
+    .map((p) => p.resource)
+    .filter((v, i, arr) => arr.indexOf(v) === i) // únicos
+    .filter((r) =>
+      pestaniaActiva === 'solicitudes'
+        ? solicitudesRecursos.includes(r)
+        : administrativosRecursos.includes(r)
+    );
 
   return (
     <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
@@ -332,9 +396,33 @@ export default function AsignarPermisos() {
       </div>
 
       <div className="p-6 space-y-6">
+        {/* Tabs principales */}
+        <div className="flex gap-4 mb-4">
+          <button
+            onClick={() => setPestaniaActiva('solicitudes')}
+            className={`px-4 py-2 rounded font-medium transition ${
+              pestaniaActiva === 'solicitudes'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            }`}
+          >
+            Solicitudes
+          </button>
+          <button
+            onClick={() => setPestaniaActiva('administrativos')}
+            className={`px-4 py-2 rounded font-medium transition ${
+              pestaniaActiva === 'administrativos'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+            }`}
+          >
+            Administrativos
+          </button>
+        </div>
+
         {/* Tabs por recurso */}
         <div className="flex flex-wrap gap-2 border-b pb-4">
-          {recursosUnicos.map((recurso) => (
+          {recursosFiltrados.map((recurso) => (
             <button
               key={recurso}
               onClick={() => setRecursoActivo(recurso)}

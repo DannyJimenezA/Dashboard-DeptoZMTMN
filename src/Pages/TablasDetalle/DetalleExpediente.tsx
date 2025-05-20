@@ -14,15 +14,18 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
 export default function DetalleExpedientePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [expediente, setExpediente] = useState<CopiaExpediente | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
+    const canEditExpediente = userPermissions.includes('editar_copia_expediente');
 
   useEffect(() => {
     const fetchExpediente = async () => {
@@ -86,9 +89,11 @@ export default function DetalleExpedientePage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Expediente ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de expediente ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
       navigate("/dashboard/expedientes");
     } catch (err) {
@@ -190,7 +195,9 @@ export default function DetalleExpedientePage() {
                 <span className="text-gray-500 w-28">Medio de notificación:</span>
                 <span className="font-medium flex items-center">
                 
-                  {expediente.medioNotificacion}
+                  {/* {expediente.medioNotificacion} */}
+                  {expediente.medioNotificacion.charAt(0).toUpperCase() + expediente.medioNotificacion.slice(1).toLowerCase()}
+
                 </span>
               </div>
             </div>
@@ -232,7 +239,7 @@ export default function DetalleExpedientePage() {
         </div>
 
         {/* Formulario de respuesta */}
-        {isEditable && (
+        {isEditable && canEditExpediente && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

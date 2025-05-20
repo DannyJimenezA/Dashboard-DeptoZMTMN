@@ -15,8 +15,9 @@ export default function AppointmentTable() {
   const [citas, setCitas] = useState<Cita[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [filtroEstado, setFiltroEstado] = useState('Pendiente');
   const [fechaFiltro, setFechaFiltro] = useState<Date | null>(null);
+  const [fechasDisponibles, setFechasDisponibles] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
   const [searchBy, setSearchBy] = useState<'nombre' | 'cedula'>('nombre');
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,42 +25,100 @@ export default function AppointmentTable() {
 
   const { isAuthenticated, userPermissions } = useAuth();
   const navigate = useNavigate();
+const fechasSonIguales = (fechaStr: string, fechaSeleccionada: Date) => {
+  const [year, month, day] = fechaStr.split('-').map(Number);
+  const fecha1 = new Date(year, month - 1, day); // sin conversión UTC
+  const fecha2 = new Date(fechaSeleccionada);
 
-  const fetchCitas = async () => {
-    try {
-      const data = await ApiService.get<Cita[]>(ApiRoutes.citas);
-      setCitas(data);
-    } catch {
-      setError('Error al cargar las citas');
-    } finally {
-      setLoading(false);
+  return (
+    fecha1.getFullYear() === fecha2.getFullYear() &&
+    fecha1.getMonth() === fecha2.getMonth() &&
+    fecha1.getDate() === fecha2.getDate()
+  );
+};
+
+
+const fetchCitas = async () => {
+  try {
+    const data = await ApiService.get<Cita[]>(ApiRoutes.citas);
+    setCitas(data);
+
+    const fechasUnicas = Array.from(
+      new Set(
+        data
+          .map(c => c.availableDate?.date)
+          .filter(Boolean)
+      )
+    ).sort();
+    setFechasDisponibles(fechasUnicas);
+
+    // Eliminado: ya no se selecciona automáticamente ninguna fecha
+    // setFechaFiltro(...) se elimina por completo aquí
+  } catch {
+    setError('Error al cargar las citas');
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // useEffect(() => {
+  //   if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
+  //     navigate('/unauthorized');
+  //     return;
+  //   }
+
+  //   fetchCitas();
+
+  //   const socket: Socket = io(ApiRoutes.urlBase, {
+  //     transports: ['websocket'],
+  //     auth: { token: localStorage.getItem('token') },
+  //   });
+
+  //   socket.on('nueva-solicitud', (data) => {
+  //     if (data.tipo === 'citas') {
+  //       fetchCitas();
+  //     }
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [isAuthenticated, userPermissions, navigate]);
+  useEffect(() => {
+  if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
+    navigate('/unauthorized');
+    return;
+  }
+
+  fetchCitas(); // Carga inicial
+
+  const socket: Socket = io(ApiRoutes.urlBase, {
+    transports: ['websocket'],
+    auth: { token: localStorage.getItem('token') },
+  });
+
+  // 🔥 Escucha eventos WebSocket
+  const actualizarCitas = (data: any) => {
+    if (data.tipo === 'citas') {
+      console.log('🔄 Evento WebSocket recibido:', data);
+      fetchCitas();
     }
   };
 
-  useEffect(() => {
-    if (!isAuthenticated || !userPermissions.includes('ver_appointments')) {
-      navigate('/unauthorized');
-      return;
-    }
+  socket.on('nueva-solicitud', actualizarCitas);
+  socket.on('actualizar-solicitudes', actualizarCitas);
+  socket.on('eliminar-solicitud', actualizarCitas);
 
-    fetchCitas();
+  return () => {
+    socket.off('nueva-solicitud', actualizarCitas);
+    socket.off('actualizar-solicitudes', actualizarCitas);
+    socket.off('eliminar-solicitud', actualizarCitas);
+    socket.disconnect();
+  };
+}, [isAuthenticated, userPermissions, navigate]);
 
-    const socket: Socket = io(ApiRoutes.urlBase, {
-      transports: ['websocket'],
-      auth: { token: localStorage.getItem('token') },
-    });
 
-    // 🚀 Escuchar cuando llega una nueva solicitud de cita
-    socket.on('nueva-solicitud', (data) => {
-      if (data.tipo === 'citas') {
-        fetchCitas(); // 🔥 refresca la lista automáticamente
-      }
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [isAuthenticated, userPermissions, navigate]);
   const eliminarCita = async (id: number) => {
     const confirmar = await Swal.fire({
       title: '¿Eliminar cita?',
@@ -71,37 +130,37 @@ export default function AppointmentTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-  
+
     if (!confirmar.isConfirmed) return;
-  
+
     try {
       const res = await fetchWithAuth(`${ApiRoutes.citas}/${id}`, {
         method: 'DELETE',
       });
-  
-      if (!res) {
-        throw new Error('No hubo respuesta del servidor');
-      }
-  
+
+      if (!res) throw new Error('No hubo respuesta del servidor');
       if (res.status === 403) {
         Swal.fire('Acceso Denegado', 'No tienes permisos para realizar esta acción.', 'warning');
         return;
       }
-  
-      if (!res.ok) {
-        throw new Error('Falló la eliminación');
-      }
-  
-      Swal.fire('¡Eliminada!', 'La cita ha sido eliminada.', 'success');
+      if (!res.ok) throw new Error('Falló la eliminación');
+
+      // Swal.fire('¡Eliminada!', 'La cita ha sido eliminada.', 'success', );
+      Swal.fire({
+  icon: 'success',
+  title: '¡Eliminada!',
+  text: 'La cita ha sido eliminada.',
+  timer: 3000,
+  showConfirmButton: false,
+});
+
+      
       setCitas(prev => prev.filter(c => c.id !== id));
     } catch (error) {
       console.error('Error al eliminar cita:', error);
       Swal.fire('Error', 'No se pudo eliminar la cita.', 'error');
     }
   };
-  
-
-
 
   if (!isAuthenticated || userPermissions.length === 0) {
     return <p className="text-center text-gray-500 p-4">Verificando permisos...</p>;
@@ -112,7 +171,9 @@ export default function AppointmentTable() {
 
   const citasFiltradas = citas.filter(cita => {
     const matchEstado = filtroEstado === 'todos' || cita.status === filtroEstado;
-    const matchFecha = !fechaFiltro || cita.availableDate?.date === fechaFiltro.toISOString().split('T')[0];
+const matchFecha =
+  !fechaFiltro || (cita.availableDate?.date && fechasSonIguales(cita.availableDate.date, fechaFiltro));
+
     const matchTexto =
       searchBy === 'nombre'
         ? cita.user?.nombre?.toLowerCase().includes(searchText.toLowerCase())
@@ -149,14 +210,14 @@ export default function AppointmentTable() {
               <option value="todos">Todos</option>
               <option value="Pendiente">Pendiente</option>
               <option value="Aprobada">Aprobada</option>
-              <option value="Cancelada">Cancelada</option>
+              <option value="Denegada">Denegada</option>
             </select>
-            <FiltroFecha fechaFiltro={fechaFiltro} onChangeFecha={setFechaFiltro} />
+            <FiltroFecha fechaFiltro={fechaFiltro} onChangeFecha={setFechaFiltro} fechasDisponibles={fechasDisponibles} />
           </div>
         }
       />
 
-       <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg mt-4">
+      <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg mt-4">
         <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
@@ -167,28 +228,70 @@ export default function AppointmentTable() {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {citasActuales.map((cita) => (
               <tr key={cita.id}>
                 <td className="px-4 py-2">{cita.user?.nombre ?? '-'}</td>
                 <td className="px-4 py-2">{cita.user?.cedula ?? '-'}</td>
                 <td className="px-4 py-2">{`${cita.availableDate?.date ?? '-'} ${cita.horaCita?.hora ?? ''}`}</td>
-                <td className="px-4 py-2">{cita.status}</td>
+                <td className="px-4 py-2">
+  <span className={`font-semibold px-3 py-1 rounded-full text-sm
+    ${cita.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+      cita.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+      cita.status === 'Denegada' ? 'bg-red-100 text-red-800' :
+      'bg-gray-100 text-gray-800'}`}>
+    {cita.status}
+  </span>
+</td>
+
                 <td className="px-4 py-2 space-x-2">
-                  <button  className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
+                  <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
                     <FaEye />
                   </button>
-                  <button  className="text-red-600 hover:text-red-800" onClick={() => eliminarCita(cita.id)}>
+                  <button className="text-red-600 hover:text-red-800" onClick={() => eliminarCita(cita.id)}>
                     <FaTrash />
                   </button>
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {citasActuales.length > 0 ? (
+    citasActuales.map((cita) => (
+      <tr key={cita.id}>
+        <td className="px-4 py-2">{cita.user?.nombre ?? '-'}</td>
+        <td className="px-4 py-2">{cita.user?.cedula ?? '-'}</td>
+        <td className="px-4 py-2">{`${cita.availableDate?.date ?? '-'} ${cita.horaCita?.hora ?? ''}`}</td>
+        <td className="px-4 py-2">
+          <span className={`font-semibold px-3 py-1 rounded-full text-sm
+            ${cita.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+              cita.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+              cita.status === 'Denegada' ? 'bg-red-100 text-red-800' :
+              'bg-gray-100 text-gray-800'}`}>
+            {cita.status}
+          </span>
+        </td>
+        <td className="px-4 py-2 space-x-2">
+          <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/citas/${cita.id}`)}>
+            <FaEye />
+          </button>
+          <button className="text-red-600 hover:text-red-800" onClick={() => eliminarCita(cita.id)}>
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={5} className="p-4 text-center text-gray-500">
+        No hay solicitudes de citas disponibles.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
-       
-
 
       <Paginacion
         currentPage={currentPage}

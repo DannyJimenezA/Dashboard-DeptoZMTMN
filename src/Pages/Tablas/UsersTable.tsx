@@ -80,35 +80,6 @@ export default function UsersTable() {
     };
   }, [isAuthenticated, userPermissions, navigate]);
 
-  // const eliminarUsuario = async (id: number) => {
-  //   const confirmacion = await Swal.fire({
-  //     title: '¿Eliminar usuario?',
-  //     text: 'Esta acción no se puede deshacer.',
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Sí, eliminar',
-  //     cancelButtonText: 'Cancelar',
-  //     confirmButtonColor: '#28a745',
-  //     cancelButtonColor: '#dc3545',
-  //   });
-
-  //   if (!confirmacion.isConfirmed) return;
-
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     const response = await fetch(`${ApiRoutes.usuarios}/${id}`, {
-  //       method: 'DELETE',
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     if (!response.ok) throw new Error('Error al eliminar el usuario');
-
-  //     Swal.fire('¡Eliminado!', 'El usuario fue eliminado correctamente.', 'success');
-  //     setUsuarios((prev) => prev.filter((u) => u.id !== id));
-  //   } catch (err) {
-  //     Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
-  //   }
-  // };
   const eliminarUsuario = async (id: number) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar usuario?',
@@ -120,37 +91,84 @@ export default function UsersTable() {
       confirmButtonColor: '#28a745',
       cancelButtonColor: '#dc3545',
     });
-  
+
     if (!confirmacion.isConfirmed) return;
-  
+
+    //     try {
+    //       const token = localStorage.getItem('token');
+    //       const response = await fetch(`${ApiRoutes.usuarios}/${id}`, {
+    //         method: 'DELETE',
+    //         headers: { Authorization: `Bearer ${token}` },
+    //       });
+
+    //       if (response.status === 403) {
+    //         return Swal.fire('Permiso denegado', 'No tienes permisos para eliminar este usuario.', 'warning');
+    //       }
+
+    //       if (!response.ok) throw new Error('Error al eliminar el usuario');
+
+    // //      Swal.fire('¡Eliminado!', 'El usuario fue eliminado correctamente.', 'success');
+    // Swal.fire({
+    //   icon: 'success',
+    //   title: '¡Eliminado!',
+    //   text: 'El usuario ha sido eliminado.',
+    //   timer: 3000,
+    //   showConfirmButton: false,
+    // });
+
+    //       setUsuarios((prev) => prev.filter((u) => u.id !== id));
+    //     } catch (err) {
+    //       console.error(err);
+    //       Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+    //     }
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${ApiRoutes.usuarios}/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
+      const data = await response.json();
+
       if (response.status === 403) {
         return Swal.fire('Permiso denegado', 'No tienes permisos para eliminar este usuario.', 'warning');
       }
-  
-      if (!response.ok) throw new Error('Error al eliminar el usuario');
-  
-      Swal.fire('¡Eliminado!', 'El usuario fue eliminado correctamente.', 'success');
+
+      if (!response.ok) {
+        if (data.message?.includes('tiene solicitudes asociadas')) {
+          return Swal.fire({
+            icon: 'warning',
+            title: 'No se puede eliminar',
+            text: 'Este usuario tiene solicitudes asociadas. Debe eliminarlas primero.',
+            confirmButtonColor: '#dc3545',
+          });
+        }
+        throw new Error(data.message || 'Error al eliminar el usuario');
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Eliminado!',
+        text: 'El usuario ha sido eliminado.',
+        timer: 3000,
+        showConfirmButton: false,
+      });
+
       setUsuarios((prev) => prev.filter((u) => u.id !== id));
     } catch (err) {
       console.error(err);
       Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
     }
+
   };
-  
+
 
   const usuariosFiltrados = usuarios.filter((usuario) =>
     searchBy === 'nombre'
       ? usuario.nombre.toLowerCase().includes(searchText.toLowerCase())
       : searchBy === 'cedula'
-      ? usuario.cedula.toLowerCase().includes(searchText.toLowerCase())
-      : usuario.email.toLowerCase().includes(searchText.toLowerCase())
+        ? usuario.cedula.toLowerCase().includes(searchText.toLowerCase())
+        : usuario.email.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const indexFinal = currentPage * itemsPerPage;
@@ -190,7 +208,7 @@ export default function UsersTable() {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {usuariosActuales.map((usuario) => (
               <tr key={usuario.id}>
                 <td className="px-4 py-2">{usuario.nombre}</td>
@@ -203,17 +221,50 @@ export default function UsersTable() {
                     : 'Sin rol'}
                 </td>
                 <td className="px-4 py-2 space-x-2">
-                <button className="text-blue-600 hover:text-blue-800"  onClick={() => navigate(`/dashboard/usuario/${usuario.id}`)}>
+                  <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/usuario/${usuario.id}`)}>
                     <FaEye />
                   </button>
-                  <button  onClick={() => eliminarUsuario(usuario.id)}
-                     className="text-red-600 hover:text-red-800">
+                  <button onClick={() => eliminarUsuario(usuario.id)}
+                    className="text-red-600 hover:text-red-800">
                     <FaTrash />
                   </button>
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {usuariosActuales.length > 0 ? (
+    usuariosActuales.map((usuario) => (
+      <tr key={usuario.id}>
+        <td className="px-4 py-2">{usuario.nombre}</td>
+        <td className="px-4 py-2">{usuario.apellido1} {usuario.apellido2}</td>
+        <td className="px-4 py-2">{usuario.cedula}</td>
+        <td className="px-4 py-2">{usuario.email}</td>
+        <td className="px-4 py-2">
+          {usuario.roles && usuario.roles.length > 0
+            ? usuario.roles.map((rol) => rol.name).join(', ')
+            : 'Sin rol'}
+        </td>
+        <td className="px-4 py-2 space-x-2">
+          <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/usuario/${usuario.id}`)}>
+            <FaEye />
+          </button>
+          <button onClick={() => eliminarUsuario(usuario.id)}
+            className="text-red-600 hover:text-red-800">
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={6} className="p-4 text-center text-gray-500">
+        No se encontraron usuarios.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

@@ -7,6 +7,7 @@ import ApiService from "../../Components/ApiService";
 import ApiRoutes from "../../Components/ApiRoutes";
 import { ArrowLeft, File, FileText, User, UserCheck, X, ExternalLink, } from "lucide-react";
 import type { RevisionPlano } from "../../Types/Types";
+import { useAuth } from "../Auth/AuthContext";
 
 const MySwal = withReactContent(Swal);
 
@@ -18,10 +19,12 @@ interface ArchivoPlano {
 export default function DetallePlanoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+    const { userPermissions } = useAuth();
   const [revisionPlano, setRevisionPlano] = useState<RevisionPlano | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
   const [archivos, setArchivos] = useState<ArchivoPlano[]>([]);
+    const canEditPlano = userPermissions.includes('editar_revisionplano');
 
   useEffect(() => {
     const fetchPlano = async () => {
@@ -88,9 +91,11 @@ export default function DetallePlanoPage() {
 
       Swal.fire({
         title: "¡Éxito!",
-        text: `Plano ${nuevoEstado.toLowerCase()} correctamente.`,
+        text: `Solicitud de revisión de plano ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
+            timer: 3000,
+      showConfirmButton: false,
       });
       navigate("/dashboard/planos");
     } catch {
@@ -182,10 +187,16 @@ export default function DetallePlanoPage() {
               Detalles del Plano
             </h3>
             <div className="space-y-3">
+              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium">{revisionPlano.Date}</span></div>
               <div className="flex"><span className="text-gray-500 w-24">Expediente:</span><span className="font-medium">{revisionPlano.NumeroExpediente}</span></div>
               <div className="flex"><span className="text-gray-500 w-24">Plano:</span><span className="font-medium">{revisionPlano.NumeroPlano}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium">{revisionPlano.Date}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Comentario:</span><span className="font-medium">{revisionPlano.Comentario || "No especificado"}</span></div>
+              {/* <div className="flex"><span className="text-gray-500 w-24">Comentario:</span><span className="font-medium">{revisionPlano.Comentario || "No especificado"}</span></div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+  <span className="text-gray-500 pt-1">Comentario:</span>
+  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+    {revisionPlano.Comentario || "No especificado"}
+  </div>
+</div>
             </div>
           </div>
         </div>
@@ -217,7 +228,7 @@ export default function DetallePlanoPage() {
           )}
         </div>
 
-        {isEditable && (
+        {isEditable && canEditPlano &&(
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

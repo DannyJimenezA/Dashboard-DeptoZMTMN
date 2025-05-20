@@ -214,49 +214,189 @@ export default function TipoDenunciaTable() {
     };
   }, []);
 
-  const handleEliminar = async (id: number) => {
-    if (!userPermissions.includes('eliminar_tipodenuncia')) {
-      return Swal.fire(
-        'Permiso denegado',
-        'No tienes permisos para eliminar tipos de denuncia.',
-        'warning'
-      );
-    }
+  // const handleEliminar = async (id: number) => {
+  //   if (!userPermissions.includes('eliminar_tipodenuncia')) {
+  //     return Swal.fire(
+  //       'Permiso denegado',
+  //       'No tienes permisos para eliminar tipos de denuncia.',
+  //       'warning'
+  //     );
+  //   }
 
-    const confirm = await Swal.fire({
-      title: '¿Eliminar tipo de denuncia?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+  //   const confirm = await Swal.fire({
+  //     title: '¿Eliminar tipo de denuncia?',
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //         confirmButtonColor: '#28a745',
+  //   cancelButtonColor: '#dc3545',
+    
+  //   });
+
+  //   if (!confirm.isConfirmed) return;
+
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia/${id}`, {
+  //       method: 'DELETE',
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (res.status === 403) {
+  //       return Swal.fire(
+  //         'Permiso denegado',
+  //         'No tienes permisos para realizar esta acción.',
+  //         'warning'
+  //       );
+  //     }
+
+  //     if (!res.ok) throw new Error();
+
+  //     setTipos((prev) => prev.filter((t) => t.id !== id));
+  //     Swal.fire({
+  //       title: "¡Éxito!",
+  //       text: `Tipo de denuncia ha sido eliminado.`,
+  //       icon: "success",
+  //       confirmButtonColor: "#00a884",
+  //           timer: 3000,
+  //     showConfirmButton: false,
+  //     })
+  //   } catch (err) {
+  //     Swal.fire('Error', 'No se pudo eliminar el tipo.', 'error');
+  //   }
+  // };
+
+const handleEliminar = async (id: number) => {
+  if (!userPermissions.includes('eliminar_tipodenuncia')) {
+    return Swal.fire(
+      'Permiso denegado',
+      'No tienes permisos para eliminar tipos de denuncia.',
+      'warning'
+    );
+  }
+
+  const confirm = await Swal.fire({
+    title: '¿Eliminar tipo de denuncia?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#dc3545',
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  // try {
+  //   const token = localStorage.getItem('token');
+  //   const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia/${id}`, {
+  //     method: 'DELETE',
+  //     headers: { Authorization: `Bearer ${token}` },
+  //   });
+
+  //   const data = await res.json();
+
+  //   if (res.status === 403) {
+  //     return Swal.fire(
+  //       'Permiso denegado',
+  //       'No tienes permisos para realizar esta acción.',
+  //       'warning'
+  //     );
+  //   }
+
+  //   if (!res.ok) {
+  //     // 👇 Detectar mensaje específico del backend
+  //     if (
+  //       typeof data === 'object' &&
+  //       data !== null &&
+  //       'message' in data &&
+  //       typeof data.message === 'string' &&
+  //       data.message.includes('denuncias asociadas')
+  //     ) {
+  //       return Swal.fire({
+  //         icon: 'warning',
+  //         title: 'No se puede eliminar',
+  //         text: 'Este tipo de denuncia está siendo utilizado por una o más denuncias. Elimínalas antes de eliminarlo.',
+  //         confirmButtonColor: '#dc3545',
+  //       });
+  //     }
+
+  //     throw new Error('Error al eliminar');
+  //   }
+
+  //   setTipos((prev) => prev.filter((t) => t.id !== id));
+  //   Swal.fire({
+  //     title: '¡Éxito!',
+  //     text: 'Tipo de denuncia eliminado correctamente.',
+  //     icon: 'success',
+  //     confirmButtonColor: '#00a884',
+  //     timer: 3000,
+  //     showConfirmButton: false,
+  //   });
+  // } catch (err) {
+  //   console.error(err);
+  //   Swal.fire('Error', 'No se pudo eliminar el tipo.', 'error');
+  // }
+
+try {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  // ✅ Si se eliminó correctamente (por ejemplo, 204 No Content)
+  if (res.status === 204 || res.status === 200) {
+    setTipos((prev) => prev.filter((t) => t.id !== id));
+    return Swal.fire({
+      title: '¡Éxito!',
+      text: 'Tipo de denuncia eliminado correctamente.',
+      icon: 'success',
+      confirmButtonColor: '#00a884',
+      timer: 3000,
+      showConfirmButton: false,
     });
+  }
 
-    if (!confirm.isConfirmed) return;
+  // ❌ Si no es éxito, intentamos leer el mensaje de error
+  const data = await res.json();
 
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${ApiRoutes.urlBase}/tipo-denuncia/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  if (res.status === 403) {
+    return Swal.fire(
+      'Permiso denegado',
+      'No tienes permisos para realizar esta acción.',
+      'warning'
+    );
+  }
 
-      if (res.status === 403) {
-        return Swal.fire(
-          'Permiso denegado',
-          'No tienes permisos para realizar esta acción.',
-          'warning'
-        );
-      }
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'message' in data &&
+    typeof data.message === 'string' &&
+    data.message.includes('denuncias asociadas')
+  ) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'No se puede eliminar',
+      text: 'Este tipo de denuncia está siendo utilizado por una o más denuncias. Elimínalas antes de eliminarlo.',
+      confirmButtonColor: '#dc3545',
+    });
+  }
 
-      if (!res.ok) throw new Error();
+  throw new Error('Error desconocido');
+} catch (err) {
+  console.error(err);
+  Swal.fire('Error', 'No se pudo eliminar el tipo.', 'error');
+}
 
-      setTipos((prev) => prev.filter((t) => t.id !== id));
-      Swal.fire('Eliminado', 'Tipo eliminado correctamente.', 'success');
-    } catch (err) {
-      Swal.fire('Error', 'No se pudo eliminar el tipo.', 'error');
-    }
-  };
+
+
+};
+
 
   const tiposFiltrados = tipos.filter((t) =>
     t.descripcion.toLowerCase().includes(searchText.toLowerCase())
@@ -308,7 +448,7 @@ export default function TipoDenunciaTable() {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          {/* <tbody className="divide-y divide-gray-200">
             {tiposActuales.map((tipo) => (
               <tr key={tipo.id}>
                 <td className="px-4 py-2">{tipo.descripcion}</td>
@@ -322,7 +462,31 @@ export default function TipoDenunciaTable() {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody className="divide-y divide-gray-200">
+  {tiposActuales.length > 0 ? (
+    tiposActuales.map((tipo) => (
+      <tr key={tipo.id}>
+        <td className="px-4 py-2">{tipo.descripcion}</td>
+        <td className="px-4 py-2 text-left">
+          <button
+            onClick={() => handleEliminar(tipo.id)}
+            className="text-red-600 hover:text-red-800"
+          >
+            <FaTrash />
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={2} className="p-4 text-center text-gray-500">
+        No se encontraron tipos de denuncia.
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 
