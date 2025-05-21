@@ -225,6 +225,20 @@ export default function AgregarHorasPage() {
     '15:00', '15:30',
   ];
 
+  function formatearHora12h(hora24: string): string {
+  const [horas, minutos] = hora24.split(':');
+  const date = new Date();
+  date.setHours(parseInt(horas, 10));
+  date.setMinutes(parseInt(minutos, 10));
+
+  return date.toLocaleTimeString('es-CR', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+
   useEffect(() => {
     const obtenerFecha = async () => {
       try {
@@ -390,8 +404,9 @@ export default function AgregarHorasPage() {
                       disabled={yaCreada}
                     />
                     <span className={yaCreada ? 'text-gray-500 italic' : 'text-gray-700'}>
-                      {hora} {yaCreada && '(ya creada)'}
-                    </span>
+  {formatearHora12h(hora)} {yaCreada && '(ya creada)'}
+</span>
+
                   </label>
                 );
               })}
