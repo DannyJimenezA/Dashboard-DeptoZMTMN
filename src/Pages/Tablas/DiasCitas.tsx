@@ -23,6 +23,7 @@ export default function DiasCitasTable() {
 
   const navigate = useNavigate();
 
+
   const fetchFechas = async () => {
     try {
       const token = localStorage.getItem('token');
