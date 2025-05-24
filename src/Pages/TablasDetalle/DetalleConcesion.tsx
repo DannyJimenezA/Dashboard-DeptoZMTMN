@@ -21,14 +21,20 @@ const MySwal = withReactContent(Swal);
 export default function DetalleConcesionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-    const { userPermissions } = useAuth();
+  const { userPermissions } = useAuth();
   const [concesion, setConcesion] = useState<Concesion | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
   // const [archivos, setArchivos] = useState<string[]>([]);
   const [archivos, setArchivos] = useState<{ nombre: string; ruta: string }[]>([]);
 
-    const canEditConcesion = userPermissions.includes('editar_concesiones');
+  const canEditConcesion = userPermissions.includes('editar_concesiones');
+
+  function formatearFecha(fechaISO: string): string {
+    const [year, month, day] = fechaISO.split("-");
+    return `${day}/${month}/${year}`;
+  }
+
 
   useEffect(() => {
     const fetchConcesion = async () => {
@@ -46,10 +52,10 @@ export default function DetalleConcesionPage() {
         //   }
         // }
         if (Array.isArray(data.ArchivoAdjunto)) {
-  setArchivos(data.ArchivoAdjunto);
-} else {
-  setArchivos([]);
-}
+          setArchivos(data.ArchivoAdjunto);
+        } else {
+          setArchivos([]);
+        }
 
       } catch {
         Swal.fire({
@@ -95,7 +101,7 @@ export default function DetalleConcesionPage() {
         status: nuevoEstado,
         message: mensaje,
       });
-      
+
 
       await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
         email: concesion.user?.email,
@@ -107,8 +113,8 @@ export default function DetalleConcesionPage() {
         text: `Solicitud de concesión ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       });
       navigate("/dashboard/concesiones");
     } catch (err) {
@@ -130,10 +136,10 @@ export default function DetalleConcesionPage() {
   //   }
   // };
 
-const abrirArchivo = (ruta: string) => {
-  const fileUrl = `${ApiRoutes.urlBase}/${ruta}`;
-  window.open(fileUrl, "_blank");
-};
+  const abrirArchivo = (ruta: string) => {
+    const fileUrl = `${ApiRoutes.urlBase}/${ruta}`;
+    window.open(fileUrl, "_blank");
+  };
 
 
   const getStatusBadge = (status: string) => {
@@ -214,21 +220,20 @@ const abrirArchivo = (ruta: string) => {
             </h3>
             <div className="space-y-3">
 
-              <div className="flex items-center"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{concesion.Date}</span></div>
-              {/* <div className="flex items-center"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium flex items-center">{concesion.Detalle || "No especificado"}</span></div> */}
-<div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Detalle:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {concesion.Detalle || "No especificado"}
-  </div>
+              <div className="flex items-center">
+  <span className="text-gray-500 w-24">Fecha:</span>
+  <span className="font-medium flex items-center">
+    {concesion.Date ? formatearFecha(concesion.Date) : "No disponible"}
+  </span>
 </div>
 
-
-
-
-
-
-
+              {/* <div className="flex items-center"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium flex items-center">{concesion.Detalle || "No especificado"}</span></div> */}
+              <div className="grid grid-cols-[6rem_1fr] gap-2">
+                <span className="text-gray-500 pt-1">Detalle:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {concesion.Detalle || "No especificado"}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -257,18 +262,18 @@ const abrirArchivo = (ruta: string) => {
               ))} */}
 
               {archivos.map((archivo, index) => (
-  <div
-    key={index}
-    onClick={() => abrirArchivo(archivo.ruta)}
-    className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-  >
-    <File className="h-5 w-5 text-red-500 mr-2" />
-    <span className="text-sm text-gray-700 flex-1 truncate">
-      {archivo.nombre || `Documento ${index + 1}`}
-    </span>
-    <ExternalLink className="h-4 w-4 text-gray-400" />
-  </div>
-))}
+                <div
+                  key={index}
+                  onClick={() => abrirArchivo(archivo.ruta)}
+                  className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <File className="h-5 w-5 text-red-500 mr-2" />
+                  <span className="text-sm text-gray-700 flex-1 truncate">
+                    {archivo.nombre || `Documento ${index + 1}`}
+                  </span>
+                  <ExternalLink className="h-4 w-4 text-gray-400" />
+                </div>
+              ))}
 
             </div>
           ) : (
@@ -277,7 +282,7 @@ const abrirArchivo = (ruta: string) => {
         </div>
 
         {/* Formulario de respuesta */}
-        {isEditable && canEditConcesion &&(
+        {isEditable && canEditConcesion && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

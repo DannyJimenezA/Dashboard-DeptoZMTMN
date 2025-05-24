@@ -6,7 +6,7 @@ import type { Cita } from "../../Types/Types"
 import Swal from "sweetalert2"
 import withReactContent from "sweetalert2-react-content"
 import { ArrowLeft, Calendar, User, UserCheck, X } from "lucide-react"
-import { socket } from "../../context/socket"; 
+import { socket } from "../../context/socket";
 import { useAuth } from "../Auth/AuthContext"
 
 const MySwal = withReactContent(Swal)
@@ -19,6 +19,24 @@ export default function DetalleCitaPage() {
   const [mensaje, setMensaje] = useState("")
   const [loading, setLoading] = useState(true)
   const canEditCita = userPermissions.includes('editar_appointments');
+
+  function formatearFecha(fechaISO: string): string {
+    const [year, month, day] = fechaISO.split("-");
+    return `${day}/${month}/${year}`;
+  }
+
+  function formatearHora(hora24: string): string {
+    const [horas, minutos] = hora24.split(":");
+    const date = new Date();
+    date.setHours(parseInt(horas, 10));
+    date.setMinutes(parseInt(minutos, 10));
+    return date.toLocaleTimeString("es-CR", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
 
   useEffect(() => {
     const fetchCita = async () => {
@@ -91,15 +109,15 @@ export default function DetalleCitaPage() {
       if (!response.ok) throw new Error("Fallo al actualizar la cita")
 
 
-    socket.emit("actualizar-solicitudes", { tipo: "citas" }); 
+      socket.emit("actualizar-solicitudes", { tipo: "citas" });
 
       Swal.fire({
         title: "¡Éxito!",
         text: `Cita ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       })
       navigate("/dashboard/citas")
     } catch (err) {
@@ -208,16 +226,12 @@ export default function DetalleCitaPage() {
                 <span className="text-gray-500 w-24">Apellidos:</span>
                 <span className="font-medium">{cita.user?.apellido1 || "No disponible"} {cita.user?.apellido2 || "No disponible"}</span>
               </div>
-              {/* <div className="flex">
-                <span className="text-gray-500 w-24">Email:</span>
-                <span className="font-medium">{cita.user?.email || "No disponible"}</span>
-              </div> */}
               <div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Correo:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {cita.user?.email || "No especificado"}
-  </div>
-</div>
+                <span className="text-gray-500 pt-1">Correo:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {cita.user?.email || "No especificado"}
+                </div>
+              </div>
               <div className="flex">
                 <span className="text-gray-500 w-24">Telefono:</span>
                 <span className="font-medium">{cita.user?.telefono || "No disponible"}</span>
@@ -234,17 +248,25 @@ export default function DetalleCitaPage() {
             <div className="space-y-3">
               <div className="flex items-center">
                 <span className="text-gray-500 w-24">Fecha:</span>
-                <span className="font-medium flex items-center">
+                {/* <span className="font-medium flex items-center">
 
                   {cita.availableDate?.date || "No disponible"}
+                </span> */}
+                <span className="font-medium flex items-center">
+                  {cita.availableDate?.date ? formatearFecha(cita.availableDate.date) : "No disponible"}
                 </span>
+
               </div>
               <div className="flex items-center">
                 <span className="text-gray-500 w-24">Hora:</span>
-                <span className="font-medium flex items-center">
+                {/* <span className="font-medium flex items-center">
 
                   {cita.horaCita?.hora || "No disponible"}
+                </span> */}
+                <span className="font-medium flex items-center">
+                  {cita.horaCita?.hora ? formatearHora(cita.horaCita.hora) : "No disponible"}
                 </span>
+
               </div>
               {/* <div className="flex items-start">
                 <span className="text-gray-500 w-24">Descripción:</span>
@@ -254,11 +276,11 @@ export default function DetalleCitaPage() {
                 </span>
               </div> */}
               <div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Descripción:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {cita.description || "No especificado"}
-  </div>
-</div>
+                <span className="text-gray-500 pt-1">Descripción:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {cita.description || "No especificado"}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -266,7 +288,7 @@ export default function DetalleCitaPage() {
 
 
         {/* Formulario de respuesta (solo si es editable) */}
-        {isEditable &&  canEditCita &&(
+        {isEditable && canEditCita && (
           <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

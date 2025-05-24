@@ -27,6 +27,12 @@ export default function ConcesionesTable() {
   const [fechasDisponibles, setFechasDisponibles] = useState<string[]>([]);
 
 
+  function formatearFechaVisual(fechaISO: string): string {
+  const [year, month, day] = fechaISO.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+
   const formatFechaFiltro = (fecha: Date | null): string | null => {
     if (!fecha) return null;
 
@@ -52,32 +58,6 @@ export default function ConcesionesTable() {
     }
   };
 
-  // useEffect(() => {
-  //   if (!isAuthenticated || !userPermissions.includes('ver_concesiones')) {
-  //     navigate('/unauthorized');
-  //     return;
-  //   }
-
-  //   fetchConcesiones();
-
-  //   const socket: Socket = io(ApiRoutes.urlBase, {
-  //     transports: ['websocket'],
-  //     auth: {
-  //       token: localStorage.getItem('token'),
-  //     },
-  //   });
-
-  //   // 🚀 Escuchar cuando llega una nueva concesión
-  //   socket.on('nueva-solicitud', (data) => {
-  //     if (data.tipo === 'concesiones') {
-  //       fetchConcesiones(); // 🔥 recargar automáticamente
-  //     }
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [isAuthenticated, userPermissions, navigate]);
 
 useEffect(() => {
   if (!isAuthenticated || !userPermissions.includes('ver_concesiones')) {
@@ -230,46 +210,15 @@ useEffect(() => {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          {/* <tbody className="divide-y divide-gray-200">
-            {paginaActual.map((c) => (
-              <tr key={c.id}>
-                <td className="px-4 py-2">{c.user?.nombre || '-'}</td>
-                <td className="px-4 py-2">{c.user?.cedula || '-'}</td>
-                <td className="px-4 py-2">{c.Date}</td>
-                <td className="px-4 py-2">
-                  <span className={`font-semibold px-3 py-1 rounded-full text-sm
-                    ${c.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      c.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-                        c.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'}`}>
-                    {c.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 space-x-2">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/dashboard/concesiones/${c.id}`)}
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    onClick={() => eliminarConcesion(c.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))
-            }
-          </tbody> */}
           <tbody className="divide-y divide-gray-200">
   {paginaActual.length > 0 ? (
     paginaActual.map((c) => (
       <tr key={c.id}>
         <td className="px-4 py-2">{c.user?.nombre || '-'}</td>
         <td className="px-4 py-2">{c.user?.cedula || '-'}</td>
-        <td className="px-4 py-2">{c.Date}</td>
+        {/* <td className="px-4 py-2">{c.Date}</td> */}
+        <td className="px-4 py-2">{formatearFechaVisual(c.Date)}</td>
+
         <td className="px-4 py-2">
           <span className={`font-semibold px-3 py-1 rounded-full text-sm
             ${c.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :

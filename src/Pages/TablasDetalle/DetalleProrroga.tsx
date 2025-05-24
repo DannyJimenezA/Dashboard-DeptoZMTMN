@@ -21,7 +21,7 @@ const MySwal = withReactContent(Swal);
 export default function DetalleProrrogaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-    const { userPermissions } = useAuth();
+  const { userPermissions } = useAuth();
   const [prorroga, setProrroga] = useState<Prorroga | null>(null);
   const [mensaje, setMensaje] = useState("");
   // const [archivos, setArchivos] = useState<string[]>([]);
@@ -29,6 +29,14 @@ export default function DetalleProrrogaPage() {
 
   const [loading, setLoading] = useState(true);
   const canEditProrroga = userPermissions.includes('editar_prorrogas');
+
+
+  function formatearFecha(fecha: string | String): string {
+    const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
+    const [year, month, day] = fechaStr.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
 
   // useEffect(() => {
   //   const fetchProrroga = async () => {
@@ -64,32 +72,32 @@ export default function DetalleProrrogaPage() {
   //   fetchProrroga();
   // }, [id]);
 
-useEffect(() => {
-  const fetchProrroga = async () => {
-    setLoading(true);
-    try {
-      const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
-      setProrroga(data);
+  useEffect(() => {
+    const fetchProrroga = async () => {
+      setLoading(true);
+      try {
+        const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
+        setProrroga(data);
 
-      if (Array.isArray(data.ArchivoAdjunto)) {
-        setArchivos(data.ArchivoAdjunto);
-      } else {
-        setArchivos([]);
+        if (Array.isArray(data.ArchivoAdjunto)) {
+          setArchivos(data.ArchivoAdjunto);
+        } else {
+          setArchivos([]);
+        }
+      } catch (err) {
+        Swal.fire({
+          title: "Error",
+          text: "Error al cargar la prórroga",
+          icon: "error",
+          confirmButtonColor: "#00a884",
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      Swal.fire({
-        title: "Error",
-        text: "Error al cargar la prórroga",
-        icon: "error",
-        confirmButtonColor: "#00a884",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchProrroga();
-}, [id]);
+    fetchProrroga();
+  }, [id]);
 
 
 
@@ -133,8 +141,8 @@ useEffect(() => {
         text: `Solicitud de prórroga ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       });
 
       navigate("/dashboard/prorrogas");
@@ -231,14 +239,19 @@ useEffect(() => {
               Detalles de la Prórroga
             </h3>
             <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{prorroga.Date}</span></div>
+              <div className="flex items-center">
+                <span className="text-gray-500 w-24">Fecha:</span>
+                <span className="font-medium flex items-center">
+                  {prorroga.Date ? formatearFecha(prorroga.Date) : "No disponible"}
+                </span>
+              </div>
               {/* <div className="flex"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium">{prorroga.Detalle}</span></div> */}
               <div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Detalle:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {prorroga.Detalle || "No especificado"}
-  </div>
-</div>
+                <span className="text-gray-500 pt-1">Detalle:</span>
+                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
+                  {prorroga.Detalle || "No especificado"}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -250,23 +263,23 @@ useEffect(() => {
             Archivos Adjuntos
           </h3>
 
-{archivos.length > 0 ? (
-  <div className="flex flex-col gap-2">
-    {archivos.map((archivo, index) => (
-      <div
-        key={index}
-        onClick={() => abrirArchivo(archivo.ruta)}
-        className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-      >
-        <File className="h-5 w-5 text-red-500 mr-2" />
-        <span className="text-sm text-blue-600 hover:underline flex-1 truncate">
-          {archivo.nombre || `Archivo ${index + 1}`}
-        </span>
-        <ExternalLink className="h-4 w-4 text-gray-400" />
-      </div>
-    ))}
-  </div>
-) : (
+          {archivos.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {archivos.map((archivo, index) => (
+                <div
+                  key={index}
+                  onClick={() => abrirArchivo(archivo.ruta)}
+                  className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <File className="h-5 w-5 text-red-500 mr-2" />
+                  <span className="text-sm text-blue-600 hover:underline flex-1 truncate">
+                    {archivo.nombre || `Archivo ${index + 1}`}
+                  </span>
+                  <ExternalLink className="h-4 w-4 text-gray-400" />
+                </div>
+              ))}
+            </div>
+          ) : (
 
             <p className="text-gray-500 text-center py-4 bg-gray-50 rounded-md">No hay archivos adjuntos</p>
           )}

@@ -27,6 +27,13 @@ export default function DetalleExpedientePage() {
   const [loading, setLoading] = useState(true);
     const canEditExpediente = userPermissions.includes('editar_copia_expediente');
 
+function formatearFecha(fecha: string | String): string {
+  const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
+  const [year, month, day] = fechaStr.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+
   useEffect(() => {
     const fetchExpediente = async () => {
       setLoading(true);
@@ -210,12 +217,18 @@ export default function DetalleExpedientePage() {
               Detalles del Expediente
             </h3>
             <div className="space-y-3">
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <span className="text-gray-500 w-28">Fecha:</span>
                 <span className="font-medium flex items-center">
                   {expediente.Date}
                 </span>
-              </div>
+              </div> */}
+                            <div className="flex items-center">
+  <span className="text-gray-500 w-24">Fecha:</span>
+  <span className="font-medium flex items-center">
+    {expediente.Date ? formatearFecha(expediente.Date) : "No disponible"}
+  </span>
+</div>
               <div className="flex">
                 <span className="text-gray-500 w-28">Número:</span>
                 <span className="font-medium">{expediente.numeroExpediente}</span>

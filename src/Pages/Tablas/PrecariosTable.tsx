@@ -27,6 +27,13 @@ export default function PrecariosTable() {
   const navigate = useNavigate();
   const { isAuthenticated, userPermissions } = useAuth();
 
+function formatearFechaVisual(fecha: string | String): string {
+  const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
+  const [year, month, day] = fechaStr.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+
   const formatFechaFiltro = (fecha: Date | null): string | null => {
   if (!fecha) return null;
   const year = fecha.getFullYear();
@@ -48,35 +55,6 @@ export default function PrecariosTable() {
       setLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   let socket: Socket | null = null;
-
-  //   if (!isAuthenticated || !userPermissions.includes('ver_precario')) {
-  //     navigate('/unauthorized');
-  //     return;
-  //   }
-
-  //   cargarPrecarios();
-
-  //   socket = io(ApiRoutes.urlBase, {
-  //     transports: ['websocket'],
-  //     auth: {
-  //       token: localStorage.getItem('token'),
-  //     },
-  //   });
-
-  //   // 🔥 Escuchamos nueva solicitud de precario
-  //   socket.on('nueva-solicitud', (data) => {
-  //     if (data.tipo === 'usoPrecario') {
-  //       cargarPrecarios();
-  //     }
-  //   });
-
-  //   return () => {
-  //     if (socket) socket.disconnect();
-  //   };
-  // }, [isAuthenticated, userPermissions, navigate]);
 
 useEffect(() => {
   let socket: Socket | null = null;
@@ -229,44 +207,16 @@ Swal.fire({
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          {/* <tbody className="divide-y divide-gray-200">
-            {paginaActual.map(precario => (
-              <tr key={precario.id}>
-                <td className="px-4 py-2">{precario.user?.nombre || '-'}</td>
-                <td className="px-4 py-2">{precario.user?.cedula || '-'}</td>
-                <td className="px-4 py-2">{precario.Date}</td>
-                                <td className="px-4 py-2">
-                  <span className={`font-semibold px-3 py-1 rounded-full text-sm
-                    ${precario.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      precario.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-                        precario.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'}`}>
-                    {precario.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 space-x-2">
-                  <button
-    className="text-blue-600 hover:text-blue-800" 
-                    onClick={() => navigate(`/dashboard/precario/${precario.id}`)}
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    onClick={() => eliminarPrecario(precario.id)}
-                    className="text-red-600 hover:text-red-800" >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody> */}
+
           <tbody className="divide-y divide-gray-200">
   {paginaActual.length > 0 ? (
     paginaActual.map(precario => (
       <tr key={precario.id}>
         <td className="px-4 py-2">{precario.user?.nombre || '-'}</td>
         <td className="px-4 py-2">{precario.user?.cedula || '-'}</td>
-        <td className="px-4 py-2">{precario.Date}</td>
+        {/* <td className="px-4 py-2">{precario.Date}</td> */}
+        <td className="px-4 py-2">{formatearFechaVisual(precario.Date)}</td>
+
         <td className="px-4 py-2">
           <span className={`font-semibold px-3 py-1 rounded-full text-sm
             ${precario.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :

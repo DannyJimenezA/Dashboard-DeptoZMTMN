@@ -23,6 +23,11 @@ export default function DiasCitasTable() {
 
   const navigate = useNavigate();
 
+function formatearFechaVisual(fechaISO: string): string {
+  const [year, month, day] = fechaISO.split('-');
+  return `${day}/${month}/${year}`;
+}
+
 
   const fetchFechas = async () => {
     try {
@@ -59,37 +64,6 @@ export default function DiasCitasTable() {
     };
   }, []);
 
-
-
-  
-  // const eliminarFecha = async (id: number) => {
-  //   const confirmacion = await Swal.fire({
-  //     title: '¿Eliminar fecha?',
-  //     text: 'Esta acción no se puede deshacer.',
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Sí, eliminar',
-  //     cancelButtonText: 'Cancelar',
-  //     confirmButtonColor: '#28a745',
-  //     cancelButtonColor: '#dc3545',
-  //   });
-
-  //   if (!confirmacion.isConfirmed) return;
-
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     await fetch(`${ApiRoutes.fechaCitas}/${id}`, {
-  //       method: 'DELETE',
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     Swal.fire('¡Eliminado!', 'La fecha fue eliminada correctamente.', 'success');
-  //     setFechas((prev) => prev.filter((f) => f.id !== id));
-  //   } catch (err) {
-  //     console.error(err);
-  //     Swal.fire('Error', 'No se pudo eliminar la fecha.', 'error');
-  //   }
-  // };
   const eliminarFecha = async (id: number) => {
   const confirmacion = await Swal.fire({
     title: '¿Eliminar fecha?',
@@ -115,7 +89,6 @@ export default function DiasCitasTable() {
     try {
       data = await response.json();
     } catch (_) {
-      // Puede ser 204 No Content
     }
 
     if (!response.ok) {
@@ -160,7 +133,6 @@ export default function DiasCitasTable() {
     navigate('/dashboard/crear-fecha');
   };
 
-  // 🔥 Aplica solo filtro de fechas próximas/todas
   const fechasFiltradas = fechas.filter((fecha) =>
     mostrarProximas ? new Date(fecha.date) >= new Date() : true
   );
@@ -193,12 +165,6 @@ export default function DiasCitasTable() {
       </select>
     </div>
 
-    {/* <button
-      onClick={() => navigate('/dashboard/crear-fecha')}
-      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
-    >
-     Crear Nueva Fecha
-    </button> */}
 <button
   onClick={handleCrearFechaClick}
   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
@@ -220,7 +186,9 @@ export default function DiasCitasTable() {
   {fechasActuales.length > 0 ? (
     fechasActuales.map((fecha) => (
       <tr key={fecha.id}>
-        <td className="px-4 py-2">{fecha.date}</td>
+        {/* <td className="px-4 py-2">{fecha.date}</td> */}
+<td className="px-4 py-2">{formatearFechaVisual(fecha.date)}</td>
+
         <td className="px-4 py-2 space-x-2">
           <button
             onClick={() => {

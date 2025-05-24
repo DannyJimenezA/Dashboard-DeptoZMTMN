@@ -26,6 +26,12 @@ export default function DetallePlanoPage() {
   const [archivos, setArchivos] = useState<ArchivoPlano[]>([]);
     const canEditPlano = userPermissions.includes('editar_revisionplano');
 
+function formatearFecha(fecha: string | String): string {
+  const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
+  const [year, month, day] = fechaStr.split('-');
+  return `${day}/${month}/${year}`;
+}
+
   useEffect(() => {
     const fetchPlano = async () => {
       try {
@@ -187,7 +193,12 @@ export default function DetallePlanoPage() {
               Detalles del Plano
             </h3>
             <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium">{revisionPlano.Date}</span></div>
+              <div className="flex items-center">
+                <span className="text-gray-500 w-24">Fecha:</span>
+                <span className="font-medium flex items-center">
+                  {revisionPlano.Date ? formatearFecha(revisionPlano.Date) : "No disponible"}
+                </span>
+              </div>
               <div className="flex"><span className="text-gray-500 w-24">Expediente:</span><span className="font-medium">{revisionPlano.NumeroExpediente}</span></div>
               <div className="flex"><span className="text-gray-500 w-24">Plano:</span><span className="font-medium">{revisionPlano.NumeroPlano}</span></div>
               {/* <div className="flex"><span className="text-gray-500 w-24">Comentario:</span><span className="font-medium">{revisionPlano.Comentario || "No especificado"}</span></div> */}
