@@ -24,16 +24,16 @@ const MySwal = withReactContent(Swal)
 export default function DetalleDenunciaPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-    const { userPermissions } = useAuth();
+  const { userPermissions } = useAuth();
   const [denuncia, setDenuncia] = useState<Denuncia | null>(null)
   const [archivos, setArchivos] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-    const canEditDenuncia = userPermissions.includes('editar_denuncia');
-  
-function formatearFecha(fechaISO: string): string {
-  const [year, month, day] = fechaISO.split("-");
-  return `${day}/${month}/${year}`;
-}
+  const canEditDenuncia = userPermissions.includes('editar_denuncia');
+
+  function formatearFecha(fechaISO: string): string {
+    const [year, month, day] = fechaISO.split("-");
+    return `${day}/${month}/${year}`;
+  }
 
 
   useEffect(() => {
@@ -110,8 +110,8 @@ function formatearFecha(fechaISO: string): string {
         text: `Denuncia ${estadoVisual} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       });
 
       navigate("/dashboard/denuncias");
@@ -200,15 +200,23 @@ function formatearFecha(fechaISO: string): string {
               Información del Denunciante
             </h3>
             <div className="space-y-3">
-              <div className="grid grid-cols-[6rem_1fr] gap-2">
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Nombre:</span>
-                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-                  {denuncia.nombreDenunciante || "Anónimo"}
-                </div>
+                <span className="font-medium break-words whitespace-pre-wrap">{denuncia.nombreDenunciante || "Anónimo"}</span>
               </div>
-              <div className="flex"><span className="text-gray-500 w-28">Cédula:</span><span className="font-medium">{denuncia.cedulaDenunciante || "Anónimo"}</span></div>
-              <div className="flex"><span className="text-gray-500 w-28">Notificación:</span><span className="font-medium">{denuncia.metodoNotificacion || "No especificado"}</span></div>
-              <div className="flex"><span className="text-gray-500 w-28">Medio:</span><span className="font-medium">{denuncia.medioNotificacion || "No especificado"}</span></div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Cédula:</span>
+                <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.cedulaDenunciante || "Anónimo"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Notificación:</span>
+                <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.metodoNotificacion || "No especificado"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Medio:</span>
+                <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.medioNotificacion || "No especificado"}</span>
+              </div>
+
             </div>
           </div>
 
@@ -220,24 +228,28 @@ function formatearFecha(fechaISO: string): string {
             </h3>
             <div className="space-y-3">
               {/* <div className="flex"><span className="text-gray-500 w-28">Fecha:</span><span className="font-medium flex items-center">{denuncia.Date || "No disponible"}</span></div> */}
-              <div className="flex"><span className="text-gray-500 w-28">Fecha:</span><span className="font-medium flex items-center">
-  {denuncia.Date ? formatearFecha(denuncia.Date) : "No disponible"}
-</span>
-</div>
-              <div className="flex"><span className="text-gray-500 w-28">Tipo:</span><span className="font-medium">{denuncia.tipoDenuncia?.descripcion || "No especificado"}</span></div>
-              <div className="grid grid-cols-[6rem_1fr] gap-2">
+
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Fecha:</span>
+                <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.Date ? formatearFecha(denuncia.Date) : "No disponible"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Tipo:</span>
+                <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.tipoDenuncia?.descripcion || "No especificado"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Descripción:</span>
-                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-                  {denuncia.descripcion || "No especificado"}
-                </div>
+                <span className="font-medium break-words whitespace-pre-wrap">{denuncia.descripcion || "No especificado"}</span>
               </div>
-              <div className="flex"><span className="text-gray-500 w-28">Lugar:</span><span className="font-medium">{denuncia.lugarDenuncia?.descripcion || "No especificado"}</span></div>
-              <div className="grid grid-cols-[6rem_1fr] gap-2">
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Lugar:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{denuncia.lugarDenuncia?.descripcion || "No especificado"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Ubicación exacta:</span>
-                <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-                  {denuncia.ubicacion || "No especificado"}
-                </div>
+                <span className="font-medium break-words whitespace-pre-wrap">{denuncia.ubicacion || "No especificado"}</span>
               </div>
+
             </div>
           </div>
         </div>
@@ -248,12 +260,11 @@ function formatearFecha(fechaISO: string): string {
             <File className="h-5 w-5 text-teal-600" />
             Evidencias
           </h3>
-          <div className="grid grid-cols-[6rem_1fr] gap-2">
+          <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
             <span className="text-gray-500 pt-1">Detalle:</span>
-            <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-              {denuncia.detallesEvidencia || "No especificado"}
-            </div>
+            <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.detallesEvidencia || "No especificado"}</span>
           </div>
+
           <span className="text-gray-500 pt-1">Imágenes:</span>
           {archivos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -275,7 +286,7 @@ function formatearFecha(fechaISO: string): string {
         </div>
 
         {/* Acciones */}
-        {isEditable &&  canEditDenuncia &&(
+        {isEditable && canEditDenuncia && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />
