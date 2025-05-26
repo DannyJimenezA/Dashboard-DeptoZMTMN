@@ -163,12 +163,12 @@ useEffect(() => {
       <h2 className="text-2xl font-bold mb-4 text-center">Listado de Denuncias</h2>
 
       <SearchFilterBar
-        searchPlaceholder="Buscar por nombre o cédula..."
+        searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
         onSearchTextChange={setSearchText}
         searchByOptions={[
           { value: 'nombreDenunciante', label: 'Nombre' },
-          { value: 'cedulaDenunciante', label: 'Cédula' },
+          { value: 'cedulaDenunciante', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
         onSearchByChange={(val) => setSearchBy(val as 'nombreDenunciante' | 'cedulaDenunciante')}
@@ -201,7 +201,7 @@ useEffect(() => {
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Tipo</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Lugar</th>

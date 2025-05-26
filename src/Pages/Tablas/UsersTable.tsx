@@ -184,12 +184,12 @@ export default function UsersTable() {
       <h2 className="text-2xl font-bold mb-4 text-center">Lista de Usuarios</h2>
 
       <SearchFilterBar
-        searchPlaceholder="Buscar por nombre, cédula o correo..."
+        searchPlaceholder="Buscar por nombre, identificación o correo..."
         searchText={searchText}
         onSearchTextChange={setSearchText}
         searchByOptions={[
           { value: 'nombre', label: 'Nombre' },
-          { value: 'cedula', label: 'Cédula' },
+          { value: 'cedula', label: 'Identificación' },
           { value: 'email', label: 'Correo' },
         ]}
         selectedSearchBy={searchBy}
@@ -202,7 +202,7 @@ export default function UsersTable() {
             <tr className='bg-gray-200'>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Apellidos</th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Correo</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Rol</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>

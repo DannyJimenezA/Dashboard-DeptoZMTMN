@@ -205,7 +205,7 @@ export default function DetalleDenunciaPage() {
                 <span className="font-medium break-words whitespace-pre-wrap">{denuncia.nombreDenunciante || "Anónimo"}</span>
               </div>
               <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
-                <span className="text-gray-500 pt-1">Cédula:</span>
+                <span className="text-gray-500 pt-1">Identificación:</span>
                 <span className="font-medium break-words  whitespace-pre-wrap">{denuncia.cedulaDenunciante || "Anónimo"}</span>
               </div>
               <div className="grid grid-cols-[6rem_1fr] items-start gap-2">

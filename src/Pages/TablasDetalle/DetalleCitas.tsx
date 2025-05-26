@@ -215,7 +215,7 @@ export default function DetalleCitaPage() {
     </h3>
     <div className="grid gap-2">
       {[
-        { label: "Cédula", value: cita.user?.cedula },
+        { label: "Identificación", value: cita.user?.cedula },
         { label: "Nombre", value: `${cita.user?.nombre} ${cita.user?.apellido1} ${cita.user?.apellido2}` },
         { label: "Correo", value: cita.user?.email },
         { label: "Teléfono", value: cita.user?.telefono }

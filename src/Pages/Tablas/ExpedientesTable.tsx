@@ -217,7 +217,7 @@ Swal.fire({
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">N° Expediente</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Estado</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
@@ -229,7 +229,7 @@ Swal.fire({
     paginaActual.map(exp => (
       <tr key={exp.idExpediente}>
         <td className="px-4 py-2">{exp.nombreSolicitante || '—'}</td>
-        <td className="px-4 py-2">{exp.numeroExpediente}</td>
+        <td className="px-4 py-2">{exp.user?.cedula}</td>
         {/* <td className="px-4 py-2">{exp.Date}</td> */}
         <td className="px-4 py-2">{formatearFechaVisual(exp.Date)}</td>
 

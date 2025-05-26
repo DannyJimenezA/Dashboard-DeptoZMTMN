@@ -477,7 +477,7 @@ export default function DetalleExpedientePage() {
             </h3>
             <div className="space-y-2">
               {[
-                { label: "Cédula", value: expediente.user?.cedula },
+                { label: "Identificación", value: expediente.user?.cedula },
                 { label: "Nombre", value: `${expediente.user?.nombre} ${expediente.user?.apellido1} ${expediente.user?.apellido2}` },
                 { label: "Correo", value: expediente.user?.email },
                 { label: "Teléfono", value: expediente.telefonoSolicitante },

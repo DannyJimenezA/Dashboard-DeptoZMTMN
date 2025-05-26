@@ -189,9 +189,9 @@ const matchFecha =
       <SearchFilterBar
         searchByOptions={[
           { value: 'nombre', label: 'Nombre' },
-          { value: 'cedula', label: 'Cédula' },
+          { value: 'cedula', label: 'Identificación' },
         ]}
-        searchPlaceholder="Buscar por nombre o cédula..."
+        searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
         onSearchTextChange={setSearchText}
         selectedSearchBy={searchBy}
@@ -218,7 +218,7 @@ const matchFecha =
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Hora</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Estado</th>
