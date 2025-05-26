@@ -73,14 +73,14 @@ export default function DetalleUsuarioPage() {
       // });
       const rolNombre = rolesDisponibles.find(r => r.id === rolSeleccionado)?.name ?? 'Rol asignado';
 
-await Swal.fire({
-  title: 'Rol Asignado',
-  text: `El rol "${rolNombre}" fue asignado correctamente.`,
-  icon: 'success',
-  confirmButtonText: 'Aceptar',
-      timer: 3000,
-      showConfirmButton: false,
-});
+      await Swal.fire({
+        title: 'Rol Asignado',
+        text: `El rol "${rolNombre}" fue asignado correctamente.`,
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+        timer: 3000,
+        showConfirmButton: false,
+      });
 
 
       navigate("/dashboard/usuarios");
@@ -104,7 +104,7 @@ await Swal.fire({
   }
 
   return (
-    <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="max-w-3xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
         <h2 className="text-xl font-bold">Detalles del Usuario</h2>
         <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">
@@ -114,42 +114,60 @@ await Swal.fire({
 
       <div className="p-6 space-y-6">
         {/* Info del Usuario */}
+
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
             <User className="h-5 w-5 text-teal-600" />
             Información del Usuario
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><span className="text-gray-500">Nombre:</span> <span className="font-medium">{usuario.nombre}</span></div>
-            <div><span className="text-gray-500">Apellidos:</span> <span className="font-medium">{usuario.apellido1} {usuario.apellido2}</span></div>
-            <div><span className="text-gray-500">Cédula:</span> <span className="font-medium">{usuario.cedula}</span></div>
-            <div><span className="text-gray-500">Email:</span> <span className="font-medium">{usuario.email}</span></div>
-            <div><span className="text-gray-500">Teléfono:</span> <span className="font-medium">{usuario.telefono}</span></div>
-            <div><span className="text-gray-500">Rol Actual:</span> <span className="font-medium">{usuario.roles[0]?.name || "Sin rol asignado"}</span></div>
+          <div className="space-y-3">
+            <div className="flex items-start gap-2">
+              <span className="text-gray-500 w-28">Nombre:</span>
+              <span className="font-medium">{usuario.nombre} {usuario.apellido1} {usuario.apellido2}</span>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <span className="text-gray-500 w-28">Identificación:</span>
+              <span className="font-medium">{usuario.cedula}</span>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <span className="text-gray-500 w-28">Correo:</span>
+              <span className="font-medium break-words">{usuario.email}</span>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <span className="text-gray-500 w-28">Teléfono:</span>
+              <span className="font-medium">{usuario.telefono}</span>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <span className="text-gray-500 w-28">Rol Actual:</span>
+              <span className="font-medium">{usuario.roles[0]?.name || "Sin rol asignado"}</span>
+            </div>
           </div>
+
+
         </div>
+
+
 
         {/* Acciones */}
         <div className="flex gap-4 justify-end">
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded flex items-center gap-2"
-            // onClick={() => {
-            //   if (!userPermissions.includes("editar_users")) {
-            //     return Swal.fire("Permiso denegado", "No tienes permisos para esta acción.", "warning");
-            //   }
-            //   setIsModalOpen(true);
-            // }}
+
             onClick={() => {
-  if (!userPermissions.includes("editar_users")) {
-    return Swal.fire("Permiso denegado", "No tienes permisos para esta acción.", "warning");
-  }
+              if (!userPermissions.includes("editar_users")) {
+                return Swal.fire("Permiso denegado", "No tienes permisos para esta acción.", "warning");
+              }
 
-  if (!userPermissions.includes("ver_roles")) {
-    return Swal.fire("Permiso denegado", "No tienes permisos para ver o asignar roles.", "warning");
-  }
+              if (!userPermissions.includes("ver_roles")) {
+                return Swal.fire("Permiso denegado", "No tienes permisos para ver o asignar roles.", "warning");
+              }
 
-  setIsModalOpen(true);
-}}
+              setIsModalOpen(true);
+            }}
 
           >
             <ShieldCheck className="h-4 w-4" />

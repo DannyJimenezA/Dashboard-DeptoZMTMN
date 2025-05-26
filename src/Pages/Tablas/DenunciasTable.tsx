@@ -37,6 +37,11 @@ export default function DenunciasTable() {
     return `${year}-${month}-${day}`;
   };
 
+  function formatearFechaVisual(fechaISO: string): string {
+  const [year, month, day] = fechaISO.split('-');
+  return `${day}/${month}/${year}`;
+}
+
 
   // 🚀 Función para cargar las denuncias
   const fetchDenuncias = async () => {
@@ -50,31 +55,6 @@ export default function DenunciasTable() {
       setLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   if (!isAuthenticated || !userPermissions.includes('ver_denuncia')) {
-  //     navigate('/unauthorized');
-  //     return;
-  //   }
-
-  //   fetchDenuncias();
-
-  //   const socket: Socket = io(ApiRoutes.urlBase, {
-  //     transports: ['websocket'],
-  //     auth: { token: localStorage.getItem('token') },
-  //   });
-
-  //   // 👂 Escuchar evento de nueva solicitud (por tipo)
-  //   socket.on('nueva-solicitud', (data) => {
-  //     if (data.tipo === 'denuncias') {
-  //       fetchDenuncias(); // 🔥 recargar la tabla
-  //     }
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [isAuthenticated, userPermissions, navigate]);
 
 
 useEffect(() => {
@@ -183,12 +163,12 @@ useEffect(() => {
       <h2 className="text-2xl font-bold mb-4 text-center">Listado de Denuncias</h2>
 
       <SearchFilterBar
-        searchPlaceholder="Buscar por nombre o cédula..."
+        searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
         onSearchTextChange={setSearchText}
         searchByOptions={[
           { value: 'nombreDenunciante', label: 'Nombre' },
-          { value: 'cedulaDenunciante', label: 'Cédula' },
+          { value: 'cedulaDenunciante', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
         onSearchByChange={(val) => setSearchBy(val as 'nombreDenunciante' | 'cedulaDenunciante')}
@@ -221,7 +201,7 @@ useEffect(() => {
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Tipo</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Lugar</th>
@@ -229,43 +209,16 @@ useEffect(() => {
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          {/* <tbody className="divide-y divide-gray-200">
-            {paginaActual.map((d) => (
-              <tr key={d.id}>
-                <td className="px-4 py-2">{d.nombreDenunciante || 'Anónimo'}</td>
-                <td className="px-4 py-2">{d.cedulaDenunciante || 'Anónimo'}</td>
-                <td className="px-4 py-2">{d.Date}</td>
-                <td className="px-4 py-2">{d.tipoDenuncia?.descripcion || '—'}</td>
-                <td className="px-4 py-2">{d.lugarDenuncia?.descripcion || '—'}</td>
-                <td className="px-4 py-2">
-                  <span className={`font-semibold px-3 py-1 rounded-full text-sm
-    ${d.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      d.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-                        d.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'}`}>
-                    {d.status === 'Aprobada' ? 'Atendida' : d.status}
-                  </span>
-                </td>
-
-
-                <td className="px-4 py-2 space-x-2">
-                  <button className="text-blue-600 hover:text-blue-800" onClick={() => navigate(`/dashboard/denuncia/${d.id}`)}>
-                    <FaEye />
-                  </button>
-                  <button className="text-red-600 hover:text-red-800" onClick={() => eliminarDenuncia(d.id)}>
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody> */}
+       
           <tbody className="divide-y divide-gray-200">
   {paginaActual.length > 0 ? (
     paginaActual.map((d) => (
       <tr key={d.id}>
         <td className="px-4 py-2">{d.nombreDenunciante || 'Anónimo'}</td>
         <td className="px-4 py-2">{d.cedulaDenunciante || 'Anónimo'}</td>
-        <td className="px-4 py-2">{d.Date}</td>
+        {/* <td className="px-4 py-2">{d.Date}</td> */}
+        <td className="px-4 py-2">{formatearFechaVisual(d.Date)}</td>
+
         <td className="px-4 py-2">{d.tipoDenuncia?.descripcion || '—'}</td>
         <td className="px-4 py-2">{d.lugarDenuncia?.descripcion || '—'}</td>
         <td className="px-4 py-2">

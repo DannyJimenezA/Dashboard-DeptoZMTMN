@@ -21,14 +21,18 @@ const MySwal = withReactContent(Swal);
 export default function DetalleConcesionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-    const { userPermissions } = useAuth();
+  const { userPermissions } = useAuth();
   const [concesion, setConcesion] = useState<Concesion | null>(null);
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(true);
-  // const [archivos, setArchivos] = useState<string[]>([]);
   const [archivos, setArchivos] = useState<{ nombre: string; ruta: string }[]>([]);
 
-    const canEditConcesion = userPermissions.includes('editar_concesiones');
+  const canEditConcesion = userPermissions.includes('editar_concesiones');
+
+  function formatearFecha(fechaISO: string): string {
+    const [year, month, day] = fechaISO.split("-");
+    return `${day}/${month}/${year}`;
+  }
 
   useEffect(() => {
     const fetchConcesion = async () => {
@@ -36,21 +40,11 @@ export default function DetalleConcesionPage() {
         setLoading(true);
         const data = await ApiService.get<Concesion>(`${ApiRoutes.concesiones}/${id}`);
         setConcesion(data);
-
-        // if (data.ArchivoAdjunto) {
-        //   try {
-        //     const archivosParseados = JSON.parse(data.ArchivoAdjunto);
-        //     setArchivos(Array.isArray(archivosParseados) ? archivosParseados : [archivosParseados]);
-        //   } catch {
-        //     setArchivos([data.ArchivoAdjunto]);
-        //   }
-        // }
         if (Array.isArray(data.ArchivoAdjunto)) {
-  setArchivos(data.ArchivoAdjunto);
-} else {
-  setArchivos([]);
-}
-
+          setArchivos(data.ArchivoAdjunto);
+        } else {
+          setArchivos([]);
+        }
       } catch {
         Swal.fire({
           title: "Error",
@@ -62,7 +56,6 @@ export default function DetalleConcesionPage() {
         setLoading(false);
       }
     };
-
     fetchConcesion();
   }, [id]);
 
@@ -76,7 +69,6 @@ export default function DetalleConcesionPage() {
       });
       return;
     }
-
     const result = await MySwal.fire({
       title: `¿Confirmar ${nuevoEstado.toLowerCase()}?`,
       text: `Se notificará al usuario con tu mensaje.`,
@@ -87,28 +79,23 @@ export default function DetalleConcesionPage() {
       confirmButtonColor: nuevoEstado === "Aprobada" ? "#00a884" : "#e53935",
       cancelButtonColor: "#546e7a",
     });
-
     if (!result.isConfirmed || !concesion) return;
-
     try {
       await ApiService.put(`${ApiRoutes.concesiones}/${concesion.id}/status`, {
         status: nuevoEstado,
         message: mensaje,
       });
-      
-
       await ApiService.post(`${ApiRoutes.urlBase}/mailer/send-custom-message`, {
         email: concesion.user?.email,
         message: mensaje,
       });
-
       Swal.fire({
         title: "¡Éxito!",
         text: `Solicitud de concesión ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       });
       navigate("/dashboard/concesiones");
     } catch (err) {
@@ -122,19 +109,10 @@ export default function DetalleConcesionPage() {
     }
   };
 
-  // const abrirArchivo = (archivo: string) => {
-  //   const archivoFinal = archivo.replace(/[[\]"]/g, "");
-  //   if (archivoFinal) {
-  //     const fileUrl = `${ApiRoutes.urlBase}/${archivoFinal}`;
-  //     window.open(fileUrl, "_blank");
-  //   }
-  // };
-
-const abrirArchivo = (ruta: string) => {
-  const fileUrl = `${ApiRoutes.urlBase}/${ruta}`;
-  window.open(fileUrl, "_blank");
-};
-
+  const abrirArchivo = (ruta: string) => {
+    const fileUrl = `${ApiRoutes.urlBase}/${ruta}`;
+    window.open(fileUrl, "_blank");
+  };
 
   const getStatusBadge = (status: string) => {
     const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border";
@@ -191,93 +169,69 @@ const abrirArchivo = (ruta: string) => {
 
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Info del solicitante */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <User className="h-5 w-5 text-teal-600" />
               Información del Solicitante
             </h3>
-            <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-24">Nombre:</span><span className="font-medium">{concesion.user?.nombre || "No disponible"}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Apellidos:</span><span className="font-medium">{concesion.user?.apellido1} {concesion.user?.apellido2 || ""}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Cédula:</span><span className="font-medium">{concesion.user?.cedula}</span></div>
-              <div className="flex items-center"><span className="text-gray-500 w-24">Email:</span><span className="font-medium flex items-center">{concesion.user?.email}</span></div>
-              <div className="flex items-center"><span className="text-gray-500 w-24">Telefono:</span><span className="font-medium flex items-center">{concesion.user?.telefono}</span></div>
+            <div className="space-y-2">
+              {[
+                { label: "Identificación", value: concesion.user?.cedula },
+                { label: "Nombre", value: `${concesion.user?.nombre} ${concesion.user?.apellido1} ${concesion.user?.apellido2}` },
+                { label: "Correo", value: concesion.user?.email },
+                { label: "Telefono", value: concesion.user?.telefono },
+              ].map(({ label, value }) => (
+                <div key={label} className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                  <span className="text-gray-500 pt-1">{label}:</span>
+                  <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Detalles de la concesión */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <FileText className="h-5 w-5 text-teal-600" />
               Detalles de la Concesión
             </h3>
-            <div className="space-y-3">
-
-              <div className="flex items-center"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{concesion.Date}</span></div>
-              {/* <div className="flex items-center"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium flex items-center">{concesion.Detalle || "No especificado"}</span></div> */}
-<div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Detalle:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {concesion.Detalle || "No especificado"}
-  </div>
-</div>
-
-
-
-
-
-
-
+            <div className="space-y-2">
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Fecha:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{concesion.Date ? formatearFecha(concesion.Date) : "No disponible"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Detalle:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{concesion.Detalle || "No especificado"}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Archivos adjuntos */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
             <File className="h-5 w-5 text-teal-600" />
             Archivos Adjuntos
           </h3>
-
           {archivos.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {/* {archivos.map((archivo, index) => (
+              {archivos.map((archivo, index) => (
                 <div
                   key={index}
-                  onClick={() => abrirArchivo(archivo)}
+                  onClick={() => abrirArchivo(archivo.ruta)}
                   className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
                 >
                   <File className="h-5 w-5 text-red-500 mr-2" />
-                  <span className="text-sm text-gray-700 flex-1 truncate">
-                    {archivo.replace(/[[\]"]/g, "").split("/").pop() || `Documento ${index + 1}`}
-                  </span>
+                  <span className="text-sm text-blue-600 hover:underline flex-1 truncate">{archivo.nombre || `Documento ${index + 1}`}</span>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
                 </div>
-              ))} */}
-
-              {archivos.map((archivo, index) => (
-  <div
-    key={index}
-    onClick={() => abrirArchivo(archivo.ruta)}
-    className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-  >
-    <File className="h-5 w-5 text-red-500 mr-2" />
-    <span className="text-sm text-gray-700 flex-1 truncate">
-      {archivo.nombre || `Documento ${index + 1}`}
-    </span>
-    <ExternalLink className="h-4 w-4 text-gray-400" />
-  </div>
-))}
-
+              ))}
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4 bg-gray-50 rounded-md">No hay archivos adjuntos</p>
           )}
         </div>
 
-        {/* Formulario de respuesta */}
-        {isEditable && canEditConcesion &&(
+        {isEditable && canEditConcesion && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />
@@ -291,7 +245,6 @@ const abrirArchivo = (ruta: string) => {
               placeholder="Escribe aquí el mensaje que se enviará al usuario..."
             />
             <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al solicitante por correo electrónico.</p>
-
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <button onClick={() => cambiarEstado("Aprobada")} className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center justify-center gap-2">
                 <UserCheck className="h-5 w-5" />
@@ -305,7 +258,6 @@ const abrirArchivo = (ruta: string) => {
           </div>
         )}
 
-        {/* Botón volver */}
         <div className="text-right">
           <button
             onClick={() => navigate("/dashboard/concesiones")}

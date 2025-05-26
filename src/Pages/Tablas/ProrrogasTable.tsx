@@ -37,6 +37,19 @@ export default function ProrrogasTable() {
   const { isAuthenticated, userPermissions } = useAuth();
 
   const [fechasDisponibles, setFechasDisponibles] = useState<string[]>([]);
+
+// function formatearFechaVisual(fechaISO: string): string {
+//   const [year, month, day] = fechaISO.split('-');
+//   return `${day}/${month}/${year}`;
+// }
+
+function formatearFechaVisual(fecha: string | String): string {
+  const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
+  const [year, month, day] = fechaStr.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+  
   const cargarProrrogas = async () => {
     try {
       const data = await ApiService.get<Prorroga[]>(ApiRoutes.prorrogas);
@@ -52,33 +65,6 @@ export default function ProrrogasTable() {
       setLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   if (!isAuthenticated || !userPermissions.includes('ver_prorrogas')) {
-  //     navigate('/unauthorized');
-  //     return;
-  //   }
-
-  //   cargarProrrogas();
-
-  //   const socket: Socket = io(ApiRoutes.urlBase, {
-  //     transports: ['websocket'],
-  //     auth: {
-  //       token: localStorage.getItem('token'),
-  //     },
-  //   });
-
-  //   // 🚀 Escuchar cuando llega una nueva prórroga
-  //   socket.on('nueva-solicitud', (data) => {
-  //     if (data.tipo === 'prorrogas') {
-  //       cargarProrrogas(); // 🔥 recargar automáticamente
-  //     }
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [isAuthenticated, userPermissions, navigate]);
 
 useEffect(() => {
   if (!isAuthenticated || !userPermissions.includes('ver_prorrogas')) {
@@ -184,12 +170,12 @@ useEffect(() => {
       <h2 className="text-2xl font-bold mb-4 text-center">Solicitudes de Prórrogas de Concesiones</h2>
 
       <SearchFilterBar
-        searchPlaceholder="Buscar por nombre o cédula..."
+        searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
         onSearchTextChange={setSearchText}
         searchByOptions={[
           { value: 'nombre', label: 'Nombre' },
-          { value: 'cedula', label: 'Cédula' },
+          { value: 'cedula', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
         onSearchByChange={(val) => setSearchBy(val as 'nombre' | 'cedula')}
@@ -220,51 +206,21 @@ useEffect(() => {
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre</th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula</th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Estado</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          {/* <tbody className="divide-y divide-gray-200">
-            {paginaActual.map((p) => (
-              <tr key={p.id}>
-                <td className="px-4 py-2">{p.user?.nombre || '—'}</td>
-                <td className="px-4 py-2">{p.user?.cedula || '—'}</td>
-                <td className="px-4 py-2">{p.Date}</td>
-                <td className="px-4 py-2">
-                  <span className={`font-semibold px-3 py-1 rounded-full text-sm
-                    ${p.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      p.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-                        p.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'}`}>
-                    {p.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 space-x-2">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/dashboard/prorroga/${p.id}`)}
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    onClick={() => eliminarProrroga(p.id)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody> */}
           <tbody className="divide-y divide-gray-200">
   {paginaActual.length > 0 ? (
     paginaActual.map((p) => (
       <tr key={p.id}>
         <td className="px-4 py-2">{p.user?.nombre || '—'}</td>
         <td className="px-4 py-2">{p.user?.cedula || '—'}</td>
-        <td className="px-4 py-2">{p.Date}</td>
+        {/* <td className="px-4 py-2">{p.Date}</td> */}
+        <td className="px-4 py-2">{formatearFechaVisual(p.Date)}</td>
+
         <td className="px-4 py-2">
           <span className={`font-semibold px-3 py-1 rounded-full text-sm
             ${p.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :

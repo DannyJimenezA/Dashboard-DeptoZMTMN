@@ -6,7 +6,7 @@ import type { Cita } from "../../Types/Types"
 import Swal from "sweetalert2"
 import withReactContent from "sweetalert2-react-content"
 import { ArrowLeft, Calendar, User, UserCheck, X } from "lucide-react"
-import { socket } from "../../context/socket"; 
+import { socket } from "../../context/socket";
 import { useAuth } from "../Auth/AuthContext"
 
 const MySwal = withReactContent(Swal)
@@ -19,6 +19,24 @@ export default function DetalleCitaPage() {
   const [mensaje, setMensaje] = useState("")
   const [loading, setLoading] = useState(true)
   const canEditCita = userPermissions.includes('editar_appointments');
+
+  function formatearFecha(fechaISO: string): string {
+    const [year, month, day] = fechaISO.split("-");
+    return `${day}/${month}/${year}`;
+  }
+
+  function formatearHora(hora24: string): string {
+    const [horas, minutos] = hora24.split(":");
+    const date = new Date();
+    date.setHours(parseInt(horas, 10));
+    date.setMinutes(parseInt(minutos, 10));
+    return date.toLocaleTimeString("es-CR", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
 
   useEffect(() => {
     const fetchCita = async () => {
@@ -91,15 +109,15 @@ export default function DetalleCitaPage() {
       if (!response.ok) throw new Error("Fallo al actualizar la cita")
 
 
-    socket.emit("actualizar-solicitudes", { tipo: "citas" }); 
+      socket.emit("actualizar-solicitudes", { tipo: "citas" });
 
       Swal.fire({
         title: "¡Éxito!",
         text: `Cita ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       })
       navigate("/dashboard/citas")
     } catch (err) {
@@ -176,7 +194,7 @@ export default function DetalleCitaPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
       {/* Header */}
       {/* <div className="bg-teal-600 p-4 text-white flex justify-between items-center"> */}
       <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
@@ -188,85 +206,54 @@ export default function DetalleCitaPage() {
 
       {/* Content */}
       <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Información del usuario */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-              <User className="h-5 w-5 text-teal-600" />
-              Información del Usuario
-            </h3>
-            <div className="space-y-3">
-              <div className="flex">
-                <span className="text-gray-500 w-24">Cédula:</span>
-                <span className="font-medium">{cita.user?.cedula || "No disponible"}</span>
-              </div>
-              <div className="flex">
-                <span className="text-gray-500 w-24">Nombre:</span>
-                <span className="font-medium">{cita.user?.nombre || "No disponible"}</span>
-              </div>
-              <div className="flex">
-                <span className="text-gray-500 w-24">Apellidos:</span>
-                <span className="font-medium">{cita.user?.apellido1 || "No disponible"} {cita.user?.apellido2 || "No disponible"}</span>
-              </div>
-              {/* <div className="flex">
-                <span className="text-gray-500 w-24">Email:</span>
-                <span className="font-medium">{cita.user?.email || "No disponible"}</span>
-              </div> */}
-              <div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Correo:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {cita.user?.email || "No especificado"}
-  </div>
-</div>
-              <div className="flex">
-                <span className="text-gray-500 w-24">Telefono:</span>
-                <span className="font-medium">{cita.user?.telefono || "No disponible"}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Detalles de la cita */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-              <Calendar className="h-5 w-5 text-teal-600" />
-              Detalles de la Cita
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <span className="text-gray-500 w-24">Fecha:</span>
-                <span className="font-medium flex items-center">
-
-                  {cita.availableDate?.date || "No disponible"}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-gray-500 w-24">Hora:</span>
-                <span className="font-medium flex items-center">
-
-                  {cita.horaCita?.hora || "No disponible"}
-                </span>
-              </div>
-              {/* <div className="flex items-start">
-                <span className="text-gray-500 w-24">Descripción:</span>
-                <span className="font-medium flex items-center">
-
-                  {cita.description || "No disponible"}
-                </span>
-              </div> */}
-              <div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Descripción:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {cita.description || "No especificado"}
-  </div>
-</div>
-            </div>
-          </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {/* Información del Usuario */}
+  <div className="bg-white border border-gray-200 rounded-lg p-4">
+    <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+      <User className="h-5 w-5 text-teal-600" />
+      Información del Usuario
+    </h3>
+    <div className="grid gap-2">
+      {[
+        { label: "Identificación", value: cita.user?.cedula },
+        { label: "Nombre", value: `${cita.user?.nombre} ${cita.user?.apellido1} ${cita.user?.apellido2}` },
+        { label: "Correo", value: cita.user?.email },
+        { label: "Teléfono", value: cita.user?.telefono }
+      ].map(({ label, value }) => (
+        <div key={label} className="grid grid-cols-[6.5rem_1fr] items-start gap-2">
+          <span className="text-gray-500">{label}:</span>
+          <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
         </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Detalles de la Cita */}
+  <div className="bg-white border border-gray-200 rounded-lg p-4">
+    <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+      <Calendar className="h-5 w-5 text-teal-600" />
+      Detalles de la Cita
+    </h3>
+    <div className="grid gap-2">
+      {[
+        { label: "Fecha", value: cita.availableDate?.date ? formatearFecha(cita.availableDate.date) : "No disponible" },
+        { label: "Hora", value: cita.horaCita?.hora ? formatearHora(cita.horaCita.hora) : "No disponible" },
+        { label: "Descripción", value: cita.description }
+      ].map(({ label, value }) => (
+        <div key={label} className="grid grid-cols-[6.5rem_1fr] items-start gap-2">
+          <span className="text-gray-500">{label}:</span>
+          <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
 
 
 
         {/* Formulario de respuesta (solo si es editable) */}
-        {isEditable &&  canEditCita &&(
+        {isEditable && canEditCita && (
           <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <UserCheck className="h-5 w-5 text-teal-600" />

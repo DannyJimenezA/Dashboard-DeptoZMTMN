@@ -3,7 +3,6 @@ import {
   EnvelopeIcon,
   IdentificationIcon,
   UserIcon,
-  PhoneIcon,
   LockClosedIcon,
   EyeIcon,
   EyeSlashIcon,
@@ -22,19 +21,21 @@ export default function Register() {
     apellido1: '',
     apellido2: '',
     telefono: '',
+    telefonoPrefijo: '',
     password: '',
     confirmPassword: '',
     origin: 'user',
   });
 
+  const [tipoIdentificacion, setTipoIdentificacion] = useState<'nacional' | 'residente' | 'extranjero'>('nacional');
+  const [tipoTelefono, setTipoTelefono] = useState<'nacional' | 'extranjero'>('nacional');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const MySwal = withReactContent(Swal);
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,6 +46,8 @@ export default function Register() {
     const onlyLetters = /^[A-Za-z]+(?: [A-Za-z]+)?$/;
     const onlyLettersNoSpace = /^[A-Za-z]+$/;
     const onlyNumbers = /^[0-9]+$/;
+    const phoneInternational = /^[1-9]{1}[0-9]{1,2}$/;
+    const phoneNumber = /^[0-9]{7,12}$/;
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
     switch (name) {
@@ -56,12 +59,25 @@ export default function Register() {
         if (!onlyLettersNoSpace.test(value)) return 'Solo letras sin espacios';
         break;
       case 'cedula':
-        if (!onlyNumbers.test(value) || value.length < 9 || value.length > 12)
-          return 'Debe tener entre 9 y 12 dígitos numéricos';
+        if (tipoIdentificacion === 'nacional') {
+          if (!/^\d{9}$/.test(value)) return 'Cédula nacional debe tener 9 dígitos';
+        } else if (tipoIdentificacion === 'residente') {
+          if (!/^\d{11,12}$/.test(value)) return 'DIMEX debe tener entre 11 y 12 dígitos';
+        } else if (tipoIdentificacion === 'extranjero') {
+          if (!/^[a-zA-Z0-9]{6,20}$/.test(value)) return 'Pasaporte debe tener entre 6 y 20 caracteres alfanuméricos';
+        }
         break;
       case 'telefono':
-        if (!onlyNumbers.test(value) || value.length !== 8)
-          return 'Debe tener exactamente 8 dígitos';
+        if (tipoTelefono === 'nacional') {
+          if (!onlyNumbers.test(value) || value.length !== 8)
+            return 'Debe tener exactamente 8 dígitos';
+        } else {
+          if (!phoneNumber.test(value)) return 'Número debe tener entre 7 y 12 dígitos';
+        }
+        break;
+      case 'telefonoPrefijo':
+        if (tipoTelefono === 'extranjero' && !phoneInternational.test(value))
+          return 'Prefijo inválido (1 a 3 dígitos)';
         break;
       case 'email':
         if (!value.includes('@')) return 'Correo inválido';
@@ -82,49 +98,6 @@ export default function Register() {
 
     return '';
   };
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   setErrorMessage('');
-  //   setIsSubmitting(true); // Bloquea botones al enviar
-  
-  //   const newErrors: { [key: string]: string } = {};
-  //   Object.entries(formData).forEach(([key, value]) => {
-  //     const error = validateField(key, value);
-  //     if (error) newErrors[key] = error;
-  //   });
-  
-  //   if (Object.keys(newErrors).length > 0) {
-  //     setFieldErrors(newErrors);
-  //     setErrorMessage('Corrige los campos marcados.');
-  //     setIsSubmitting(false); // Reactiva si hay errores
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await axios.post(`${ApiRoutes.usuarios}/register`, formData);
-    
-  //     // 🎉 Alerta visual como en denuncias
-  //     await MySwal.fire({
-  //       icon: 'success',
-  //       title: '¡Registro Exitoso!',
-  //       text: response.data.message || 'Usuario registrado correctamente. Revisa tu correo electrónico.',
-  //       confirmButtonText: 'Ir al inicio de sesión',
-  //       confirmButtonColor: '#2563eb',
-  //     });
-    
-  //     navigate('/');
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error) && error.response) {
-  //       setErrorMessage(error.response.data.message || 'Error en el registro');
-  //     } else {
-  //       setErrorMessage('Error de conexión con el servidor');
-  //     }
-  //     setIsSubmitting(false); // Reactiva si hay fallo
-  //   }
-  // };
-  
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   setErrorMessage('');
@@ -136,7 +109,6 @@ export default function Register() {
     if (error) newErrors[key] = error;
   });
 
-  // ⚠️ Validación específica: contraseñas no coinciden
   if (formData.password !== formData.confirmPassword) {
     await MySwal.fire({
       icon: 'error',
@@ -156,37 +128,42 @@ export default function Register() {
 
   if (Object.keys(newErrors).length > 0) {
     setFieldErrors(newErrors);
-
-    // 👉 Alertas específicas
-    if (newErrors.email) {
-      await MySwal.fire({
-        icon: 'error',
-        title: 'Correo Inválido',
-        text: 'Por favor ingresa un correo electrónico válido.',
-        confirmButtonColor: '#ef4444',
-      });
-    } else if (newErrors.confirmPassword) {
-      await MySwal.fire({
-        icon: 'error',
-        title: 'Contraseña Inválida',
-        text: 'La contraseña debe tener mínimo 8 caracteres, una letra y un número.',
-        confirmButtonColor: '#ef4444',
-      });
-    } else {
-      await MySwal.fire({
-        icon: 'error',
-        title: 'Error de Validación',
-        text: 'Corrige los campos marcados antes de continuar.',
-        confirmButtonColor: '#ef4444',
-      });
-    }
+    await MySwal.fire({
+      icon: 'error',
+      title: 'Error de Validación',
+      text: 'Corrige los campos marcados antes de continuar.',
+      confirmButtonColor: '#ef4444',
+    });
 
     setIsSubmitting(false);
     return;
   }
 
+  // ✅ Generar el número de teléfono con formato correcto
+  const telefonoFinal =
+    tipoTelefono === 'nacional'
+      ? `+506-${formData.telefono}`
+      : `+${formData.telefonoPrefijo}-${formData.telefono}`;
+
+  // ✅ Agregar prefijo a la cédula
+  let cedulaFinal = formData.cedula.trim();
+  if (tipoIdentificacion === 'nacional') {
+    cedulaFinal = `CR-${cedulaFinal}`;
+  } else if (tipoIdentificacion === 'residente') {
+    cedulaFinal = `RES-${cedulaFinal}`;
+  } else {
+    cedulaFinal = `PAS-${cedulaFinal}`;
+  }
+
+  // ✅ Crear objeto con datos finales
+  const dataToSend = {
+    ...formData,
+    cedula: cedulaFinal,
+    telefono: telefonoFinal,
+  };
+
   try {
-    const response = await axios.post(`${ApiRoutes.usuarios}/register`, formData);
+    const response = await axios.post(`${ApiRoutes.usuarios}/register`, dataToSend);
 
     await MySwal.fire({
       icon: 'success',
@@ -197,6 +174,7 @@ export default function Register() {
     });
 
     navigate('/');
+    
   } catch (error) {
     let mensaje = 'Error de conexión con el servidor';
     if (axios.isAxiosError(error) && error.response) {
@@ -214,8 +192,8 @@ export default function Register() {
   }
 };
 
-
   const handleBack = () => navigate('/');
+
 
   const renderInput = (
     name: string,
@@ -244,9 +222,8 @@ export default function Register() {
           maxLength={maxLength}
           minLength={minLength}
           inputMode={type === 'tel' ? 'numeric' : undefined}
-          className={`appearance-none block w-full px-3 py-3 pl-10 border ${
-            fieldErrors[name] ? 'border-red-500' : 'border-gray-300'
-          } rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+          className={`appearance-none block w-full px-3 py-3 pl-10 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'
+            } rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
           placeholder={`Ingrese su ${label.toLowerCase()}`}
           value={formData[name as keyof typeof formData]}
           onChange={handleChange}
@@ -271,6 +248,7 @@ export default function Register() {
     </div>
   );
 
+
   return (
     <div className="min-h-screen w-full bg-gray-50">
       <div className="h-full w-full px-4 py-12 sm:px-6 lg:px-8">
@@ -281,23 +259,147 @@ export default function Register() {
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div className="grid gap-6 md:grid-cols-2">
-                  {renderInput('nombre', 'Nombre', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
-{renderInput('apellido1', 'Primer apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
-{renderInput('apellido2', 'Segundo apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
-{renderInput('cedula', 'Cédula', 'text', <IdentificationIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 12, 9)}
-{renderInput('email', 'Correo electrónico', 'email', <EnvelopeIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 60)}
-{renderInput('telefono', 'Teléfono', 'tel', <PhoneIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 8)}
-{renderInput('password', 'Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showPassword, setShowPassword, 25)}
-{renderInput('confirmPassword', 'Confirmar Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showConfirmPassword, setShowConfirmPassword, 25)}
-              </div>
+                {/* Nombre y apellidos */}
+                {['nombre', 'apellido1', 'apellido2'].map(field => (
+                  <div key={field}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {field === 'nombre' ? 'Nombre' : field === 'apellido1' ? 'Primer apellido' : 'Segundo apellido'}
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <UserIcon className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        name={field}
+                        value={formData[field as keyof typeof formData]}
+                        onChange={handleChange}
+                        placeholder={
+                          field === 'nombre'
+                            ? 'Ingrese su nombre'
+                            : field === 'apellido1'
+                              ? 'Ingrese su primer apellido'
+                              : 'Ingrese su segundo apellido'
+                        }
+                        className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                        maxLength={30}
+                        required
+                      />
+                    </div>
+                    {fieldErrors[field] && (
+                      <p className="mt-1 text-sm text-red-500">{fieldErrors[field]}</p>
+                    )}
+                  </div>
+                ))}
 
-              {errorMessage && <p className="text-red-500 text-center">{errorMessage}</p>}
+                {/* Correo electrónico */}
+                {renderInput('email', 'Correo electrónico', 'email', <EnvelopeIcon className="h-5 w-5 text-gray-400" />)}
+
+                {/* Tipo de identificación */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Identificación</label>
+                  <select
+                    value={tipoIdentificacion}
+                    onChange={(e) => setTipoIdentificacion(e.target.value as any)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                  >
+                    <option value="nacional">Cédula Nacional</option>
+                    <option value="residente">DIMEX (Residente)</option>
+                    <option value="extranjero">Pasaporte (Extranjero)</option>
+                  </select>
+                </div>
+
+                {/* Cedula */}
+                {renderInput(
+                  'cedula',
+                  tipoIdentificacion === 'nacional'
+                    ? 'Cédula Nacional'
+                    : tipoIdentificacion === 'residente'
+                      ? 'DIMEX'
+                      : 'Pasaporte',
+                  'text',
+                  <IdentificationIcon className="h-5 w-5 text-gray-400" />,
+                  false,
+                  undefined,
+                  undefined,
+                  tipoIdentificacion === 'extranjero' ? 20 : 12,
+                  tipoIdentificacion === 'extranjero' ? 6 : 9
+                )}
+
+                {/* Tipo de teléfono */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Teléfono</label>
+                  <select
+                    value={tipoTelefono}
+                    onChange={(e) => setTipoTelefono(e.target.value as any)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                  >
+                    <option value="nacional">Nacional</option>
+                    <option value="extranjero">Extranjero</option>
+                  </select>
+                </div>
+                {/* Teléfono Extranjero */}
+                {tipoTelefono === 'extranjero' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono Extranjero</label>
+                    <div className="flex gap-2 items-center">
+                      <span className="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm rounded-l-md">+</span>
+                      <input
+                        type="text"
+                        name="telefonoPrefijo"
+                        value={formData.telefonoPrefijo}
+                        onChange={handleChange}
+                        className="w-20 px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                        maxLength={3}
+                        placeholder="Pref"
+                        required
+                      />
+                      <input
+                        type="tel"
+                        name="telefono"
+                        value={formData.telefono}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                        maxLength={12}
+                        required
+                      />
+                    </div>
+                    {(fieldErrors.telefonoPrefijo || fieldErrors.telefono) && (
+                      <p className="mt-1 text-sm text-red-500">{fieldErrors.telefonoPrefijo || fieldErrors.telefono}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm rounded-l-md">+506</span>
+                      <input
+                        type="tel"
+                        name="telefono"
+                        value={formData.telefono}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-r-md text-gray-900 sm:text-sm"
+                        maxLength={8}
+                        required
+                      />
+                    </div>
+                    {fieldErrors.telefono && (
+                      <p className="mt-1 text-sm text-red-500">{fieldErrors.telefono}</p>
+                    )}
+                  </div>
+                )}
+
+
+                {/* Passwords */}
+                {renderInput('password', 'Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showPassword, setShowPassword)}
+                {renderInput('confirmPassword', 'Confirmar Contraseña', 'password', <LockClosedIcon className="h-5 w-5 text-gray-400" />, true, showConfirmPassword, setShowConfirmPassword)}
+              </div>
 
               <div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg"
                 >
                   Registrarse
                 </button>
@@ -305,17 +407,15 @@ export default function Register() {
                   type="button"
                   onClick={handleBack}
                   disabled={isSubmitting}
-                  className="w-full mt-2 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="w-full mt-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-3 rounded-lg"
                 >
                   Volver
                 </button>
               </div>
 
-              <div className="text-center text-sm">
+              <div className="text-center text-sm mt-4">
                 <span className="text-gray-600">¿Ya tienes una cuenta?</span>{' '}
-                <a href="/" className="font-medium text-blue-600 hover:text-blue-500">
-                  Inicia sesión aquí
-                </a>
+                <a href="/" className="text-blue-600 hover:text-blue-500 font-medium">Inicia sesión aquí</a>
               </div>
             </form>
           </div>
@@ -324,3 +424,4 @@ export default function Register() {
     </div>
   );
 }
+

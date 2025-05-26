@@ -27,6 +27,13 @@ export default function PlanosTable() {
   const navigate = useNavigate();
   const { isAuthenticated, userPermissions } = useAuth();
 
+function formatearFechaVisual(fechaISO: string): string {
+  const [year, month, day] = fechaISO.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+
+
   const formatFechaFiltro = (fecha: Date | null): string | null => {
   if (!fecha) return null;
   const year = fecha.getFullYear();
@@ -34,50 +41,6 @@ export default function PlanosTable() {
   const day = String(fecha.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
-
-
-  // useEffect(() => {
-  //   let socket: Socket | null = null;
-
-  //   if (!isAuthenticated || !userPermissions.includes('ver_revisionplano')) {
-  //     navigate('/unauthorized');
-  //     return;
-  //   }
-
-  //   const cargarDatos = async () => {
-  //     try {
-  //       const data = await ApiService.get<RevisionPlano[]>(ApiRoutes.planos);
-  //       setPlanos(data);
-  //           const fechasUnicas = Array.from(new Set(data.map(p => p.Date))).sort();
-  //   setFechasDisponibles(fechasUnicas);
-  //     } catch {
-  //       setError('Error al cargar las revisiones de planos.');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   cargarDatos();
-
-  //   socket = io(ApiRoutes.urlBase, {
-  //     transports: ['websocket'],
-  //     auth: {
-  //       token: localStorage.getItem('token'),
-  //     },
-  //   });
-
-  //   socket.on('nueva-solicitud', (data) => {
-  //     if (data.tipo === 'planos') {
-  //       cargarDatos();
-  //     }
-  //   });
-
-  //   return () => {
-  //     if (socket) {
-  //       socket.disconnect();
-  //     }
-  //   };
-  // }, [isAuthenticated, userPermissions, navigate]);
 
 useEffect(() => {
   let socket: Socket | null = null;
@@ -202,12 +165,12 @@ useEffect(() => {
       <h2 className="text-2xl font-bold mb-4 text-center">Solicitudes de Revisión de Planos</h2>
 
       <SearchFilterBar
-        searchPlaceholder="Buscar por nombre o cédula..."
+        searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
         onSearchTextChange={setSearchText}
         searchByOptions={[
           { value: 'nombre', label: 'Nombre' },
-          { value: 'cedula', label: 'Cédula' },
+          { value: 'cedula', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
         onSearchByChange={(val) => setSearchBy(val as 'nombre' | 'cedula')}
@@ -239,50 +202,22 @@ useEffect(() => {
           <thead className="bg-gray-50 sticky top-0 z-0">
             <tr className="bg-gray-200">
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Nombre </th>
-              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Cédula </th>
+              <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Identificación </th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Fecha </th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Estado</th>
               <th className="px-4 py-2 text-left text-sm font-bold text-black-500 uppercase">Acciones</th>
             </tr>
           </thead>
-          {/* <tbody className="divide-y divide-gray-200">
-            {planosActuales.map((plano) => (
-              <tr key={plano.id}>
-                <td className="px-4 py-2">{plano.user?.nombre || '—'}</td>
-                <td className="px-4 py-2">{plano.user?.cedula || '—'}</td>
-                <td className="px-4 py-2">{plano.Date}</td>
-                                <td className="px-4 py-2">
-                  <span className={`font-semibold px-3 py-1 rounded-full text-sm
-                    ${plano.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                      plano.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
-                        plano.status === 'Denegada' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'}`}>
-                    {plano.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2 space-x-2">
-                  <button
-    className="text-blue-600 hover:text-blue-800" 
-                    onClick={() => navigate(`/dashboard/plano/${plano.id}`)}
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    onClick={() => eliminarRevisionPlano(plano.id)}
-                    className="text-red-600 hover:text-red-800">
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody> */}
+
           <tbody className="divide-y divide-gray-200">
   {planosActuales.length > 0 ? (
     planosActuales.map((plano) => (
       <tr key={plano.id}>
         <td className="px-4 py-2">{plano.user?.nombre || '—'}</td>
         <td className="px-4 py-2">{plano.user?.cedula || '—'}</td>
-        <td className="px-4 py-2">{plano.Date}</td>
+        {/* <td className="px-4 py-2">{plano.Date}</td> */}
+        <td className="px-4 py-2">{formatearFechaVisual(plano.Date)}</td>
+
         <td className="px-4 py-2">
           <span className={`font-semibold px-3 py-1 rounded-full text-sm
             ${plano.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :

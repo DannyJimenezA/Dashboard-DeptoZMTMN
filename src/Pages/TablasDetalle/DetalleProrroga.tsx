@@ -21,77 +21,43 @@ const MySwal = withReactContent(Swal);
 export default function DetalleProrrogaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-    const { userPermissions } = useAuth();
+  const { userPermissions } = useAuth();
   const [prorroga, setProrroga] = useState<Prorroga | null>(null);
   const [mensaje, setMensaje] = useState("");
-  // const [archivos, setArchivos] = useState<string[]>([]);
   const [archivos, setArchivos] = useState<{ nombre: string; ruta: string }[]>([]);
-
   const [loading, setLoading] = useState(true);
   const canEditProrroga = userPermissions.includes('editar_prorrogas');
 
-  // useEffect(() => {
-  //   const fetchProrroga = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
-  //       setProrroga(data);
+  function formatearFecha(fecha: string | String): string {
+    const fechaStr = fecha.toString();
+    const [year, month, day] = fechaStr.split('-');
+    return `${day}/${month}/${year}`;
+  }
 
-  //       if (data.ArchivoAdjunto) {
-  //         try {
-  //           const archivosParseados = JSON.parse(data.ArchivoAdjunto);
-  //           setArchivos(
-  //             Array.isArray(archivosParseados)
-  //               ? archivosParseados.map((a: string) => a.replace(/[[\]"]/g, ""))
-  //               : [archivosParseados.replace(/[[\]"]/g, "")]
-  //           );
-  //         } catch {
-  //           setArchivos([data.ArchivoAdjunto.replace(/[[\]"]/g, "")]);
-  //         }
-  //       }
-  //     } catch {
-  //       Swal.fire({
-  //         title: "Error",
-  //         text: "Error al cargar la prórroga",
-  //         icon: "error",
-  //         confirmButtonColor: "#00a884",
-  //       });
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchProrroga();
-  // }, [id]);
-
-useEffect(() => {
-  const fetchProrroga = async () => {
-    setLoading(true);
-    try {
-      const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
-      setProrroga(data);
-
-      if (Array.isArray(data.ArchivoAdjunto)) {
-        setArchivos(data.ArchivoAdjunto);
-      } else {
-        setArchivos([]);
+  useEffect(() => {
+    const fetchProrroga = async () => {
+      setLoading(true);
+      try {
+        const data = await ApiService.get<Prorroga>(`${ApiRoutes.prorrogas}/${id}`);
+        setProrroga(data);
+        if (Array.isArray(data.ArchivoAdjunto)) {
+          setArchivos(data.ArchivoAdjunto);
+        } else {
+          setArchivos([]);
+        }
+      } catch (err) {
+        Swal.fire({
+          title: "Error",
+          text: "Error al cargar la prórroga",
+          icon: "error",
+          confirmButtonColor: "#00a884",
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      Swal.fire({
-        title: "Error",
-        text: "Error al cargar la prórroga",
-        icon: "error",
-        confirmButtonColor: "#00a884",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchProrroga();
-}, [id]);
-
-
+    };
+    fetchProrroga();
+  }, [id]);
 
   const cambiarEstado = async (nuevoEstado: "Aprobada" | "Denegada") => {
     if (!mensaje.trim()) {
@@ -133,8 +99,8 @@ useEffect(() => {
         text: `Solicitud de prórroga ${nuevoEstado.toLowerCase()} correctamente.`,
         icon: "success",
         confirmButtonColor: "#00a884",
-            timer: 3000,
-      showConfirmButton: false,
+        timer: 3000,
+        showConfirmButton: false,
       });
 
       navigate("/dashboard/prorrogas");
@@ -209,70 +175,68 @@ useEffect(() => {
 
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Info del solicitante */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <User className="h-5 w-5 text-teal-600" />
               Información del Solicitante
             </h3>
-            <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-24">Nombre:</span><span className="font-medium">{prorroga.user?.nombre}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Apellidos:</span><span className="font-medium">{prorroga.user?.apellido1} {prorroga.user?.apellido2 || ""}</span></div>
-              <div className="flex"><span className="text-gray-500 w-24">Cédula:</span><span className="font-medium">{prorroga.user?.cedula}</span></div>
-              <div className="flex items-center"><span className="text-gray-500 w-24">Email:</span><span className="font-medium flex items-center">{prorroga.user?.email}</span></div>
-              <div className="flex items-center"><span className="text-gray-500 w-24">Telefono:</span><span className="font-medium flex items-center">{prorroga.user?.telefono}</span></div>
+            <div className="space-y-2">
+              {[
+                { label: "Identificación", value: prorroga.user?.cedula },
+                { label: "Nombre", value: `${prorroga.user?.nombre} ${prorroga.user?.apellido1} ${prorroga.user?.apellido2}` },
+                { label: "Correo", value: prorroga.user?.email },
+                { label: "Telefono", value: prorroga.user?.telefono },
+              ].map(({ label, value }) => (
+                <div key={label} className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                  <span className="text-gray-500 pt-1">{label}:</span>
+                  <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Detalles de la prórroga */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <FileText className="h-5 w-5 text-teal-600" />
               Detalles de la Prórroga
             </h3>
-            <div className="space-y-3">
-              <div className="flex"><span className="text-gray-500 w-24">Fecha:</span><span className="font-medium flex items-center">{prorroga.Date}</span></div>
-              {/* <div className="flex"><span className="text-gray-500 w-24">Detalle:</span><span className="font-medium">{prorroga.Detalle}</span></div> */}
-              <div className="grid grid-cols-[6rem_1fr] gap-2">
-  <span className="text-gray-500 pt-1">Detalle:</span>
-  <div className="font-medium leading-relaxed whitespace-pre-line break-all">
-    {prorroga.Detalle || "No especificado"}
-  </div>
-</div>
+            <div className="space-y-2">
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Fecha:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{prorroga.Date ? formatearFecha(prorroga.Date) : "No disponible"}</span>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] items-start gap-2">
+                <span className="text-gray-500 pt-1">Detalle:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{prorroga.Detalle || "No especificado"}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Archivos adjuntos */}
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-gray-700">
             <File className="h-5 w-5 text-teal-600" />
             Archivos Adjuntos
           </h3>
-
-{archivos.length > 0 ? (
-  <div className="flex flex-col gap-2">
-    {archivos.map((archivo, index) => (
-      <div
-        key={index}
-        onClick={() => abrirArchivo(archivo.ruta)}
-        className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-      >
-        <File className="h-5 w-5 text-red-500 mr-2" />
-        <span className="text-sm text-blue-600 hover:underline flex-1 truncate">
-          {archivo.nombre || `Archivo ${index + 1}`}
-        </span>
-        <ExternalLink className="h-4 w-4 text-gray-400" />
-      </div>
-    ))}
-  </div>
-) : (
-
+          {archivos.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {archivos.map((archivo, index) => (
+                <div
+                  key={index}
+                  onClick={() => abrirArchivo(archivo.ruta)}
+                  className="flex items-center p-3 rounded-md border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <File className="h-5 w-5 text-red-500 mr-2" />
+                  <span className="text-sm text-blue-600 hover:underline flex-1 truncate">{archivo.nombre || `Archivo ${index + 1}`}</span>
+                  <ExternalLink className="h-4 w-4 text-gray-400" />
+                </div>
+              ))}
+            </div>
+          ) : (
             <p className="text-gray-500 text-center py-4 bg-gray-50 rounded-md">No hay archivos adjuntos</p>
           )}
         </div>
 
-        {/* Formulario de respuesta */}
         {isEditable && canEditProrroga && (
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
@@ -287,7 +251,6 @@ useEffect(() => {
               placeholder="Escribe aquí el mensaje que se enviará al usuario..."
             />
             <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al solicitante por correo electrónico.</p>
-
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <button onClick={() => cambiarEstado("Aprobada")} className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center justify-center gap-2">
                 <UserCheck className="h-5 w-5" />
@@ -301,7 +264,6 @@ useEffect(() => {
           </div>
         )}
 
-        {/* Botón volver */}
         <div className="text-right">
           <button
             onClick={() => navigate("/dashboard/prorrogas")}
