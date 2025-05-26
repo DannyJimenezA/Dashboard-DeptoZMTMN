@@ -194,113 +194,107 @@ export default function DetalleCitaPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
-      {/* Header */}
-      {/* <div className="bg-teal-600 p-4 text-white flex justify-between items-center"> */}
-      <div className="bg-slate-800 p-4 text-white flex justify-between items-center">
-
-
-        <h2 className="text-xl font-bold">Detalles de la Cita</h2>
-        {getStatusBadge(cita.status)}
-      </div>
-
-      {/* Content */}
-      <div className="p-6">
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  {/* Información del Usuario */}
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-      <User className="h-5 w-5 text-teal-600" />
-      Información del Usuario
-    </h3>
-    <div className="grid gap-2">
-      {[
-        { label: "Identificación", value: cita.user?.cedula },
-        { label: "Nombre", value: `${cita.user?.nombre} ${cita.user?.apellido1} ${cita.user?.apellido2}` },
-        { label: "Correo", value: cita.user?.email },
-        { label: "Teléfono", value: cita.user?.telefono }
-      ].map(({ label, value }) => (
-        <div key={label} className="grid grid-cols-[6.5rem_1fr] items-start gap-2">
-          <span className="text-gray-500">{label}:</span>
-          <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
-        </div>
-      ))}
+  <div className="max-w-6xl mx-auto mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
+    {/* Header */}
+    <div className="bg-slate-800 p-4 text-white flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+      <h2 className="text-xl font-bold">Detalles de la Cita</h2>
+      {getStatusBadge(cita.status)}
     </div>
-  </div>
 
-  {/* Detalles de la Cita */}
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-      <Calendar className="h-5 w-5 text-teal-600" />
-      Detalles de la Cita
-    </h3>
-    <div className="grid gap-2">
-      {[
-        { label: "Fecha", value: cita.availableDate?.date ? formatearFecha(cita.availableDate.date) : "No disponible" },
-        { label: "Hora", value: cita.horaCita?.hora ? formatearHora(cita.horaCita.hora) : "No disponible" },
-        { label: "Descripción", value: cita.description }
-      ].map(({ label, value }) => (
-        <div key={label} className="grid grid-cols-[6.5rem_1fr] items-start gap-2">
-          <span className="text-gray-500">{label}:</span>
-          <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
-
-
-
-
-        {/* Formulario de respuesta (solo si es editable) */}
-        {isEditable && canEditCita && (
-          <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
-            <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
-              <UserCheck className="h-5 w-5 text-teal-600" />
-              Respuesta al Usuario
-            </h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mensaje para el usuario:</label>
-              <textarea
-                value={mensaje}
-                onChange={(e) => setMensaje(e.target.value)}
-                rows={4}
-                className="w-full border border-gray-300 rounded-md p-3 resize-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
-                placeholder="Escribe aquí el mensaje que se enviará al usuario..."
-              />
-              <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al solicitante como notificación.</p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <button
-                className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
-                onClick={() => cambiarEstado("Aprobada")}
-              >
-                <UserCheck className="h-5 w-5" />
-                Aprobar Cita
-              </button>
-              <button
-                className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-                onClick={() => cambiarEstado("Denegada")}
-              >
-                <X className="h-5 w-5" />
-                Denegar Cita
-              </button>
-            </div>
+    {/* Content */}
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Información del Usuario */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+            <User className="h-5 w-5 text-teal-600" />
+            Información del Usuario
+          </h3>
+          <div className="grid gap-2">
+            {[
+              { label: "Identificación", value: cita.user?.cedula },
+              { label: "Nombre", value: `${cita.user?.nombre} ${cita.user?.apellido1} ${cita.user?.apellido2}` },
+              { label: "Correo", value: cita.user?.email },
+              { label: "Teléfono", value: cita.user?.telefono }
+            ].map(({ label, value }) => (
+              <div key={label} className="grid grid-cols-[8rem_1fr] items-start gap-2">
+                <span className="text-gray-500">{label}:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
-        {/* Botón de volver */}
-        <div className="mt-6 text-right">
-          <button
-            onClick={() => navigate("/dashboard/citas")}
-            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center gap-2 ml-auto"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver a la lista
-          </button>
+        {/* Detalles de la Cita */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+            <Calendar className="h-5 w-5 text-teal-600" />
+            Detalles de la Cita
+          </h3>
+          <div className="grid gap-2">
+            {[
+              { label: "Fecha", value: cita.availableDate?.date ? formatearFecha(cita.availableDate.date) : "No disponible" },
+              { label: "Hora", value: cita.horaCita?.hora ? formatearHora(cita.horaCita.hora) : "No disponible" },
+              { label: "Descripción", value: cita.description }
+            ].map(({ label, value }) => (
+              <div key={label} className="grid grid-cols-[8rem_1fr] items-start gap-2">
+                <span className="text-gray-500">{label}:</span>
+                <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Formulario de respuesta */}
+      {isEditable && canEditCita && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
+            <UserCheck className="h-5 w-5 text-teal-600" />
+            Respuesta al Usuario
+          </h3>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mensaje para el usuario:</label>
+            <textarea
+              value={mensaje}
+              onChange={(e) => setMensaje(e.target.value)}
+              rows={4}
+              className="w-full border border-gray-300 rounded-md p-3 resize-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
+              placeholder="Escribe aquí el mensaje que se enviará al usuario..."
+            />
+            <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al solicitante como notificación.</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <button
+              className="flex-1 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+              onClick={() => cambiarEstado("Aprobada")}
+            >
+              <UserCheck className="h-5 w-5" />
+              Aprobar Cita
+            </button>
+            <button
+              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+              onClick={() => cambiarEstado("Denegada")}
+            >
+              <X className="h-5 w-5" />
+              Denegar Cita
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Botón de volver */}
+      <div className="text-right">
+        <button
+          onClick={() => navigate("/dashboard/citas")}
+          className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center gap-2 ml-auto"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver a la lista
+        </button>
+      </div>
     </div>
-  )
+  </div>
+ )
 }

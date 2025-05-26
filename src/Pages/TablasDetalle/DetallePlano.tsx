@@ -478,10 +478,22 @@ export default function DetallePlanoPage() {
     Información del Solicitante
   </h3>
   <div className="space-y-3">
-    <div className="flex"><span className="text-gray-500 w-24">Identificación:</span><span className="font-medium">{revisionPlano.user?.cedula || "No disponible"}</span></div>
-    <div className="flex"><span className="text-gray-500 w-24">Nombre:</span><span className="font-medium">{`${revisionPlano.user?.nombre || ""} ${revisionPlano.user?.apellido1 || ""} ${revisionPlano.user?.apellido2 || ""}`.trim() || "No disponible"}</span></div>
-    <div className="flex"><span className="text-gray-500 w-24">Correo:</span><span className="font-medium">{revisionPlano.user?.email || "No disponible"}</span></div>
-    <div className="flex"><span className="text-gray-500 w-24">Teléfono:</span><span className="font-medium">{revisionPlano.user?.telefono || "No disponible"}</span></div>
+    <div className="grid grid-cols-[10rem_1fr] gap-2">
+  <span className="text-gray-500">Identificación:</span>
+  <span className="font-medium break-words">{revisionPlano.user?.cedula}</span>
+</div>
+    <div className="grid grid-cols-[10rem_1fr] gap-2">
+  <span className="text-gray-500">Nombre:</span>
+  <span className="font-medium break-words">{revisionPlano.user?.nombre} {revisionPlano.user?.apellido1} {revisionPlano.user?.apellido2}</span>
+</div>
+    <div className="grid grid-cols-[10rem_1fr] gap-2">
+  <span className="text-gray-500">Correo:</span>
+  <span className="font-medium break-words">{revisionPlano.user?.email}</span>
+</div>
+    <div className="grid grid-cols-[10rem_1fr] gap-2">
+  <span className="text-gray-500">Teléfono:</span>
+  <span className="font-medium break-words">{revisionPlano.user?.telefono}</span>
+</div>
   </div>
 </div>
 
