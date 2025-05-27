@@ -139,9 +139,9 @@ export default function Login() {
 };
 
 
-  const handleBack = () => {
-    navigate('/');
-  };
+  // const handleBack = () => {
+  //   navigate('/');
+  // };
 
   return (
     <div 
@@ -222,12 +222,12 @@ export default function Login() {
             >
               Iniciar sesión
             </button>
-            <button 
+            {/* <button 
               onClick={handleBack} 
               className="w-full mt-2 px-4 py-2 bg-gray-500 text-black font-semibold rounded-lg hover:bg-gray-600 transition-colors"
             >
               Cancelar
-            </button>
+            </button> */}
           </div>
   
           <div className="text-center text-sm text-white">

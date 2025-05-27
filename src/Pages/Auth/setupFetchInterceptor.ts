@@ -21,7 +21,7 @@ export const setupFetchInterceptor = () => {
     if (newToken) {
       localStorage.setItem('token', newToken);
       login(newToken);
-      console.log('🔄 Token actualizado correctamente');
+      // console.log('🔄 Token actualizado correctamente');
     }
 
     if (response.status === 401) {

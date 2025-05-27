@@ -54,7 +54,7 @@ import { login, logout } from './AuthContextHelper';
 import { socket } from '../../context/socket'; // ajusta la ruta si es diferente
 
 export const setupAxiosInterceptor = () => {
-  console.log('🚀 Interceptor de Axios global activado');
+  // console.log('🚀 Interceptor de Axios global activado');
 
   // ✅ Interceptor de solicitud
   axios.interceptors.request.use(
@@ -80,7 +80,7 @@ export const setupAxiosInterceptor = () => {
     (response) => {
       const newToken = response.headers['x-refresh-token'];
       if (newToken) {
-        console.log('🔄 Token actualizado correctamente (axios global):', newToken);
+        // console.log('🔄 Token actualizado correctamente (axios global):', newToken);
         localStorage.setItem('token', newToken);
         login(newToken);
 

@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      console.log('[AuthContext] Token encontrado en localStorage, procesando...');
+      // console.log('[AuthContext] Token encontrado en localStorage, procesando...');
       handleToken(token);
       fetchCounters(); // 🔥 Si refrescan página también actualizamos
         } else {
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleToken = (token: string) => {
   try {
     const decodedToken = jwtDecode<any>(token);
-    console.log('[🔐 Token Decodificado]', decodedToken);
+    // console.log('[🔐 Token Decodificado]', decodedToken);
 
     if (decodedToken.email) {
       setUserEmail(decodedToken.email);
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return `${perm.action.toLowerCase()}_${perm.resource}`;
         }
       );
-      console.log('[🔐 Permisos mapeados]', mapped);
+      // console.log('[🔐 Permisos mapeados]', mapped);
       setUserPermissions(mapped);
     } else {
       console.warn('[⚠️] El token no contiene permisos válidos');
@@ -105,18 +105,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
   const login = (token: string) => {
-    console.log('[AuthContext] Ejecutando login()...');
- console.log('[⚡ login()] token recibido:', token);
+//     console.log('[AuthContext] Ejecutando login()...');
+//  console.log('[⚡ login()] token recibido:', token);
     localStorage.setItem('token', token);
     handleToken(token);
 
-    console.log('[AuthContext] Disparando fetchCounters()...');
+    // console.log('[AuthContext] Disparando fetchCounters()...');
     fetchCounters(); // 🔥 Aquí disparamos explícitamente
     fetchSolicitudes();
   };
 
   const logout = () => {
-    console.log('[AuthContext] Cerrando sesión...');
+    // console.log('[AuthContext] Cerrando sesión...');
     localStorage.removeItem('token');
     setIsAuthenticated(false);
     setUserEmail('');

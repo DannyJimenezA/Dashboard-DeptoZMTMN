@@ -174,7 +174,7 @@
 //     });
 
 //     navigate('/');
-    
+
 //   } catch (error) {
 //     let mensaje = 'Error de conexión con el servidor';
 //     if (axios.isAxiosError(error) && error.response) {
@@ -427,6 +427,9 @@
 
 
 // Formulario de registro ADMIN con estandarización del registro USER
+
+
+
 import React, { useState } from 'react';
 import {
   EnvelopeIcon,
@@ -486,11 +489,25 @@ export default function Register() {
       case 'apellido2':
         if (!onlyLettersNoSpace.test(value)) return 'Solo letras sin espacios';
         break;
+      // case 'cedula':
+      //   if (tipoIdentificacion === 'nacional' && !/^\d{9}$/.test(value)) return 'Debe tener 9 dígitos';
+      //   if (tipoIdentificacion === 'residente' && !/^\d{11,12}$/.test(value)) return 'Debe tener 11 o 12 dígitos';
+      //   if (tipoIdentificacion === 'extranjero' && !/^[a-zA-Z0-9]{6,20}$/.test(value)) return 'Entre 6 y 20 caracteres alfanuméricos';
+      //   break;
       case 'cedula':
-        if (tipoIdentificacion === 'nacional' && !/^\d{9}$/.test(value)) return 'Debe tener 9 dígitos';
-        if (tipoIdentificacion === 'residente' && !/^\d{11,12}$/.test(value)) return 'Debe tener 11 o 12 dígitos';
-        if (tipoIdentificacion === 'extranjero' && !/^[a-zA-Z0-9]{6,20}$/.test(value)) return 'Entre 6 y 20 caracteres alfanuméricos';
+        if (tipoIdentificacion === 'nacional' && !/^\d{9}$/.test(value)) {
+          return 'La cédula debe tener exactamente 9 dígitos numéricos';
+        }
+
+        if (tipoIdentificacion === 'residente' && !/^[a-zA-Z0-9\-_.]{1,12}$/.test(value)) {
+          return 'DIMEX: máximo 12 caracteres alfanuméricos o especiales (- _ .)';
+        }
+
+        if (tipoIdentificacion === 'extranjero' && !/^[a-zA-Z0-9\-_.]{1,20}$/.test(value)) {
+          return 'Pasaporte: máximo 20 caracteres alfanuméricos o especiales (- _ .)';
+        }
         break;
+
       case 'telefono':
         if (tipoTelefono === 'nacional') {
           if (!onlyNumbers.test(value) || value.length !== 8) return 'Debe tener exactamente 8 dígitos';
@@ -546,31 +563,83 @@ export default function Register() {
     }
   };
 
-  const renderInput = (name: string, label: string, type: string, icon: React.ReactNode, showToggle = false, toggle?: boolean, setToggle?: (val: boolean) => void, maxLength?: number) => (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{icon}</div>
-        <input
-          id={name}
-          name={name}
-          type={showToggle && toggle ? 'text' : type}
-          value={formData[name as keyof typeof formData]}
-          onChange={handleChange}
-          maxLength={maxLength}
-          className={`appearance-none block w-full px-3 py-3 pl-10 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'} rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-          placeholder={`Ingrese su ${label.toLowerCase()}`}
-          required
-        />
-        {showToggle && toggle !== undefined && setToggle && (
-          <button type="button" onClick={() => setToggle(!toggle)} className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            {toggle ? <EyeSlashIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
-          </button>
-        )}
+  // const renderInput = (name: string, label: string, type: string, icon: React.ReactNode, showToggle = false, toggle?: boolean, setToggle?: (val: boolean) => void, maxLength?: number) => (
+  //   <div>
+  //     <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+  //     <div className="relative">
+  //       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{icon}</div>
+  //       <input
+  //         id={name}
+  //         name={name}
+  //         type={showToggle && toggle ? 'text' : type}
+  //         value={formData[name as keyof typeof formData]}
+  //         onChange={handleChange}
+  //         maxLength={maxLength}
+  //         className={`appearance-none block w-full px-3 py-3 pl-10 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'} rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+  //         placeholder={`Ingrese su ${label.toLowerCase()}`}
+  //         required
+  //       />
+  //       {showToggle && toggle !== undefined && setToggle && (
+  //         <button type="button" onClick={() => setToggle(!toggle)} className="absolute inset-y-0 right-0 pr-3 flex items-center">
+  //           {toggle ? <EyeSlashIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
+  //         </button>
+  //       )}
+  //     </div>
+  //     {fieldErrors[name] && <p className="mt-1 text-sm text-red-500">{fieldErrors[name]}</p>}
+  //   </div>
+  // );
+
+
+  const renderInput = (
+    name: string,
+    label: string,
+    type: string,
+    icon: React.ReactNode,
+    showToggle = false,
+    toggle?: boolean,
+    setToggle?: (val: boolean) => void,
+    maxLength?: number
+  ) => {
+    const isCedulaNacional = name === 'cedula' && tipoIdentificacion === 'nacional';
+    const isTelefonoNacional = name === 'telefono' && tipoTelefono === 'nacional';
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Si es cédula nacional o teléfono nacional → solo permitir números
+      if ((isCedulaNacional || isTelefonoNacional) &&
+        !/[0-9]/.test(e.key) &&
+        !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">{icon}</div>
+          <input
+            id={name}
+            name={name}
+            type={showToggle && toggle ? 'text' : type}
+            value={formData[name as keyof typeof formData]}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            maxLength={maxLength}
+            className={`appearance-none block w-full px-3 py-3 pl-10 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'} rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
+            placeholder={`Ingrese su ${label.toLowerCase()}`}
+            required
+          />
+          {showToggle && toggle !== undefined && setToggle && (
+            <button type="button" onClick={() => setToggle(!toggle)} className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              {toggle ? <EyeSlashIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
+            </button>
+          )}
+        </div>
+        {fieldErrors[name] && <p className="mt-1 text-sm text-red-500">{fieldErrors[name]}</p>}
       </div>
-      {fieldErrors[name] && <p className="mt-1 text-sm text-red-500">{fieldErrors[name]}</p>}
-    </div>
-  );
+    );
+  };
+
 
   return (
     <div className="min-h-screen w-full bg-gray-50">
@@ -585,23 +654,36 @@ export default function Register() {
                 {renderInput('nombre', 'Nombre', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
                 {renderInput('apellido1', 'Primer apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
                 {renderInput('apellido2', 'Segundo apellido', 'text', <UserIcon className="h-5 w-5 text-gray-400" />, false, undefined, undefined, 30)}
-                  
-                                  {renderInput('email', 'Correo electrónico', 'email', <EnvelopeIcon className="h-5 w-5 text-gray-400" />, false)}
+
+                {renderInput('email', 'Correo electrónico', 'email', <EnvelopeIcon className="h-5 w-5 text-gray-400" />, false)}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Identificación</label>
+                  {/* <select
+                    value={tipoIdentificacion}
+                    onChange={(e) => setTipoIdentificacion(e.target.value as any)} 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                  >
+                    <option value="nacional">Cédula Nacional</option>
+                    <option value="residente">DIMEX (Residente)</option>
+                    <option value="extranjero">Pasaporte (Extranjero)</option>
+                  </select> */}
                   <select
                     value={tipoIdentificacion}
-                    onChange={(e) => setTipoIdentificacion(e.target.value as any)}
+                    onChange={(e) => {
+                      setTipoIdentificacion(e.target.value as any);
+                      setFormData((prev) => ({ ...prev, cedula: '' }));
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
                   >
                     <option value="nacional">Cédula Nacional</option>
                     <option value="residente">DIMEX (Residente)</option>
                     <option value="extranjero">Pasaporte (Extranjero)</option>
                   </select>
+
                 </div>
 
-                {renderInput(
+                {/* {renderInput(
                   'cedula',
                   tipoIdentificacion === 'nacional'
                     ? 'Cédula Nacional'
@@ -614,45 +696,115 @@ export default function Register() {
                   undefined,
                   undefined,
                   tipoIdentificacion === 'extranjero' ? 20 : 12
+                )} */}
+                {renderInput(
+                  'cedula',
+                  tipoIdentificacion === 'nacional'
+                    ? 'Cédula Nacional'
+                    : tipoIdentificacion === 'residente'
+                      ? 'DIMEX'
+                      : 'Pasaporte',
+                  'text',
+                  <IdentificationIcon className="h-5 w-5 text-gray-400" />,
+                  false,
+                  undefined,
+                  undefined,
+                  tipoIdentificacion === 'nacional' ? 9 : tipoIdentificacion === 'residente' ? 12 : 20
                 )}
+
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Teléfono</label>
-                  <select
+                  {/* <select
                     value={tipoTelefono}
                     onChange={(e) => setTipoTelefono(e.target.value as 'nacional' | 'extranjero')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
                   >
                     <option value="nacional">Nacional</option>
                     <option value="extranjero">Extranjero</option>
+                  </select> */}
+                  <select
+                    value={tipoTelefono}
+                    onChange={(e) => {
+                      setTipoTelefono(e.target.value as 'nacional' | 'extranjero');
+                      setFormData((prev) => ({
+                        ...prev,
+                        telefono: '',
+                        telefonoPrefijo: '',
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                  >
+                    <option value="nacional">Nacional</option>
+                    <option value="extranjero">Extranjero</option>
                   </select>
+
                 </div>
 
 
                 {tipoTelefono === 'extranjero' ? (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono Extranjero</label>
-                    <div className="flex gap-2 items-center">
-                      <span className="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm rounded-l-md">+</span>
+                    <div className="flex w-full">
+                      <div className="flex items-center rounded-l-md border border-gray-300 bg-gray-100 px-3 text-sm text-gray-500">
+                        +
+                      </div>
                       <input
                         type="text"
                         name="telefonoPrefijo"
                         value={formData.telefonoPrefijo}
                         onChange={handleChange}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                                                onKeyDown={(e) => {
+                          if (
+                            !/[0-9]/.test(e.key) &&
+                            !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         maxLength={3}
                         placeholder="Pref"
+                        className="w-20 px-3 py-2 border-t border-b border-gray-300 text-gray-900 sm:text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                         required
                       />
+                      {/* <input
+                        type="tel"
+                        name="telefono"
+                        value={formData.telefono}
+                        onChange={handleChange}
+                        onKeyDown={(e) => {
+                          // Permite teclas especiales como borrar, flechas, tab
+                          if (
+                            !/[0-9]/.test(e.key) &&
+                            !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
+                        maxLength={12}
+                        placeholder="Número"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md text-gray-900 sm:text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        required
+                      /> */}
                       <input
                         type="tel"
                         name="telefono"
                         value={formData.telefono}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 sm:text-sm"
+                        onKeyDown={(e) => {
+                          if (
+                            !/[0-9]/.test(e.key) &&
+                            !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         maxLength={12}
+                        placeholder="Número"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md text-gray-900 sm:text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                         required
                       />
+
                     </div>
                     {(fieldErrors.telefonoPrefijo || fieldErrors.telefono) && (
                       <p className="mt-1 text-sm text-red-500">{fieldErrors.telefonoPrefijo || fieldErrors.telefono}</p>
@@ -663,15 +815,33 @@ export default function Register() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
                     <div className="flex">
                       <span className="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm rounded-l-md">+506</span>
+                      {/* <input
+                      type="tel"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-r-md text-gray-900 sm:text-sm"
+                      maxLength={8}
+                      required
+                    /> */}
                       <input
                         type="tel"
                         name="telefono"
                         value={formData.telefono}
                         onChange={handleChange}
+                        onKeyDown={(e) => {
+                          if (
+                            !/[0-9]/.test(e.key) &&
+                            !['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-r-md text-gray-900 sm:text-sm"
                         maxLength={8}
                         required
                       />
+
                     </div>
                     {fieldErrors.telefono && (
                       <p className="mt-1 text-sm text-red-500">{fieldErrors.telefono}</p>
