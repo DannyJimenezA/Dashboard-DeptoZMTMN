@@ -514,11 +514,11 @@ export default function DetallePlanoPage() {
               </div>
               <div className="grid grid-cols-[6.5rem_1fr] items-start gap-2">
                 <span className="text-gray-500">Plano:</span>
-                <span className="font-medium break-words whitespace-pre-wrap">{revisionPlano.NumeroPlano}</span>
+                <span className="font-medium break-all whitespace-pre-wrap">{revisionPlano.NumeroPlano}</span>
               </div>
               <div className="grid grid-cols-[6.5rem_1fr] gap-2">
                 <span className="text-gray-500 pt-1">Comentario:</span>
-                <div className="font-medium leading-relaxed break-words whitespace-pre-wrap">
+                <div className="font-medium leading-relaxed break-all whitespace-pre-wrap">
                   {revisionPlano.Comentario || "No especificado"}
                 </div>
               </div>

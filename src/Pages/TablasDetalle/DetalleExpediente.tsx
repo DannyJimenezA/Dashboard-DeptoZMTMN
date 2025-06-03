@@ -466,7 +466,7 @@ export default function DetalleExpedientePage() {
               </div>
               <div className="grid grid-cols-[8rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Número:</span>
-                <span className="font-medium break-words whitespace-pre-wrap">{expediente.numeroExpediente || "No disponible"}</span>
+                <span className="font-medium break-all whitespace-pre-wrap">{expediente.numeroExpediente || "No disponible"}</span>
               </div>
               <div className="grid grid-cols-[8rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Certificada:</span>
