@@ -29,10 +29,10 @@ import CrearTipoDenunciaPage from '../Pages/TablasDetalle/CrearTipoDenunciaPage'
 import CrearLugarDenunciaPage from '../Pages/TablasDetalle/CrearLugarDenunciaPage';
 
 const AppRoutesContent = () => {
-  const { isAuthenticated , userPermissions} = useAuth();
+  const { userPermissions, isLoading} = useAuth();
   
   // Aquí esperas a que el estado de autenticación esté resuelto
-  if (localStorage.getItem('token') && !isAuthenticated) {
+  if (localStorage.getItem('token') && isLoading) {
     return <div className="text-center mt-10">Cargando autenticación...</div>;
   }
   const hasViewPermission = userPermissions.some((perm) => perm.startsWith('ver_'));

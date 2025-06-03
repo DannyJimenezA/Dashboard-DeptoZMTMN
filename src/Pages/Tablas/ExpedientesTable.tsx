@@ -22,13 +22,25 @@ export default function ExpedientesTable() {
   const [fechaFiltro, setFechaFiltro] = useState<Date | null>(null);
   const [fechasDisponibles, setFechasDisponibles] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
-  const [searchBy, setSearchBy] = useState<'nombreSolicitante' | 'numeroExpediente'>('nombreSolicitante');
+ const [searchBy, setSearchBy] = useState<'nombreSolicitante' | 'cedula'>('nombreSolicitante');
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const navigate = useNavigate();
   const { isAuthenticated, userPermissions } = useAuth();
 
+  const handleSearchTextChange = (text: string) => {
+  setSearchText(text);
+  setCurrentPage(1);
+};
+
+const handleSearchByChange = (value: string) => {
+  setSearchBy(value as 'nombreSolicitante' | 'cedula');
+  setCurrentPage(1);
+};
+
+  
   function formatearFechaVisual(fechaISO: string): string {
   const [year, month, day] = fechaISO.split('-');
   return `${day}/${month}/${year}`;
@@ -167,9 +179,11 @@ Swal.fire({
   const filtrados = expedientes.filter(exp => {
     const matchEstado = filtroEstado === 'todos' || exp.status === filtroEstado;
     const matchFecha = !fechaFiltro || exp.Date === formatFechaFiltro(fechaFiltro);
-    const matchTexto = searchBy === 'nombreSolicitante'
-      ? exp.nombreSolicitante?.toLowerCase().includes(searchText.toLowerCase())
-      : exp.numeroExpediente?.toString().includes(searchText);
+const matchTexto =
+  searchBy === 'nombreSolicitante'
+    ? exp.nombreSolicitante?.toLowerCase().includes(searchText.toLowerCase())
+    : exp.user?.cedula?.toLowerCase().includes(searchText.toLowerCase());
+
     return matchEstado && matchFecha && matchTexto;
   });
 
@@ -188,13 +202,13 @@ Swal.fire({
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre o número de expediente..."
         searchText={searchText}
-        onSearchTextChange={setSearchText}
+        onSearchTextChange={handleSearchTextChange}
         searchByOptions={[
           { value: 'nombreSolicitante', label: 'Nombre' },
-          { value: 'numeroExpediente', label: 'N° Expediente' },
+          { value: 'cedula', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
-        onSearchByChange={(val) => setSearchBy(val as 'nombreSolicitante' | 'numeroExpediente')}
+        onSearchByChange={handleSearchByChange}
         extraFilters={
           <div className="flex flex-wrap items-end gap-2">
             <select

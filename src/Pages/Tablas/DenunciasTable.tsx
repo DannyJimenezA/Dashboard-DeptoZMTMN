@@ -23,6 +23,17 @@ export default function DenunciasTable() {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const fechasConDenuncia = Array.from(new Set(denuncias.map(d => d.Date))).sort();
 
+  const handleSearchTextChange = (text: string) => {
+  setSearchText(text);
+  setCurrentPage(1); // Reinicia la paginación
+};
+
+const handleSearchByChange = (value: string) => {
+  if (value === 'nombreDenunciante' || value === 'cedulaDenunciante') {
+    setSearchBy(value); // TypeScript ya entiende que es válido
+    setCurrentPage(1);  // Reinicia la paginación
+  }
+};
 
 
   const navigate = useNavigate();
@@ -165,13 +176,13 @@ useEffect(() => {
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
-        onSearchTextChange={setSearchText}
+        onSearchTextChange={handleSearchTextChange}
         searchByOptions={[
           { value: 'nombreDenunciante', label: 'Nombre' },
           { value: 'cedulaDenunciante', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
-        onSearchByChange={(val) => setSearchBy(val as 'nombreDenunciante' | 'cedulaDenunciante')}
+        onSearchByChange={handleSearchByChange}
         extraFilters={
           <div className="flex flex-wrap items-end gap-2">
             <select

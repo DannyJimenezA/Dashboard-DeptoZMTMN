@@ -22,6 +22,17 @@ export default function UsersTable() {
   const navigate = useNavigate();
   const { isAuthenticated, userPermissions } = useAuth();
 
+
+  const handleSearchTextChange = (text: string) => {
+  setSearchText(text);
+  setCurrentPage(1); // Reinicia la paginación
+};
+
+const handleSearchByChange = (value: string) => {
+  setSearchBy(value as 'nombre' | 'cedula' | 'correo');
+  setCurrentPage(1); // Reinicia la paginación
+};
+
   useEffect(() => {
     let socket: Socket | null = null;
 
@@ -186,14 +197,14 @@ export default function UsersTable() {
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre, identificación o correo..."
         searchText={searchText}
-        onSearchTextChange={setSearchText}
+        onSearchTextChange={handleSearchTextChange}
         searchByOptions={[
           { value: 'nombre', label: 'Nombre' },
           { value: 'cedula', label: 'Identificación' },
           { value: 'email', label: 'Correo' },
         ]}
         selectedSearchBy={searchBy}
-        onSearchByChange={setSearchBy}
+        onSearchByChange={handleSearchByChange}
       />
 
       <div className="flex-1 overflow-auto bg-white shadow-lg rounded-lg max-h-[70vh]">

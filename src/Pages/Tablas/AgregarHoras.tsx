@@ -444,47 +444,91 @@ export default function AgregarHorasPage() {
     );
   };
 
-  const handleEliminarHora = async (hora: string) => {
-    const token = localStorage.getItem('token');
-    if (!token || !id) return;
+  // const handleEliminarHora = async (hora: string) => {
+  //   const token = localStorage.getItem('token');
+  //   if (!token || !id) return;
 
-    const confirmacion = await Swal.fire({
-      title: `¿Eliminar la hora ${formatearHora12h(hora)}?`,
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+  //   const confirmacion = await Swal.fire({
+  //     title: `¿Eliminar la hora ${formatearHora12h(hora)}?`,
+  //     text: 'Esta acción no se puede deshacer.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sí, eliminar',
+  //     cancelButtonText: 'Cancelar',
+  //     confirmButtonColor: '#d33',
+  //     cancelButtonColor: '#3085d6',
+  //   });
+
+  //   if (!confirmacion.isConfirmed) return;
+
+  //   try {
+  //     const response = await fetch(`${ApiRoutes.horasCitas}/${id}/${hora}`, {
+  //       method: 'DELETE',
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (!response.ok) {
+  //       if (response.status === 409) {
+  //         const { message } = await response.json();
+  //         Swal.fire('No se puede eliminar', message || 'La hora tiene una cita asociada.', 'info');
+  //       } else {
+  //         throw new Error('Error inesperado al eliminar');
+  //       }
+  //       return;
+  //     }
+
+  //     Swal.fire('Eliminada', 'La hora fue eliminada exitosamente.', 'success');
+  //     setHorasCreadas(prev => prev.filter(h => h.hora !== hora));
+  //     setHorasSeleccionadas(prev => prev.filter(h => h !== hora));
+  //   } catch (error) {
+  //     console.error('Error al eliminar la hora:', error);
+  //     Swal.fire('Error', 'No se pudo eliminar la hora. Intenta de nuevo.', 'error');
+  //   }
+  // };
+
+const handleEliminarHora = async (hora: string) => {
+  const token = localStorage.getItem('token');
+  if (!token || !id) return;
+
+  const confirmacion = await Swal.fire({
+    title: `¿Eliminar la hora ${formatearHora12h(hora)}?`,
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+  });
+
+  if (!confirmacion.isConfirmed) return;
+
+  try {
+    const response = await fetch(`${ApiRoutes.horasCitas}/${id}/${hora}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!confirmacion.isConfirmed) return;
+    // Aquí permitimos eliminar aunque la hora esté asociada a una cita,
+    // por lo que no bloqueamos con error 409, simplemente avisamos o ignoramos el error.
 
-    try {
-      const response = await fetch(`${ApiRoutes.horasCitas}/${id}/${hora}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        if (response.status === 409) {
-          const { message } = await response.json();
-          Swal.fire('No se puede eliminar', message || 'La hora tiene una cita asociada.', 'info');
-        } else {
-          throw new Error('Error inesperado al eliminar');
-        }
-        return;
+    if (!response.ok) {
+      // Opcional: si quieres mostrar el error para otros casos:
+      if (response.status !== 409) {
+        throw new Error('Error inesperado al eliminar');
       }
-
-      Swal.fire('Eliminada', 'La hora fue eliminada exitosamente.', 'success');
-      setHorasCreadas(prev => prev.filter(h => h.hora !== hora));
-      setHorasSeleccionadas(prev => prev.filter(h => h !== hora));
-    } catch (error) {
-      console.error('Error al eliminar la hora:', error);
-      Swal.fire('Error', 'No se pudo eliminar la hora. Intenta de nuevo.', 'error');
+      // Si es 409, no mostramos error, se permite eliminar igual.
     }
-  };
+
+    Swal.fire('Eliminada', 'La hora fue eliminada exitosamente.', 'success');
+    setHorasCreadas(prev => prev.filter(h => h.hora !== hora));
+    setHorasSeleccionadas(prev => prev.filter(h => h !== hora));
+  } catch (error) {
+    console.error('Error al eliminar la hora:', error);
+    Swal.fire('Error', 'No se pudo eliminar la hora. Intenta de nuevo.', 'error');
+  }
+};
+
 
   const handleAgregarHoras = async () => {
     const token = localStorage.getItem('token');

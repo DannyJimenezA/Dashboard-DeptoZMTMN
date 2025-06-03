@@ -140,10 +140,16 @@ export default function Sidebar() {
   const { counters, loadingCounters } = useSolicitudes(); // 👈 Escuchamos loadingCounters
   const navigate = useNavigate();
 
+  // const handleLogout = () => {
+  //   logout();
+  //   navigate('/');
+  // };
   const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  logout();
+  setTimeout(() => {
+    navigate('/', { replace: true });
+  }, 50); // pequeño retraso para que setIsLoading(false) se procese
+};
 
   const hasPermission = (perm: string) => userPermissions.includes(perm);
 

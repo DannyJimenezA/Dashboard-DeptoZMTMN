@@ -26,6 +26,17 @@ export default function AppointmentTable() {
   const { isAuthenticated, userPermissions } = useAuth();
 
 
+  const handleSearchTextChange = (text: string) => {
+  setSearchText(text);
+  setCurrentPage(1); // Reinicia la paginación
+};
+
+const handleSearchByChange = (value: string) => {
+  setSearchBy(value as 'nombre' | 'cedula');
+  setCurrentPage(1); // Reinicia la paginación
+};
+
+
 
 function formatearFecha(fechaISO: string): string {
   const [year, month, day] = fechaISO.split('-');
@@ -193,9 +204,9 @@ const matchFecha =
         ]}
         searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
-        onSearchTextChange={setSearchText}
+        onSearchTextChange={handleSearchTextChange}
         selectedSearchBy={searchBy}
-        onSearchByChange={(val: string) => setSearchBy(val as 'nombre' | 'cedula')}
+        onSearchByChange={handleSearchByChange}
         extraFilters={
           <div className="flex flex-wrap items-end gap-2 relative z-50">
             <select

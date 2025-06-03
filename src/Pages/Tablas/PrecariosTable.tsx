@@ -27,6 +27,16 @@ export default function PrecariosTable() {
   const navigate = useNavigate();
   const { isAuthenticated, userPermissions } = useAuth();
 
+  const handleSearchTextChange = (text: string) => {
+  setSearchText(text);
+  setCurrentPage(1); // Reinicia la paginación
+};
+
+const handleSearchByChange = (value: string) => {
+  setSearchBy(value as 'nombre' | 'cedula');
+  setCurrentPage(1); // Reinicia la paginación
+};
+
 function formatearFechaVisual(fecha: string | String): string {
   const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
   const [year, month, day] = fechaStr.split('-');
@@ -166,13 +176,13 @@ Swal.fire({
       <SearchFilterBar
         searchPlaceholder="Buscar por nombre o identificación..."
         searchText={searchText}
-        onSearchTextChange={setSearchText}
+        onSearchTextChange={handleSearchTextChange}
         searchByOptions={[
           { value: 'nombre', label: 'Nombre' },
           { value: 'cedula', label: 'Identificación' },
         ]}
         selectedSearchBy={searchBy}
-        onSearchByChange={(val) => setSearchBy(val as 'nombre' | 'cedula')}
+        onSearchByChange={handleSearchByChange}
         extraFilters={
           <div className="flex flex-wrap items-end gap-2">
             <select
