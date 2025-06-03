@@ -21,18 +21,17 @@
 // export default function DetalleExpedientePage() {
 //   const { id } = useParams();
 //   const navigate = useNavigate();
-//     const { userPermissions } = useAuth();
+//   const { userPermissions } = useAuth();
 //   const [expediente, setExpediente] = useState<CopiaExpediente | null>(null);
 //   const [mensaje, setMensaje] = useState("");
 //   const [loading, setLoading] = useState(true);
-//     const canEditExpediente = userPermissions.includes('editar_copia_expediente');
+//   const canEditExpediente = userPermissions.includes('editar_copia_expediente');
 
-// function formatearFecha(fecha: string | String): string {
-//   const fechaStr = fecha.toString(); // 🔁 Convertimos a string plano
-//   const [year, month, day] = fechaStr.split('-');
-//   return `${day}/${month}/${year}`;
-// }
-
+//   function formatearFecha(fecha: string | String): string {
+//     const fechaStr = fecha.toString();
+//     const [year, month, day] = fechaStr.split('-');
+//     return `${day}/${month}/${year}`;
+//   }
 
 //   useEffect(() => {
 //     const fetchExpediente = async () => {
@@ -51,7 +50,6 @@
 //         setLoading(false);
 //       }
 //     };
-
 //     fetchExpediente();
 //   }, [id]);
 
@@ -99,8 +97,8 @@
 //         text: `Solicitud de expediente ${nuevoEstado.toLowerCase()} correctamente.`,
 //         icon: "success",
 //         confirmButtonColor: "#00a884",
-//             timer: 3000,
-//       showConfirmButton: false,
+//         timer: 3000,
+//         showConfirmButton: false,
 //       });
 //       navigate("/dashboard/expedientes");
 //     } catch (err) {
@@ -169,81 +167,48 @@
 
 //       <div className="p-6 space-y-6">
 //         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//           {/* Info del solicitante */}
 //           <div className="bg-white border border-gray-200 rounded-lg p-4">
 //             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
 //               <User className="h-5 w-5 text-teal-600" />
 //               Información del Solicitante
 //             </h3>
-//             <div className="space-y-3">
-//               <div className="flex">
-//                 <span className="text-gray-500 w-28">Nombre:</span>
-//                 <span className="font-medium">{expediente.nombreSolicitante}</span>
-//               </div>
-
-//               <div className="flex">
-//                 <span className="text-gray-500 w-28">Apellidos:</span>
-//                 <span className="font-medium">{expediente.user?.apellido1 } {expediente.user?.apellido2 } </span>
-//               </div>
-
-//               <div className="flex items-center">
-//                 <span className="text-gray-500 w-28">Teléfono:</span>
-//                 <span className="font-medium flex items-center">
-//                   {expediente.telefonoSolicitante}
-//                 </span>
-//               </div>
-//               <div className="flex items-center">
-//                 <span className="text-gray-500 w-28">Correo:</span>
-//                 <span className="font-medium flex items-center">
-//                   {expediente.user?.email}
-//                 </span>
-//               </div>
-//               <div className="flex items-center">
-//                 <span className="text-gray-500 w-28">Medio de notificación:</span>
-//                 <span className="font-medium flex items-center">
-
-//                   {/* {expediente.medioNotificacion} */}
-//                   {expediente.medioNotificacion.charAt(0).toUpperCase() + expediente.medioNotificacion.slice(1).toLowerCase()}
-
-//                 </span>
-//               </div>
+//             <div className="space-y-2">
+//               {[
+//                 { label: "Identificación", value: expediente.user?.cedula },
+//                 { label: "Nombre", value: `${expediente.user?.nombre} ${expediente.user?.apellido1} ${expediente.user?.apellido2}` },
+//                 { label: "Correo", value: expediente.user?.email },
+//                 { label: "Teléfono", value: expediente.telefonoSolicitante },
+//                 { label: "Medio de notificación", value: expediente.medioNotificacion.charAt(0).toUpperCase() + expediente.medioNotificacion.slice(1).toLowerCase() },
+//               ].map(({ label, value }) => (
+//                 <div key={label} className="grid grid-cols-[9rem_1fr] items-start gap-2">
+//                   <span className="text-gray-500 pt-1">{label}:</span>
+//                   <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
+//                 </div>
+//               ))}
 //             </div>
 //           </div>
 
-//           {/* Detalles del expediente */}
 //           <div className="bg-white border border-gray-200 rounded-lg p-4">
 //             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
 //               <FileText className="h-5 w-5 text-teal-600" />
 //               Detalles del Expediente
 //             </h3>
-//             <div className="space-y-3">
-//               {/* <div className="flex items-center">
-//                 <span className="text-gray-500 w-28">Fecha:</span>
-//                 <span className="font-medium flex items-center">
-//                   {expediente.Date}
-//                 </span>
-//               </div> */}
-//                             <div className="flex items-center">
-//   <span className="text-gray-500 w-24">Fecha:</span>
-//   <span className="font-medium flex items-center">
-//     {expediente.Date ? formatearFecha(expediente.Date) : "No disponible"}
-//   </span>
-// </div>
-//               <div className="flex">
-//                 <span className="text-gray-500 w-28">Número:</span>
-//                 <span className="font-medium">{expediente.numeroExpediente}</span>
+//             <div className="space-y-2">
+//               <div className="grid grid-cols-[9rem_1fr] items-start gap-2">
+//                 <span className="text-gray-500 pt-1">Fecha:</span>
+//                 <span className="font-medium break-words whitespace-pre-wrap">{expediente.Date ? formatearFecha(expediente.Date) : "No disponible"}</span>
 //               </div>
-//               <div className="flex items-center">
-//                 <span className="text-gray-500 w-28">Certificada:</span>
-//                 <span className="font-medium flex items-center">
+//               <div className="grid grid-cols-[9rem_1fr] items-start gap-2">
+//                 <span className="text-gray-500 pt-1">Número:</span>
+//                 <span className="font-medium break-words whitespace-pre-wrap">{expediente.numeroExpediente || "No disponible"}</span>
+//               </div>
+//               <div className="grid grid-cols-[9rem_1fr] items-start gap-2">
+//                 <span className="text-gray-500 pt-1">Certificada:</span>
+//                 <span className="font-medium break-words whitespace-pre-wrap flex items-center">
 //                   {expediente.copiaCertificada ? (
-//                     <>
-//                       <CheckCircle className="h-4 w-4 mr-1 text-teal-600" /> Sí
-//                     </>
+//                     <><CheckCircle className="h-4 w-4 mr-1 text-teal-600" /> Sí</>
 //                   ) : (
-//                     <>
-//                       <XCircle className="h-4 w-4 mr-1 text-gray-500" /> No
-//                     </>
+//                     <><XCircle className="h-4 w-4 mr-1 text-gray-500" /> No</>
 //                   )}
 //                 </span>
 //               </div>
@@ -251,7 +216,6 @@
 //           </div>
 //         </div>
 
-//         {/* Formulario de respuesta */}
 //         {isEditable && canEditExpediente && (
 //           <div className="bg-white border border-gray-200 rounded-lg p-4">
 //             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
@@ -266,7 +230,6 @@
 //               placeholder="Escribe aquí el mensaje que se enviará al usuario..."
 //             />
 //             <p className="text-sm text-gray-500 mt-1">Este mensaje será enviado al solicitante como notificación.</p>
-
 //             <div className="flex flex-col sm:flex-row gap-3 mt-6">
 //               <button
 //                 onClick={() => cambiarEstado("Aprobada")}
@@ -286,7 +249,6 @@
 //           </div>
 //         )}
 
-//         {/* Botón volver */}
 //         <div className="text-right">
 //           <button
 //             onClick={() => navigate("/dashboard/expedientes")}
@@ -300,6 +262,7 @@
 //     </div>
 //   );
 // }
+
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -469,13 +432,13 @@ export default function DetalleExpedientePage() {
       </div>
 
       <div className="p-6 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <User className="h-5 w-5 text-teal-600" />
               Información del Solicitante
             </h3>
-            <div className="space-y-2">
+            <div className="grid gap-2">
               {[
                 { label: "Identificación", value: expediente.user?.cedula },
                 { label: "Nombre", value: `${expediente.user?.nombre} ${expediente.user?.apellido1} ${expediente.user?.apellido2}` },
@@ -483,7 +446,7 @@ export default function DetalleExpedientePage() {
                 { label: "Teléfono", value: expediente.telefonoSolicitante },
                 { label: "Medio de notificación", value: expediente.medioNotificacion.charAt(0).toUpperCase() + expediente.medioNotificacion.slice(1).toLowerCase() },
               ].map(({ label, value }) => (
-                <div key={label} className="grid grid-cols-[9rem_1fr] items-start gap-2">
+                <div key={label} className="grid grid-cols-[8rem_1fr] items-start gap-2">
                   <span className="text-gray-500 pt-1">{label}:</span>
                   <span className="font-medium break-words whitespace-pre-wrap">{value || "No disponible"}</span>
                 </div>
@@ -491,21 +454,21 @@ export default function DetalleExpedientePage() {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="flex-1 bg-white border border-gray-200 rounded-lg p-4">
             <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-gray-700">
               <FileText className="h-5 w-5 text-teal-600" />
               Detalles del Expediente
             </h3>
-            <div className="space-y-2">
-              <div className="grid grid-cols-[9rem_1fr] items-start gap-2">
+            <div className="grid gap-2">
+              <div className="grid grid-cols-[8rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Fecha:</span>
                 <span className="font-medium break-words whitespace-pre-wrap">{expediente.Date ? formatearFecha(expediente.Date) : "No disponible"}</span>
               </div>
-              <div className="grid grid-cols-[9rem_1fr] items-start gap-2">
+              <div className="grid grid-cols-[8rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Número:</span>
                 <span className="font-medium break-words whitespace-pre-wrap">{expediente.numeroExpediente || "No disponible"}</span>
               </div>
-              <div className="grid grid-cols-[9rem_1fr] items-start gap-2">
+              <div className="grid grid-cols-[8rem_1fr] items-start gap-2">
                 <span className="text-gray-500 pt-1">Certificada:</span>
                 <span className="font-medium break-words whitespace-pre-wrap flex items-center">
                   {expediente.copiaCertificada ? (
