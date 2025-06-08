@@ -3,7 +3,7 @@ import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/useAuth';
 import ApiRoutes from '../../Components/ApiRoutes';
-import ApiService from '../../Components/ApiService';
+// import ApiService from '../../Components/ApiService';
 import image from '../../Img/img05.jpg'
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
@@ -14,7 +14,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   // const { login } = useAuth();
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
+    const [error] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const { login: loginWithContext } = useAuth();
@@ -36,23 +37,27 @@ export default function Login() {
     };
   }, []);
 
+
   // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
 
   //   try {
-  //     const data = await ApiService.post<{ access_token: string }>(ApiRoutes.auth.login, { email, password });
-  //     console.log('JWT received:', data.access_token);
+  //     const data = await ApiService.post<{ access_token: string }>(
+  //       ApiRoutes.auth.login,
+  //       { email, password }
+  //     );
 
-  //     // Guarda el token en localStorage
-  //     login(data.access_token);
+  //     // console.log('✅ JWT recibido:', data.access_token);
 
-  //     // Decodificar el token
+  //     // ✅ Guarda el token y actualiza contexto
+  //     loginWithContext(data.access_token);
+
+  //     // Decodificar token
   //     const decoded = jwtDecode<any>(data.access_token);
-
-  //     // 🔥 Verificamos si tiene permisos de "ver_"
   //     const permissions = decoded.permissions || [];
+
   //     const hasDashboardAccess = permissions.some(
-  //       (perm: { resource: string, action: string }) =>
+  //       (perm: { resource: string; action: string }) =>
   //         perm.resource === 'dashboard' && perm.action === 'GET'
   //     );
 
@@ -64,12 +69,10 @@ export default function Login() {
   //         confirmButtonColor: '#3085d6',
   //         confirmButtonText: 'Entendido',
   //       });
-
   //       localStorage.removeItem('token');
   //       return navigate('/'), window.location.reload();
   //     }
 
-  //     // ✅ SweetAlert de bienvenida si tiene permisos
   //     await Swal.fire({
   //       title: '¡Bienvenido!',
   //       text: `Has iniciado sesión como: ${decoded.email}`,
@@ -78,7 +81,6 @@ export default function Login() {
   //       showConfirmButton: false,
   //     });
 
-  //     // Navegar normalmente
   //     navigate('/dashboard');
 
   //   } catch (err) {
@@ -87,61 +89,88 @@ export default function Login() {
   //   }
   // };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    try {
-      const data = await ApiService.post<{ access_token: string }>(
-        ApiRoutes.auth.login,
-        { email, password }
-      );
+  try {
+    const response = await fetch(ApiRoutes.auth.login, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      // console.log('✅ JWT recibido:', data.access_token);
+    if (!response.ok) {
+      const errorData = await response.json();
+      const status = response.status;
 
-      // ✅ Guarda el token y actualiza contexto
-      loginWithContext(data.access_token);
+      let mensaje = 'Ocurrió un error al intentar iniciar sesión.';
+      let titulo = 'Error de autenticación';
 
-      // Decodificar token
-      const decoded = jwtDecode<any>(data.access_token);
-      const permissions = decoded.permissions || [];
-
-      const hasDashboardAccess = permissions.some(
-        (perm: { resource: string; action: string }) =>
-          perm.resource === 'dashboard' && perm.action === 'GET'
-      );
-
-      if (!hasDashboardAccess) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Acceso Denegado',
-          text: 'No tienes permisos para acceder al panel administrativo.',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido',
-        });
-        localStorage.removeItem('token');
-        return navigate('/'), window.location.reload();
+      if (status === 401) {
+        mensaje = 'Correo o contraseña incorrectos.';
+        titulo = 'Credenciales inválidas';
+      } else if (status === 403) {
+        mensaje = 'Tu cuenta no está activada.';
+        titulo = 'Cuenta no activada';
+      } else if (errorData?.message) {
+        mensaje = errorData.message;
       }
 
       await Swal.fire({
-        title: '¡Bienvenido!',
-        text: `Has iniciado sesión como: ${decoded.email}`,
-        icon: 'success',
-        timer: 3000,
-        showConfirmButton: false,
+        icon: 'error',
+        title: titulo,
+        text: mensaje,
+        confirmButtonColor: '#e3342f',
       });
 
-      navigate('/dashboard');
-
-    } catch (err) {
-      setError('Error al iniciar sesión. Verifica tus credenciales.');
-      console.error('Login error:', err);
+      return;
     }
-  };
 
+    const data = await response.json();
+    const token = data.access_token;
+    loginWithContext(token);
 
-  // const handleBack = () => {
-  //   navigate('/');
-  // };
+    const decoded = jwtDecode<any>(token);
+    const permissions = decoded.permissions || [];
+
+    const hasDashboardAccess = permissions.some(
+      (perm: { resource: string; action: string }) =>
+        perm.resource === 'dashboard' && perm.action === 'GET'
+    );
+
+    if (!hasDashboardAccess) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Acceso Denegado',
+        text: 'No tienes permisos para acceder al panel administrativo.',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Entendido',
+      });
+      localStorage.removeItem('token');
+      return navigate('/'), window.location.reload();
+    }
+
+    await Swal.fire({
+      title: '¡Bienvenido!',
+      text: `Has iniciado sesión como: ${decoded.email}`,
+      icon: 'success',
+      timer: 3000,
+      showConfirmButton: false,
+    });
+
+    navigate('/dashboard');
+  } catch (err: any) {
+    console.error('Error inesperado en login:', err);
+
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error inesperado',
+      text: 'Ocurrió un problema de conexión. Intenta de nuevo.',
+      confirmButtonColor: '#e3342f',
+    });
+  }
+};
+
 
   return (
     <div
@@ -216,12 +245,7 @@ export default function Login() {
           {error && <p className="text-red-500 text-center">{error}</p>}
 
           <div>
-            {/* <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Iniciar sesión
-            </button> */}
+
             <button
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -229,26 +253,8 @@ export default function Login() {
               Iniciar sesión
             </button>
 
-            {/* <button 
-              onClick={handleBack} 
-              className="w-full mt-2 px-4 py-2 bg-gray-500 text-black font-semibold rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Cancelar
-            </button> */}
-          </div>
 
-          {/* <div className="text-center text-sm text-white">
-            <a href="/forgot-password" className="font-medium text-blue-300 hover:text-blue-400">
-              ¿Olvidaste tu contraseña?
-            </a>
           </div>
-          <div className="text-center text-sm text-black">
-            <span className="text-gray-300">¿No tienes una cuenta?</span>
-            {' '}
-            <a href="/register" className="font-medium text-blue-300 hover:text-blue-400">
-              Regístrate aquí
-            </a>
-          </div> */}
           <div className="text-center text-sm text-white drop-shadow-sm">
             <a href="/forgot-password" className="font-medium text-white hover:text-blue-400">
               ¿Olvidaste tu contraseña?
